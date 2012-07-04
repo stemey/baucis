@@ -95,3 +95,6 @@ express.HTTPSServer.prototype.rest = function (model) {
     this.put(plural,  middleware, multiPut(model));
     this.del(plural,  middleware, multiPut(model));
 };
+
+// TODO could also modify mongoose.Schema with
+//    prototype.metadata() to get and metadata({}) to set?
