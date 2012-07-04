@@ -11,7 +11,8 @@
   },
   "license": "BSD",
   "description": "express-mongoose-rest =====================",
-  "dependencies": {
-    "mongoose": "~2.7.1"
+  "devDependencies": {
+    "mongoose": "~2.7.1",
+    "express": "~2.5.11"
   }
 }

@@ -1,11 +1,14 @@
-var express = require('express');
+var express  = require('express');
+var mongoose = require('mongoose');
 
 var rest = {};
 
 var get = function(model) {
     var r = function(request, response, next) {
+	console.log(model);
+
 	var id    = request.params.id;
-	var query = model.model.findOne({ _id: id });
+	var query = mongoose.models[model.modelName].findOne({ _id: id });
 
 	query.run( function (err, o) {
 	    if (err) return next(err);
@@ -48,7 +51,7 @@ var del = function (model) {
 var multiGet = function (model) {
     // TODO take range params, etc.
     var r = function (request, response, next) {
-	model.model.find().run( function(err, os) {
+	mongoose.models[model.modelName].find().run( function(err, os) {
 	    if (err) next(err);
 	    response.json(os);
 	});
@@ -57,8 +60,8 @@ var multiGet = function (model) {
     return r;
 };
 
-express.HTTPServer.prototype.create =
-express.HTTPSServer.prototype.create = function (model) {
+express.HTTPServer.prototype.rest =
+express.HTTPSServer.prototype.rest = function (model) {
     // TODO define meta-config for models, especially for setting up next() calls for 
     // permissions, etc.
 
