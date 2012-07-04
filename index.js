@@ -2,8 +2,10 @@ var express  = require('express');
 var mongoose = require('mongoose');
 
 var rest = {};
+var BASE_URI = '/api/';
 
 var get = function(model) {
+    // return the spcefied resource
     var r = function(request, response, next) {
 	console.log(model);
 
@@ -19,18 +21,12 @@ var get = function(model) {
     return r;
 };
 
-var post = function (model) {
-    var r = function(request, response, next) {
-	var o = new model.schema(request.payload); // TODO or something
-	model.save(o, function (err) {
-	    if (err) next (err);
-	});
-    };
-
-    return r;
+var post = function(model) {
+    // treat the given resource as a collection, and push the given object to it
 };
 
 var put = function (model) { 
+    // replace given object, or create it if nonexistant
     var r = function(request, response, next) {
 	var id = request.params.id;
 	// update
@@ -40,6 +36,7 @@ var put = function (model) {
 };
 
 var del = function (model) {
+    // delete the addressed object
     var r = function (request, response, next) {
 	var id = request.params.id;
 	// delete
@@ -60,28 +57,43 @@ var multiGet = function (model) {
     return r;
 };
 
+var multiPost = function (model) {
+    // create a new object
+    // return it's ID or whole object
+    var r = function(request, response, next) {
+	var o = new model.schema(request.payload); // TODO or something
+	model.save(o, function (err) {
+	    if (err) next (err);
+	});
+    };
+
+    return r;
+};
+
+var multiPut = function (model) {
+    // replace entire collection with given new collection
+};
+
+var multiDel = function (model) {
+    // delete entire collection  
+};
+
 express.HTTPServer.prototype.rest =
 express.HTTPSServer.prototype.rest = function (model) {
-    // TODO define meta-config for models, especially for setting up next() calls for 
-    // permissions, etc.
-
     var middleware = []; // TODO
 
     console.log(model);
-    // TODO
-    // var singular = model.name;
-    // var plural = model.plural || model.name + 's';
 
-    var singular = '/api/' + model.collectionName; // tODO
+    var singular = BASE_URI + model.collectionName; // tODO model.singular
+    var plural   = BASE_URI + (model.plural || model.name + 's'); // TODO
 
-    this.get(singular + '/:id', middleware, get(model)); // read
-    this.post(singular,         middleware, post(model)); // create
-    this.put(singular + '/:id', middleware, put(model)); // update
-    this.del(singular + '/:id', middleware, del(model)); // destroy
+    this.get(singular + '/:id', middleware, get(model));
+    this.post(singular,         middleware, post(model));
+    this.put(singular + '/:id', middleware, put(model));
+    this.del(singular + '/:id', middleware, del(model));
 
-//    app.get(singular, multiGet(model));
-//    app.get(plural, multiGet(model)); // TODO support queries
-    // app.del(plural, delMulti(model)); // TODO maybe...
-    // TODO security
-    // TODO base URL e.g. /api/post/15
+    this.get(plural,  middleware, multiGet(model));
+    this.post(plural, middleware, multiPost(model));
+    this.put(plural,  middleware, multiPut(model));
+    this.del(plural,  middleware, multiPut(model));
 };
