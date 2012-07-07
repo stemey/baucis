@@ -2,7 +2,7 @@ var express  = require('express');
 var mongoose = require('mongoose');
 
 var rest = {};
-var BASE_URI = '/api/';
+var BASE_URI = '/api/'; // TODO config
 
 var model = function(schema) {
     return mongoose.models[schema.statics.metadata.singular];
