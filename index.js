@@ -5,7 +5,7 @@ var rest = {};
 var BASE_URI = '/api/'; // TODO config
 
 var model = function(schema) {
-    return mongoose.models[schema.statics.metadata.singular];
+    return mongoose.models[schema.metadata.singular];
 };
 
 var get = function(schema) {
@@ -23,12 +23,16 @@ var get = function(schema) {
 
 var post = function(schema) {
     // treat the given resource as a collection, and push the given object to it
+    var r = function (request, response, next) {
+	// TODO should check if certain metadata is set and perform accordingly
+	response.send(405); // method not allowed (as of yet unimplemented)	
+    };
 };
 
 var put = function (schema) { 
     // replace given object, or create it if nonexistant
     var r = function(request, response, next) {
-	var id = request.params.id || null; // TODO test this
+	var id = request.params.id || null;
 	var o = new schema(request.payload); // TODO
 	o.save();
     };
@@ -97,23 +101,49 @@ var multiDel = function (schema) {
     });
 };
 
-express.HTTPServer.prototype.rest =
-express.HTTPSServer.prototype.rest = function (schema) {
-    var metadata   = schema.statics.metadata;
-    var middleware = metadata.middleware || []; // TODO
-    var singular   = BASE_URI + metadata.singular;
-    var plural     = BASE_URI + (metadata.plural || schema.singular + 's');
+var addRoutes = function (schema) {
 
-    this.get(singular + '/:id', middleware, get(schema));
-    this.post(singular,         middleware, post(schema));
-    this.put(singular + '/:id', middleware, put(schema));
-    this.del(singular + '/:id', middleware, del(schema));
-
-    this.get(plural,  middleware, multiGet(schema));
-    this.post(plural, middleware, multiPost(schema));
-    this.put(plural,  middleware, multiPut(schema));
-    this.del(plural,  middleware, multiPut(schema));
 };
 
-// TODO could also modify mongoose.Schema with
-//    prototype.metadata() to get and metadata({}) to set?
+express.HTTPServer.prototype.rest =
+express.HTTPSServer.prototype.rest = function (scheme) {
+    var schema;
+
+    if (scheme === 'Array') {
+	schema = scheme;
+    }
+    else if (scheme === 'Object') {
+	schema = [];
+	for (key in scheme) {
+	    if (!scheme.hasOwnProperty(key)) continue;
+	    schema.push(scheme[key]);
+	}
+    }
+    else {
+	schema = [scheme];
+    }
+
+    var that = this; // TODO
+
+    schema.forEach( function (scheme) { // TODO name reuse :(
+	var metadata   = scheme.metadata;
+	var middleware = metadata.middleware || []; // TODO
+	var singular   = BASE_URI + metadata.singular;
+	var plural     = BASE_URI + (metadata.plural || metadata.singular + 's');
+	
+	that.get(singular + '/:id', middleware, get(scheme));
+	that.post(singular,         middleware, post(scheme));
+	that.put(singular + '/:id', middleware, put(scheme));
+	that.del(singular + '/:id', middleware, del(scheme));
+	
+	that.get(plural,  middleware, multiGet(scheme));
+	that.post(plural, middleware, multiPost(scheme));
+	that.put(plural,  middleware, multiPut(scheme));
+	that.del(plural,  middleware, multiPut(scheme));
+    });
+};
+		    
+mongoose.Schema.prototype.metadata = function (data) {
+    this.metadata = data;
+};
+		    

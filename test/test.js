@@ -1,21 +1,46 @@
 var mocha    = require('mocha');
-var expect   = require('expect');
+var expect   = require('expect.js');
 var mongoose = require('mongoose');
 var http     = require('http');
+var express  = require('express');
 var baucis   = require('..');
 
 var Schema = mongoose.Schema;
 
-// TODO connect to a DB
+mongoose.connect('mongodb://localhost/xXxBaUcIsTeStXxX'); // TODO probably check don't overwrite it ....
 
 var Vegetable = new Schema({
-    // TODO
-}, schemaOptions);
+    name: String
+},
+{
+    safe: true,
+    strict: true
+});
 
-// TODO make array of vegetable docs
-var vegetables = [];
+Vegetable.metadata({
+    singular: 'vegetable',
+    plural: 'vegetable'
+});
 
-// ---
+mongoose.model(Vegetable.metadata.singular, Vegetable, Vegetable.metadata.plural);
+var app = express.createServer();
+app.rest(Vegetable);
+app.use(express.errorHandler()); 
+app.listen(8012);
+
+
+var vegetables = (function () {
+    var names = ['Turnip', 'Spinach', 'Pea'];
+    var model = mongoose.models['vegetable'];
+
+    return names.map( function (name) {
+	var doc = new model({ name: name });
+	doc.save();
+	return doc;
+    });
+})();
+
+// ---------------------------------
 
 var request = function (method, path, data, callback) {
     if (callback === undefined) {
@@ -24,19 +49,22 @@ var request = function (method, path, data, callback) {
     }
 
     var options = {
-	hostname: 'localhost',
+	hostname: '127.0.0.1',
 	method: method,
-	path: path
+	path: path,
+	port: 8012
     };
     
     var request = http.request(options, function (response) {
 	var responseData;
 
+	response.setEncoding('utf8');
+
 	response.on('error', function (err) {
-	    throw err;
+	    callback(err);
 	});
 	response.on('data', function (chunk) {
-	    // TODO chucnk or buffer or something
+	    responseData += chunk;
 	});
 	response.on('end', function () {
 	    callback(null, responseData);
@@ -48,20 +76,21 @@ var request = function (method, path, data, callback) {
 };
 
 describe('REST web services', function () {
+    // TODO knowck down / build up
     describe('GET singular', function () {
 	it('should get the addressed document', function(done){
 	    request('GET', '/api/vegetable/0', function (err, doc) {
-		expect(err).to.be.empty();
-		expect(doc).to.equal(vegetables[0]); 
+		expect(err).to.be(null);
+		expect(doc).to.be(vegetables[0]); 
 		done();
 	    });
 	});
 
 	it('should return a good error', function (done) {
 	    var options = httpOptions('GET', '/api/vegetable/6');
-	    http.request(options, function (err, doc) {
-		expect(err).to.be.('TODO');
-		expect(doc).to.be.empty();
+	    request('GET', '/api/vegetable/6', function (err, doc) {
+		expect(err).to.be(404);
+		expect(doc).to.be(undefined);
 		done();
 	    }); 
 	});
@@ -82,18 +111,18 @@ describe('REST web services', function () {
 
 	    // first, check it's not the leek
 	    request('GET', '/api/vegetable/7', function (err, doc) {
-		expect(err).to.be.empty();
-		expect(doc).to.equal('Radicchio');
+		expect(err).to.be(undefined);
+		expect(doc).to.be('Radicchio');
 
 		// put the leek on the server
 		request('PUT', '/api/vegetable/7', data, function () {
-		    expect(err).to.be.empty();
-// TODO return id? //		    expect(id).to.equal(7);
+		    expect(err).to.be(undefined);
+// TODO return id? //		    expect(id).to.be(7);
 
 		    // check it's not Radicchio
 		    request('GET', '/api/vegetable/7', function (err, doc) {
-			expect(err).to.be.empty();
-			expect(doc).to.equal('Leek');
+			expect(err).to.be(undefined);
+			expect(doc).to.be('Leek');
 			done();
 		    });
 		});
@@ -108,16 +137,16 @@ describe('REST web services', function () {
 	    // first check it's not there
 	    request('GET', '/api/vegetable/8', function (err, doc) {
 		expect(err).to.be('404');
-		expect(doc).to.be.empty();
+		expect(doc).to.be(undefined);
 
 		// put it on server
 		request('PUT', '/api/vegetable/8', data, function () {
-		    expect(err).to.be.empty();
+		    expect(err).to.be(undefined);
 
 		    // check it's there
 		    request('GET', '/api/vegetable/8', function (err, doc) {
-			expect(err).to.be.empty();
-			expect(doc).to.be.(data);
+			expect(err).to.be(undefined);
+			expect(doc).to.be(data);
 			done();
 		    });
 		});
@@ -131,15 +160,15 @@ describe('REST web services', function () {
 	    		    
 	    // make sure it's there
 	    request('GET', '/api/vegetable/8', function (err, doc) {
-		expect(err).to.be.empty();
-		expect(doc).to.be.empty('Shitake');
+		expect(err).to.be(undefined);
+		expect(doc).to.be('Shitake');
 		
 		request('DEL', '/api/vegetable/8', function (err, doc) {
 		    // TODO check status, etc.
 
 		    request('GET', '/api/vegetable/8', function (err, doc) {
 			expect(err).to.be('404');
-			expect(doc).to.be(null);
+			expect(doc).to.be(undefined);
 			done();
 		    });
 		});
@@ -151,22 +180,23 @@ describe('REST web services', function () {
     describe('GET plural', function () {
 	it("should return 'em all", function () {
 	    request('GET', '/api/vegetables/', function (err, docs) {
-		expect(err).to.be.empty();
-		expect(docs).to.equal(vegetables);
+		expect(err).to.be(undefined);
+		expect(docs).to.be(vegetables);
 		done();
 	    });
 	});
     });
 
     describe('POST plural', function () {
-	it('should create a new object and return its ID', function ()
+	it('should create a new object and return its ID', function () {
+	       
 	   var data = {
 	       name: 'Turnip'
 	   };
 
 	   request('POST', '/api/vegetables/', data, function (err, id) {
-	       expect(err).to.be.empty();
-	       expect(id).to.equal('9');
+	       expect(err).to.be(undefined);
+	       expect(id).to.be(9);
 	       done();
 	   });
 	});
@@ -179,8 +209,8 @@ describe('REST web services', function () {
 
 	    // TODO should first check current state is expected
 	    request('PUT', '/api/vegetables/', data, function () {
-		expect(err).to.be.empty();
-		expect(docs).to.equal(newVegetables);
+		expect(err).to.be(undefined);
+		expect(docs).to.be(newVegetables);
 		done();
 	    });
 	});
@@ -190,8 +220,8 @@ describe('REST web services', function () {
 	it('should delete all documents in addressed collection', function () {
 	    // TODO check all are there first
 	    request('DEL', '/api/vegetables/', function (err, docs) {
-		expect(err).to.be.empty();
-		expect(docs).to.equal( [] );
+		expect(err).to.be(undefined);
+		expect(docs).to.be.empty();
 		done();
 	    });
 	});
