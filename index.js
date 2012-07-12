@@ -13,7 +13,8 @@ var get = function(schema) {
     var r = function(request, response, next) {
 	var id = request.params.id;
 	model(schema).findById(id).run( function (err, doc) {
-	    if (err) return next(err);
+	    if (err) return done(err); // TODO if id is not valid ObjectID then what? 500 is OK?
+	    if (doc === null) return response.send(404);
 	    response.json(doc); // TODO return?
 	});
     };
@@ -25,16 +26,21 @@ var post = function(schema) {
     // treat the given resource as a collection, and push the given object to it
     var r = function (request, response, next) {
 	// TODO should check if certain metadata is set and perform accordingly
-	response.send(405); // method not allowed (as of yet unimplemented)	
+	response.send(405); // method not allowed (as of yet unimplemented)	 ???
     };
+
+    return r;
 };
 
 var put = function (schema) { 
     // replace given object, or create it if nonexistant
     var r = function(request, response, next) {
-	var id = request.params.id || null;
-	var o = new schema(request.payload); // TODO
-	o.save();
+	var id  = request.params.id || null;
+
+	model(schema).update({_id: id}, request.body, {upsert: true}, function (err, doc) {
+	    if (err) return next(err);
+	    response.send(200);
+	});
     };
     
     return r;
@@ -44,10 +50,9 @@ var del = function (schema) {
     // delete the addressed object
     var r = function (request, response, next) {
 	var id = request.params.id;
-	model(schema).remove({ _id: id }, function (err, foo) {
+	model(schema).remove({ _id: id }).run( function (err, foo) {
 	    if (err) return next(err);
-	    console.log(foo);
-	    response.json(true);
+	    response.send(200); // TODO return num deleted?
 	});
     };
     
@@ -57,10 +62,10 @@ var del = function (schema) {
 var multiGet = function (schema) {
     // TODO take range params, etc.
     var r = function (request, response, next) {
-	var query = request.query || {}; // TODO validate?
-	model(schema).find(query).run( function(err, os) {
-	    if (err) next(err);
-	    response.json(os); // TODO return?
+	var query = {};//request.query || {}; // TODO validate? // get from JSON or queryStr
+	model(schema).find(query, function(err, docs) {
+	    if (err) return next(err);
+	    response.json(docs); // TODO return?
 	});
     };
 
@@ -68,13 +73,12 @@ var multiGet = function (schema) {
 };
 
 var multiPost = function (schema) {
-    // create a new object
-    // return it's ID
+    // create a new object and return its ID
     var r = function(request, response, next) {
-	var o = new schema(request.payload); // TODO or something
-	o.save(function (err, o) {
-	    if (err) next (err);
-	    response.json(o._id);
+	var o = new (model(schema))(request.body);
+	o.save(function (err, doc) {
+	    if (err) return next(err); // TODO catch dupe ID here and -> status code?
+	    response.json(doc._id);
 	});
     };
 
@@ -82,27 +86,42 @@ var multiPost = function (schema) {
 };
 
 var multiPut = function (schema) {
-    // replace entire collection with given new collection
-    model(schema).remove({}, function (err, foo) {
-	if (err) return next(err);
-	console.log(foo);
-	// TODO return ?
+    // replace entire collection with given new collection and return IDs
+    var r = function(request, response, next) {
+	model(schema).remove({}, function (err, foo) {
+	    if (err) return next(err);
+	    
+	    // TODO make sure is array (or marshal) and respond accordingly
+	    var docs = request.body
+	    var ids = [];
+	    var numSaved = 0;
 
-	// TODO add passed in docs
-    });
+	    docs.forEach( function (data, i) { // TODO use some async lib here
+		var doc = new (model(schema))(data);
+
+		doc.save( function (err, doc) {
+		    if (err) return next(err);
+		    ids[i] = doc._id;
+		    numSaved++;
+		    if(numSaved === docs.length) response.json(ids);
+		});
+	    });
+	});
+    };
+
+    return r;
 };
 
 var multiDel = function (schema) {
     // delete entire collection  
-    model(schema).remove({}, function (err, foo) {
-	if (err) return next(err);
-	console.log(foo);
-	// TODO return ?
-    });
-};
+    var r = function(request, response, next) {
+	model(schema).remove({}, function (err, count) {
+	    if (err) return next(err);
+	    response.json(count);
+	});
+    };
 
-var addRoutes = function (schema) {
-
+    return r;
 };
 
 express.HTTPServer.prototype.rest =
@@ -139,7 +158,7 @@ express.HTTPSServer.prototype.rest = function (scheme) {
 	that.get(plural,  middleware, multiGet(scheme));
 	that.post(plural, middleware, multiPost(scheme));
 	that.put(plural,  middleware, multiPut(scheme));
-	that.del(plural,  middleware, multiPut(scheme));
+	that.del(plural,  middleware, multiDel(scheme));
     });
 };
 		    
