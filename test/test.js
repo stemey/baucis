@@ -7,7 +7,7 @@ var baucis   = require('..');
 
 var Schema = mongoose.Schema;
 
-mongoose.connect('mongodb://localhost/xXxBaUcIsTeStXxX'); // TODO probably check don't overwrite it ....
+mongoose.connect('mongodb://localhost/xXxBaUcIsTeStXxX'); // TODO probably check don't overwrite it ? ....
 
 var Vegetable = new Schema({
     name: String
@@ -23,11 +23,11 @@ Vegetable.metadata({
 });
 
 mongoose.model(Vegetable.metadata.singular, Vegetable, Vegetable.metadata.plural);
+
 var app = express.createServer();
 app.rest(Vegetable);
-app.use(express.errorHandler()); 
+//app.use(express.errorHandler()); 
 app.listen(8012);
-
 
 var vegetables = (function () {
     var names = ['Turnip', 'Spinach', 'Pea'];
@@ -64,6 +64,7 @@ var request = function (method, path, data, callback) {
 	    callback(err);
 	});
 	response.on('data', function (chunk) {
+	    console.log('chunk: ' + chunk);
 	    responseData += chunk;
 	});
 	response.on('end', function () {
@@ -79,7 +80,8 @@ describe('REST web services', function () {
     // TODO knowck down / build up
     describe('GET singular', function () {
 	it('should get the addressed document', function(done){
-	    request('GET', '/api/vegetable/0', function (err, doc) {
+	    var turnip = vegetables[0]; // TODO convert to hash
+	    request('GET', '/api/vegetable/' + turnip._id, function (err, doc) {
 		expect(err).to.be(null);
 		expect(doc).to.be(vegetables[0]); 
 		done();

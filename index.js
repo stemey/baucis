@@ -14,7 +14,7 @@ var get = function(schema) {
 	var id = request.params.id;
 	model(schema).findById(id).run( function (err, doc) {
 	    if (err) return next(err);
-	    response.json(o); // TODO return?
+	    response.json(doc); // TODO return?
 	});
     };
 
