@@ -65,7 +65,7 @@ var multiGet = function (schema) {
     var query = request.query || {}; // TODO validate? // get from JSON or queryStr
     model(schema).find(query, function(err, docs) {
       if (err) return next(err);
-      response.json(docs); // TODO return?
+      response.json(docs);
     });
   };
 
@@ -143,9 +143,9 @@ express.HTTPSServer.prototype.rest = function (schemata) {
 
   var that = this;
   
-  schemata.forEach( function (schema) { // TODO name reuse :(
+  schemata.forEach( function (schema) {
     var metadata   = schema.metadata;
-    var middleware = metadata.middleware || []; // TODO
+    var middleware = metadata.middleware || [];
     var singular   = BASE_URI + metadata.singular;
     var plural     = BASE_URI + (metadata.plural || metadata.singular + 's');
     
