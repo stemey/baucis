@@ -3,14 +3,14 @@
   "version": "0.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --globals vegetables"
   },
   "repository": {
     "type": "git",
     "url": "git://github.com/murmux/baucis.git"
   },
-  "license": "BSD",
-  "description": "express-mongoose-rest =====================",
+  "license": "GPLv3",
+  "description": "Module for automatically creating REST interfaces for mongoose schemata",
   "devDependencies": {
     "mongoose": "~2.7.1",
     "express": "~2.5.11"
