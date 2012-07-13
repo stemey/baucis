@@ -28,15 +28,28 @@ Like Baucis and Philemon of old, this library provides REST to the weary travele
 
 Later make requests:
 
- * GET /vegetable/:id &mdash get the addressed document
+ * GET /vegetable/:id &mdash; get the addressed document
  * POST /vegetable/:id &mdash; currently unimplemented (in the future will push the data into a field specified for the addressed object)
  * PUT /vegetable/:id &mdash; create or update the given document
- * DEL /vegetable/:id &mdash delete the addressed object
+ * DEL /vegetable/:id &mdash; delete the addressed object
 
  * GET /vegetables/ &mdash get all documents (in the future will accept query args to pass to the mongo server)
- * POST /vegetables/ &mdash creates a new object and send back its ID  
- * PUT /vegetables/ &mdash replace all documents with given new documents
- * DEL /vegetables/ &mdash delete all documents (also will accept query args in future)
+ * POST /vegetables/ &mdash; creates a new object and send back its ID  
+ * PUT /vegetables/ &mdash; replace all documents with given new documents
+ * DEL /vegetables/ &mdash; delete all documents (also will accept query args in future)
+
+    $.getJSON('/vegetable/4f4028e6e5139bf4e472cca1', function (data) {
+      console.log(data);
+    });
+
+    $.ajax({
+      type: 'POST',
+      dataType: 'json'
+      url: '/vegetables/',
+      data: { name: 'Potato' {
+    }).done(function( id ) {
+      console.log(id);
+    });
 
 app.rest will accept arrays, hashes, or single Schema objects.  An example with require-index:
 
