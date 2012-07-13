@@ -29,14 +29,22 @@ app.rest will accept arrays, hashes, or single Schema objects.  An example with 
     var schemata = requireindex('./schemata');
     app.rest(schemata);
 
-Use middleware for security, etc.
+Use middleware for security, etc.  Middleware is plain old Connect middleware, so it can be used with pre-existing modules like passport.
 
-    TODO middleware/security code example
+    Vegetable.metadata({
+      singular: 'vegetable',
+      plural: 'vegetables',
+      middleware: function(request, response, next) { // plain old Connect middleware!
+	if (request.isAuthenticated()) return next();
+	else return response.send(401);
+      }
+    });
 
-Still to do:
+Contact Info
 
-TODO list TODOs
+ * http://william.nodejitsu.com/
+ * @wprl
 
-Hello!
-
-TODO contact
+&copy; 2012 William P. Riley-Land
+Licensed under the GPL v3  
+Please fork and create issues!
