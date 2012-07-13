@@ -1,7 +1,7 @@
 var requireindex = require('requireindex');
-var expect = require('expect.js');
+var expect       = require('expect.js');
+var request      = require('request');
 
-var request  = require('./lib/request');
 var fixtures = requireindex('./test/fixtures');
 
 describe('POST singular', function () {

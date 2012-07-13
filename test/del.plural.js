@@ -1,7 +1,7 @@
 var requireindex = require('requireindex');
-var expect = require('expect.js');
+var expect       = require('expect.js');
+var request      = require('request');
 
-var request  = require('./lib/request');
 var fixtures = requireindex('./test/fixtures');
 
 describe('DEL plural', function () {
@@ -9,12 +9,14 @@ describe('DEL plural', function () {
   beforeEach(fixtures.vegetable.create);
 
   it('should delete all documents in addressed collection', function (done) {
-    request('DELETE', '/api/vegetables/', function (err, r) {
+    var options = {
+      url: 'http://localhost:8012/api/vegetables/',
+      json: true
+    };
+    request.del(options, function (err, response, body) {
       if (err) return done(err);
-      
-      var count = JSON.parse(r.body);
-      expect(r.response.statusCode).to.be(200);
-      expect(count).to.be(8);
+      expect(response).to.have.property('statusCode', 200);
+      expect(body).to.be(8); // deleted count
       done();
     });
   });

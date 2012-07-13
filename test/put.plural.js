@@ -1,7 +1,7 @@
 var requireindex = require('requireindex');
-var expect = require('expect.js');
+var expect       = require('expect.js');
+var request      = require('request');
 
-var request  = require('./lib/request');
 var fixtures = requireindex('./test/fixtures');
   
 describe('PUT plural', function () {
@@ -18,14 +18,14 @@ describe('PUT plural', function () {
     var mustard = {
       name: 'Mustard'
     };
-    var newVegetables = [ poke, collards, mustard ];
-    
-    request('PUT', '/api/vegetables/', newVegetables, function (err, r) {
+    var options = {
+      url: 'http://localhost:8012/api/vegetables/',
+      json: [ poke, collards, mustard ]
+    };
+    request.put(options, function (err, response, body) {
       if (err) return done(err);
-      
-      var ids = JSON.parse(r.body);
-      expect(r.response.statusCode).to.be(200);
-      expect(ids).to.have.property('length', 3); // TODO more?
+      expect(response).to.have.property('statusCode', 200);
+      expect(ids).to.have.property('length', 3); // TODO more...
       done();
     });
   });

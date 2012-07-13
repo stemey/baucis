@@ -1,7 +1,7 @@
 var requireindex = require('requireindex');
-var expect = require('expect.js');
+var expect       = require('expect.js');
+var request      = require('request');
 
-var request  = require('./lib/request');
 var fixtures = requireindex('./test/fixtures');
   
 describe('POST plural', function () {
@@ -9,25 +9,21 @@ describe('POST plural', function () {
   beforeEach(fixtures.vegetable.create);
 
   it('should create a new object and return its ID', function (done) {
-      
-    var data = {
-      name: 'Turnip'
+    var options = {
+      url: 'http://localhost:8012/api/vegetables/',
+      json: {
+	name: 'Tomato'
+      }
     };
-    
-    request('POST', '/api/vegetables/', data, function (err, r) {
+    request.post(options, function (err, response, body) {
       if (err) return done(err);
-      
-      var id = JSON.parse(r.body);
-      expect(id).to.not.be.empty();
-      
-      request('GET', '/api/vegetable/' + id, function (err, r) {
+      expect(response).to.have.property('statusCode', 200);
+      expect(id).not.to.be.empty(); // TODO check it's an ObjectID
+
+      request.get(options, function (err, response, body) {
 	if (err) return done(err);
-	
-	expect(r.response.statusCode).to.be(200);
-	
-	var doc = JSON.parse(r.body);
-	expect(doc).to.have.property('name', 'Turnip');
-	
+	expect(response).to.have.property('statusCode', 200);	
+	expect(body).to.have.property('name', 'Tomato');
 	done();
       });
     });
