@@ -34,7 +34,7 @@ Use middleware for security, etc.  Middleware is plain old Connect middleware, s
     Vegetable.metadata({
       singular: 'vegetable',
       plural: 'vegetables',
-      middleware: function(request, response, next) { // plain old Connect middleware!
+      middleware: function(request, response, next) {
 	if (request.isAuthenticated()) return next();
 	else return response.send(401);
       }
