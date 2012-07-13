@@ -12,7 +12,7 @@ var get = function(schema) {
   var r = function(request, response, next) {
     var id = request.params.id;
     model(schema).findById(id).run(function (err, doc) {
-      if (err) return done(err);
+      if (err) return response.send(500); // TODO ?
       if (doc === null) return response.send(404);
       response.json(doc);
     });

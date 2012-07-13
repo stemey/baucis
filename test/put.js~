@@ -1,0 +1,32 @@
+  describe('PUT singular', function () {
+    it("should replace the addressed object if it exists", function (done) {
+      var data = {
+	name: 'Leek'
+      };
+      
+      var radicchio = vegetables[7];
+      
+      // first, check it's not the leek
+      request('GET', '/api/vegetable/' + radicchio._id, function (err, r) {
+	if (err) return done(err);
+	
+	var doc = JSON.parse(r.body);
+	
+	expect(r.response.statusCode).to.be(200);
+	expect(doc).to.have.property('name', 'Radicchio');
+	
+	// put the leek on the server
+	request('PUT', '/api/vegetable/' + radicchio._id, data, function (err, r) {
+	  if (err) return done(err);
+	  
+	  // check it's not Radicchio
+	  request('GET', '/api/vegetable/' + radicchio._id, function (err, r) {
+	    if (err) return done(err);
+	    
+	    var doc = JSON.parse(r.body);
+	    expect(doc).to.have.property('name', 'Leek');
+	    done();
+	  });
+	});
+      });
+    });
