@@ -1,7 +1,6 @@
 var express  = require('express');
 var mongoose = require('mongoose');
 
-var rest = {};
 var BASE_URI = '/api/'; // TODO config
 
 var model = function(schema) {
@@ -39,7 +38,7 @@ var put = function (schema) {
     
     model(schema).update({_id: id}, request.body, {upsert: true}, function (err, doc) {
       if (err) return next(err);
-	    response.send(200);
+      response.send(200);
     });
   };
   
@@ -59,7 +58,7 @@ var del = function (schema) {
   return r;
 };
 
-var multiGet = function (schema) {
+var pluralGet = function (schema) {
   // TODO take range params, etc.
   var r = function (request, response, next) {
     var query = request.query || {}; // TODO validate? // get from JSON or queryStr
@@ -72,7 +71,7 @@ var multiGet = function (schema) {
   return r;
 };
 
-var multiPost = function (schema) {
+var pluralPost = function (schema) {
   // create a new object and return its ID
   var r = function(request, response, next) {
     var o = new (model(schema))(request.body);
@@ -85,7 +84,7 @@ var multiPost = function (schema) {
   return r;
 };
 
-var multiPut = function (schema) {
+var pluralPut = function (schema) {
   // replace entire collection with given new collection and return IDs
   var r = function(request, response, next) {
     model(schema).remove({}, function (err, foo) {
@@ -112,7 +111,7 @@ var multiPut = function (schema) {
   return r;
 };
 
-var multiDel = function (schema) {
+var pluralDel = function (schema) {
   // delete entire collection  
   var r = function(request, response, next) {
     model(schema).remove({}, function (err, count) {
@@ -159,10 +158,10 @@ express.HTTPSServer.prototype.rest = function (schemata) {
     that.put(singular + '/:id', middleware, put(schema));
     that.del(singular + '/:id', middleware, del(schema));
     
-    that.get(plural,  middleware, multiGet(schema));
-    that.post(plural, middleware, multiPost(schema));
-    that.put(plural,  middleware, multiPut(schema));
-    that.del(plural,  middleware, multiDel(schema));
+    that.get(plural,  middleware, pluralGet(schema));
+    that.post(plural, middleware, pluralPost(schema));
+    that.put(plural,  middleware, pluralPut(schema));
+    that.del(plural,  middleware, pluralDel(schema));
   });
 };
 		    
