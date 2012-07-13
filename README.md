@@ -38,6 +38,7 @@ Later make requests:
  * PUT /vegetables/ &mdash; replace all documents with given new documents
  * DEL /vegetables/ &mdash; delete all documents (also will accept query args in future)
 
+Exampels with jQuery:
 
     $.getJSON('/vegetable/4f4028e6e5139bf4e472cca1', function (data) {
       console.log(data);
