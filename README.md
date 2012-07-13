@@ -48,7 +48,7 @@ Exampels with jQuery:
       type: 'POST',
       dataType: 'json',
       url: '/vegetables/',
-      data: { name: 'Potato' {
+      data: { name: 'Potato' }
     }).done(function( id ) {
       console.log(id);
     });
