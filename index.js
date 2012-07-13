@@ -149,6 +149,11 @@ express.HTTPSServer.prototype.rest = function (scheme) {
 	var middleware = metadata.middleware || []; // TODO
 	var singular   = BASE_URI + metadata.singular;
 	var plural     = BASE_URI + (metadata.plural || metadata.singular + 's');
+
+	// add if not already present
+	if (!model(scheme)) {
+	    mongoose.model(scheme.metadata.singular, scheme, scheme.metadata.plural);
+	}
 	
 	that.get(singular + '/:id', middleware, get(scheme));
 	that.post(singular,         middleware, post(scheme));
@@ -162,7 +167,7 @@ express.HTTPSServer.prototype.rest = function (scheme) {
     });
 };
 		    
-mongoose.Schema.prototype.metadata = function (data) {
+mongoose.Schema.prototype.metadata = function (data) { // TODO make this cool and test
     this.metadata = data;
 };
 		    
