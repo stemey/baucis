@@ -35,23 +35,23 @@ module.exports = {
   },
   create: function(done) {
     // clear all first
-    var vegetable = mongoose.models['vegetable'];
-    
-    vegetable.remove({}, function (err) {
-      if (err) return done(err)
+    mongoose.models['vegetable'].remove({}, function (err) {
+      if (err) return done(err);
       
-      var names = ['Turnip', 'Spinach', 'Pea', 'Shitake', '', '', '', 'Radicchio'];
-      vegetables = names.map( function (name) {
-	return new vegetable({ name: name });
+      var names = ['Turnip', 'Spinach', 'Pea', 
+		   'Shitake', 'Lima Bean', 
+		   'Carrot', 'Zucchini', 'Radicchio'];
+      vegetables = names.map( function (name) { // TODO leaking globals is lame...
+	return new mongoose.models['vegetable']({ name: name });
       });
       
       var numberToSave = names.length;
       
       vegetables.forEach( function (vege) {
 	vege.save( function (err) {
-	  if (err) return done(err);
 	  numberToSave--;
-	  if( numberToSave === 0 ) done();
+	  if (err)                return done(err);
+	  if (numberToSave === 0) return done();
 	});
       });
     });
