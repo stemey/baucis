@@ -38,18 +38,20 @@ Later make requests:
  * PUT /vegetables/ &mdash; replace all documents with given new documents
  * DEL /vegetables/ &mdash; delete all documents (also will accept query args in future)
 
+
     $.getJSON('/vegetable/4f4028e6e5139bf4e472cca1', function (data) {
       console.log(data);
     });
 
     $.ajax({
       type: 'POST',
-      dataType: 'json'
+      dataType: 'json',
       url: '/vegetables/',
       data: { name: 'Potato' {
     }).done(function( id ) {
       console.log(id);
     });
+
 
 app.rest will accept arrays, hashes, or single Schema objects.  An example with require-index:
 
