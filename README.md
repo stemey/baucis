@@ -35,8 +35,8 @@ Use middleware for security, etc.  Middleware is plain old Connect middleware, s
       singular: 'vegetable',
       plural: 'vegetables',
       middleware: function(request, response, next) {
-	if (request.isAuthenticated()) return next();
-	else return response.send(401);
+        if (request.isAuthenticated()) return next();
+        else return response.send(401);
       }
     });
 
