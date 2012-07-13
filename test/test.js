@@ -71,7 +71,7 @@ var request = function (method, path, data, callback) {
     });
   });
   
-  if (data !== undefined) request.write(JSON.stringify(data)); // TODO check if buffer or object or string
+  if (data !== undefined) request.write(JSON.stringify(data));
   request.end();
 };
 
@@ -100,7 +100,6 @@ describe('REST web services', function () {
     });
   });
   
-  // TODO knowck down / build up
   describe('GET singular', function () {
     it('should get the addressed document', function(done){
       var turnip = vegetables[0];
@@ -151,7 +150,6 @@ describe('REST web services', function () {
 	// put the leek on the server
 	request('PUT', '/api/vegetable/' + radicchio._id, data, function (err, r) {
 	  if (err) return done(err);
-	  // TODO return id? //		    expect(id).to.be(7);
 	  
 	  // check it's not Radicchio
 	  request('GET', '/api/vegetable/' + radicchio._id, function (err, r) {
@@ -286,7 +284,6 @@ describe('REST web services', function () {
       };
       var newVegetables = [ poke, collards, mustard ];
       
-      // TODO should first check current state is expected
       request('PUT', '/api/vegetables/', newVegetables, function (err, r) {
 	if (err) return done(err);
 	

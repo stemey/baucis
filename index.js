@@ -13,9 +13,9 @@ var get = function(schema) {
   var r = function(request, response, next) {
     var id = request.params.id;
     model(schema).findById(id).run(function (err, doc) {
-      if (err) return done(err); // TODO if id is not valid ObjectID then what? 500 is OK?
+      if (err) return done(err);
       if (doc === null) return response.send(404);
-      response.json(doc); // TODO return?
+      response.json(doc);
     });
   };
   
@@ -49,10 +49,10 @@ var put = function (schema) {
 var del = function (schema) {
   // delete the addressed object
   var r = function (request, response, next) {
-	var id = request.params.id;
-    model(schema).remove({ _id: id }).run( function (err, foo) {
+    var id = request.params.id;
+    model(schema).remove({ _id: id }).run( function (err, count) {
       if (err) return next(err);
-      response.send(200); // TODO return num deleted?
+      response.json(count);
     });
   };
     
@@ -62,7 +62,7 @@ var del = function (schema) {
 var multiGet = function (schema) {
   // TODO take range params, etc.
   var r = function (request, response, next) {
-    var query = {};//request.query || {}; // TODO validate? // get from JSON or queryStr
+    var query = request.query || {}; // TODO validate? // get from JSON or queryStr
     model(schema).find(query, function(err, docs) {
       if (err) return next(err);
       response.json(docs); // TODO return?
@@ -77,7 +77,7 @@ var multiPost = function (schema) {
   var r = function(request, response, next) {
     var o = new (model(schema))(request.body);
     o.save(function (err, doc) {
-      if (err) return next(err); // TODO catch dupe ID here and -> status code?
+      if (err) return next(err);
       response.json(doc._id);
     });
   };
@@ -125,45 +125,44 @@ var multiDel = function (schema) {
 };
 
 express.HTTPServer.prototype.rest =
-express.HTTPSServer.prototype.rest = function (scheme) {
-  var schema;
+express.HTTPSServer.prototype.rest = function (schemata) {
   
-  if (scheme === 'Array') {
-    schema = scheme;
-  }
-  else if (scheme === 'Object') {
-    schema = [];
-    for (key in scheme) {
-      if (!scheme.hasOwnProperty(key)) continue;
-      schema.push(scheme[key]);
+  var t;
+
+  if (schemata === 'Object') {
+    t = [];
+    for (key in schemata) {
+      if (!schemata.hasOwnProperty(key)) continue;
+      t.push(schemata[key]);
     }
+    schemata = t;
   }
-  else {
-    schema = [scheme];
+  else if (schemata !== 'Array') {
+    schemata = [schemata];
   }
 
-  var that = this; // TODO
+  var that = this;
   
-  schema.forEach( function (scheme) { // TODO name reuse :(
-    var metadata   = scheme.metadata;
+  schemata.forEach( function (schema) { // TODO name reuse :(
+    var metadata   = schema.metadata;
     var middleware = metadata.middleware || []; // TODO
     var singular   = BASE_URI + metadata.singular;
     var plural     = BASE_URI + (metadata.plural || metadata.singular + 's');
     
     // add if not already present
-    if (!model(scheme)) {
-      mongoose.model(scheme.metadata.singular, scheme, scheme.metadata.plural);
+    if (!model(schema)) {
+      mongoose.model(schema.metadata.singular, schema, schema.metadata.plural);
     }
     
-    that.get(singular + '/:id', middleware, get(scheme));
-    that.post(singular,         middleware, post(scheme));
-    that.put(singular + '/:id', middleware, put(scheme));
-    that.del(singular + '/:id', middleware, del(scheme));
+    that.get(singular + '/:id', middleware, get(schema));
+    that.post(singular,         middleware, post(schema));
+    that.put(singular + '/:id', middleware, put(schema));
+    that.del(singular + '/:id', middleware, del(schema));
     
-    that.get(plural,  middleware, multiGet(scheme));
-    that.post(plural, middleware, multiPost(scheme));
-    that.put(plural,  middleware, multiPut(scheme));
-    that.del(plural,  middleware, multiDel(scheme));
+    that.get(plural,  middleware, multiGet(schema));
+    that.post(plural, middleware, multiPost(schema));
+    that.put(plural,  middleware, multiPut(schema));
+    that.del(plural,  middleware, multiDel(schema));
   });
 };
 		    
