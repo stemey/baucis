@@ -33,12 +33,12 @@ Later make requests:
  * PUT /vegetable/:id &mdash; create or update the given document
  * DEL /vegetable/:id &mdash; delete the addressed object
 
- * GET /vegetables/ &mdash get all documents (in the future will accept query args to pass to the mongo server)
+ * GET /vegetables/ &mdash; get all documents (in the future will accept query args to pass to the mongo server)
  * POST /vegetables/ &mdash; creates a new object and send back its ID  
  * PUT /vegetables/ &mdash; replace all documents with given new documents
  * DEL /vegetables/ &mdash; delete all documents (also will accept query args in future)
 
-Exampels with jQuery:
+Examples with jQuery:
 
     $.getJSON('/vegetable/4f4028e6e5139bf4e472cca1', function (data) {
       console.log(data);
