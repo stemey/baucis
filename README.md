@@ -34,7 +34,7 @@ Later make requests:
  * DEL /vegetable/:id &mdash; delete the addressed object
 
  * GET /vegetables/ &mdash; get all documents (in the future will accept query args to pass to the mongo server)
- * POST /vegetables/ &mdash; creates a new object and send back its ID  
+ * POST /vegetables/ &mdash; creates a new object and sends back its ID  
  * PUT /vegetables/ &mdash; replace all documents with given new documents
  * DEL /vegetables/ &mdash; delete all documents (also will accept query args in future)
 
