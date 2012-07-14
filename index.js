@@ -4,7 +4,7 @@ var mongoose = require('mongoose');
 var BASE_URI = '/api/'; // TODO config
 
 var model = function(schema) {
-  return mongoose.models[schema.metadata.singular];
+  return mongoose.models[schema.metadata('singular')];
 };
 
 var get = function(schema) {
@@ -14,7 +14,7 @@ var get = function(schema) {
     model(schema).findById(id).run(function (err, doc) {
       if (err) return response.send(500); // TODO ?
       if (doc === null) return response.send(404);
-      response.json(doc);
+      return response.json(doc);
     });
   };
   
@@ -143,14 +143,13 @@ express.HTTPSServer.prototype.rest = function (schemata) {
   var that = this;
   
   schemata.forEach( function (schema) {
-    var metadata   = schema.metadata;
-    var middleware = metadata.middleware || [];
-    var singular   = BASE_URI + metadata.singular;
-    var plural     = BASE_URI + (metadata.plural || metadata.singular + 's');
+    var middleware = schema.metadata('middleware') || [];
+    var singular   = BASE_URI + schema.metadata('singular');
+    var plural     = BASE_URI + schema.metadata('plural');
     
     // add if not already present
     if (!model(schema)) {
-      mongoose.model(schema.metadata.singular, schema, schema.metadata.plural);
+      mongoose.model(schema.metadata('singular'), schema, schema.metadata('plural'));
     }
     
     that.get(singular + '/:id', middleware, get(schema));
@@ -165,7 +164,15 @@ express.HTTPSServer.prototype.rest = function (schemata) {
   });
 };
 		    
-mongoose.Schema.prototype.metadata = function (data) { // TODO make this cool and test
-  this.metadata = data;
+mongoose.Schema.prototype.metadata = function (data) {
+  if(!data)                             return this._metadata;
+  if(data && typeof(data) === 'string') return this._metadata[data];
+
+  if(data && typeof(data) === 'object') {
+    if (this._metadata) throw new Error('Metadata was already set'); // ecma5? TODO
+    return this._metadata = data;
+  }
+
+  throw new Error('Unrecognized use of metadata method');
 };
 		    

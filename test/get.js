@@ -7,6 +7,7 @@ var fixtures = requireindex('./test/fixtures');
 describe('GET singular', function () {
   before(fixtures.vegetable.init);
   beforeEach(fixtures.vegetable.create);
+  after(fixtures.vegetable.deinit);
 
   it('should get the addressed document', function(done){
     var turnip = vegetables[0];

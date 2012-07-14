@@ -59,7 +59,7 @@ app.rest will accept arrays, hashes, or single Schema objects.  An example with 
     var schemata = requireindex('./schemata');
     app.rest(schemata);
 
-Use middleware for security, etc.  Middleware is plain old Connect middleware, so it can be used with pre-existing modules like passport.
+Use middleware for security, etc.  Middleware is plain old Connect middleware, so it can be used with pre-existing modules like passport.  Set the middleware metadata to a function or array of functions.
 
     Vegetable.metadata({
       singular: 'vegetable',

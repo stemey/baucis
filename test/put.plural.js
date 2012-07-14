@@ -7,6 +7,7 @@ var fixtures = requireindex('./test/fixtures');
 describe('PUT plural', function () {
   before(fixtures.vegetable.init);
   beforeEach(fixtures.vegetable.create);
+  after(fixtures.vegetable.deinit);
 
   it('should replace entire collection with given new collection', function (done) {
     var poke = {
@@ -25,7 +26,7 @@ describe('PUT plural', function () {
     request.put(options, function (err, response, body) {
       if (err) return done(err);
       expect(response).to.have.property('statusCode', 200);
-      expect(ids).to.have.property('length', 3); // TODO more...
+      expect(body).to.have.property('length', 3); // TODO more...
       done();
     });
   });

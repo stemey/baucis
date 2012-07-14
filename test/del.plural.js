@@ -7,6 +7,7 @@ var fixtures = requireindex('./test/fixtures');
 describe('DEL plural', function () {
   before(fixtures.vegetable.init);
   beforeEach(fixtures.vegetable.create);
+  after(fixtures.vegetable.deinit);
 
   it('should delete all documents in addressed collection', function (done) {
     var options = {

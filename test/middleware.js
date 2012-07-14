@@ -10,7 +10,7 @@ var fixtures = requireindex('./test/fixtures');
 
 describe('Middleware', function () {
   before(function (done) { // TODO break these out into separate functions and get them to run sequentially (e.g. makeDb, make vege, make app, etc.)
-        var Schema = mongoose.Schema;
+    var Schema = mongoose.Schema;
 
     mongoose.connect('mongodb://localhost/xXxBaUcIsTeStXxX');
 
@@ -31,7 +31,7 @@ describe('Middleware', function () {
       }
     });
 
-    mongoose.model(Vegetable.metadata.singular, Vegetable, Vegetable.metadata.plural);
+    mongoose.model(Vegetable.metadata('singular'), Vegetable, Vegetable.metadata('plural'));
     
     var app = express.createServer();
     app.configure(function(){
@@ -54,7 +54,7 @@ describe('Middleware', function () {
     passport.use(new LocalStrategy(
       function(username, password, done) {
 	var user = (username === 'ok') ? { name: 'ok' } : false;
-        if (!user) { return done(null, false, { message: 'Unknown user ' + username }); }
+        if (!user) return done(null, false, { message: 'Unknown user ' + username });
         return done(null, user);
       }
     ));
@@ -64,14 +64,13 @@ describe('Middleware', function () {
 	if (err) return next(err);
 
 	var username = request.body.username;
+	var user     = { name: username };
 
 	if (username !== 'ok') return response.send(401);
 
-	var user = { name: username };
-
 	request.logIn(user, function(err) {
 	  if (err) return next(err);
-	  response.send(200);
+	  return response.send(200);
 	});
       })(request, response, next);
     });
@@ -81,6 +80,7 @@ describe('Middleware', function () {
 
     done();
   });
+
   beforeEach(fixtures.vegetable.create);
 
   describe('passport and middleware', function () {

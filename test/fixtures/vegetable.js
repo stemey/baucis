@@ -2,6 +2,8 @@ var mongoose = require('mongoose');
 var express = require('express');
 var baucis = require('../..');
 
+var app;
+
 module.exports = {
   init: function(done) {
     var Schema = mongoose.Schema;
@@ -21,9 +23,9 @@ module.exports = {
       plural: 'vegetables'
     });
 
-    mongoose.model(Vegetable.metadata.singular, Vegetable, Vegetable.metadata.plural);
+    mongoose.model(Vegetable.metadata('singular'), Vegetable, Vegetable.metadata('plural'));
     
-    var app = express.createServer();
+    app = express.createServer();
     app.configure(function(){
       app.use(express.bodyParser());
     });
@@ -31,6 +33,10 @@ module.exports = {
     app.rest(Vegetable);
     app.listen(8012);
 
+    done();
+  },
+  deinit: function(done) {
+    app.close();
     done();
   },
   create: function(done) {

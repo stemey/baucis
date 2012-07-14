@@ -7,6 +7,7 @@ var fixtures = requireindex('./test/fixtures');
 describe('PUT singular', function () {
   before(fixtures.vegetable.init);
   beforeEach(fixtures.vegetable.create);
+  after(fixtures.vegetable.deinit);
 
   it("should replace the addressed object if it exists", function (done) {
     var radicchio = vegetables[7];
