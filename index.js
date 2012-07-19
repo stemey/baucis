@@ -1,5 +1,6 @@
 var express  = require('express');
 var mongoose = require('mongoose');
+var lingo    = require('lingo');
 
 var BASE_URI = '/api/'; // TODO config
 
@@ -8,7 +9,7 @@ var model = function(schema) {
 };
 
 var get = function(schema) {
-  // return the spcefied resource
+  // retrieve the addressed document
   var r = function(request, response, next) {
     var id = request.params.id;
     model(schema).findById(id).run(function (err, doc) {
@@ -22,9 +23,8 @@ var get = function(schema) {
 };
 
 var post = function(schema) {
-  // treat the given resource as a collection, and push the given object to it
+  // treat the addressed document as a collection, and push the addressed object to it (?)
   var r = function (request, response, next) {
-    // TODO should check if certain metadata is set and perform accordingly
     response.send(405); // method not allowed (as of yet unimplemented)	 ???
   };
   
@@ -32,7 +32,7 @@ var post = function(schema) {
 };
 
 var put = function (schema) { 
-  // replace given object, or create it if nonexistant
+  // replace the addressed document, or create it if nonexistant
   var r = function(request, response, next) {
     var id  = request.params.id || null;
     
@@ -59,10 +59,11 @@ var del = function (schema) {
 };
 
 var pluralGet = function (schema) {
-  // TODO take range params, etc.
+  // retrieve documents matching conditions
   var r = function (request, response, next) {
-    var query = request.query || {}; // TODO validate? // get from JSON or queryStr
-    model(schema).find(query, function(err, docs) {
+    var conditions = request.body || {};
+    var query = model(schema).find(conditions);    
+    query.exec(function(err, docs) {
       if (err) return next(err);
       response.json(docs);
     });
@@ -72,12 +73,24 @@ var pluralGet = function (schema) {
 };
 
 var pluralPost = function (schema) {
-  // create a new object and return its ID
+  // create a new document and return its ID
   var r = function(request, response, next) {
-    var o = new (model(schema))(request.body);
-    o.save(function (err, doc) {
-      if (err) return next(err);
-      response.json(doc._id);
+    var given = request.body || [];
+
+    if (!Array.isArray(given)) given = [given];
+
+    var docs = given.map( function(e) { 
+      return new (model(schema))(e);
+    });
+
+    var ids = [];
+
+    docs.forEach( function (doc) {
+      doc.save(function (err, doc) {
+	if (err) return next(err);
+	ids.push(doc._id);
+	if (ids.length === docs.length) response.json(ids);
+      });
     });
   };
   
@@ -85,36 +98,20 @@ var pluralPost = function (schema) {
 };
 
 var pluralPut = function (schema) {
-  // replace entire collection with given new collection and return IDs
-  var r = function(request, response, next) {
-    model(schema).remove({}, function (err, foo) {
-      if (err) return next(err);
-      
-      // TODO make sure is array (or marshal) and respond accordingly
-      var docs = request.body
-      var ids = [];
-      var numSaved = 0;
-      
-      docs.forEach( function (data, i) { // TODO use some async lib here
-	var doc = new (model(schema))(data);
-	
-	doc.save( function (err, doc) {
-	  if (err) return next(err);
-	  ids[i] = doc._id;
-	  numSaved++;
-	  if(numSaved === docs.length) response.json(ids);
-	});
-      });
-    });
+  // repalce all docs with given docs ... 
+  var r = function (request, response, next) {
+    response.send(405); // method not allowed (as of yet unimplemented)	 ???
   };
 
   return r;
 };
 
 var pluralDel = function (schema) {
-  // delete entire collection  
+  // delete all documents matching conditions
   var r = function(request, response, next) {
-    model(schema).remove({}, function (err, count) {
+    var conditions = request.body || {};
+    var query = model(schema).remove(conditions);    
+    query.exec(function (err, count) {
       if (err) return next(err);
       response.json(count);
     });
@@ -125,42 +122,43 @@ var pluralDel = function (schema) {
 
 express.HTTPServer.prototype.rest =
 express.HTTPSServer.prototype.rest = function (schemata) {
-  
-  var t;
-
-  if (schemata === 'Object') {
-    t = [];
-    for (key in schemata) {
-      if (!schemata.hasOwnProperty(key)) continue;
-      t.push(schemata[key]);
+  if (!Array.isArray(schemata)) {
+    // if array leave alone, otherwise
+    if (schemata.paths) { 
+      // single schema -> array
+      schemata = [schemata];
     }
-    schemata = t;
-  }
-  else if (schemata !== 'Array') {
-    schemata = [schemata];
+    else {
+      // hash -> array
+      schemata = Object.keys(schemata).map( function (key) {
+	return schemata[key];
+      });
+    }
   }
 
-  var that = this;
+  var app = this;
   
   schemata.forEach( function (schema) {
-    var middleware = schema.metadata('middleware') || [];
-    var singular   = BASE_URI + schema.metadata('singular');
-    var plural     = BASE_URI + schema.metadata('plural');
-    
+    var singular    = schema.metadata('singular');
+    var plural      = schema.metadata('plural') || lingo.pluralize(singular);
+    var singularUrl = BASE_URI + singular + '/:id';
+    var pluralUrl   = BASE_URI + plural + '/';
+    var middleware  = schema.metadata('middleware') || [];
+
     // add if not already present
     if (!model(schema)) {
-      mongoose.model(schema.metadata('singular'), schema, schema.metadata('plural'));
+      mongoose.model(singular, schema, plural);
     }
-    
-    that.get(singular + '/:id', middleware, get(schema));
-    that.post(singular,         middleware, post(schema));
-    that.put(singular + '/:id', middleware, put(schema));
-    that.del(singular + '/:id', middleware, del(schema));
-    
-    that.get(plural,  middleware, pluralGet(schema));
-    that.post(plural, middleware, pluralPost(schema));
-    that.put(plural,  middleware, pluralPut(schema));
-    that.del(plural,  middleware, pluralDel(schema));
+
+    app.get(singularUrl,  middleware, get(schema));
+    app.post(singularUrl, middleware, post(schema));
+    app.put(singularUrl,  middleware, put(schema));
+    app.del(singularUrl,  middleware, del(schema));
+        
+    app.get(pluralUrl,  middleware, pluralGet(schema));
+    app.post(pluralUrl, middleware, pluralPost(schema));
+    app.put(pluralUrl,  middleware, pluralPut(schema));
+    app.del(pluralUrl,  middleware, pluralDel(schema));
   });
 };
 		    
@@ -169,10 +167,9 @@ mongoose.Schema.prototype.metadata = function (data) {
   if(data && typeof(data) === 'string') return this._metadata[data];
 
   if(data && typeof(data) === 'object') {
-    if (this._metadata) throw new Error('Metadata was already set'); // ecma5? TODO
+    if (this._metadata) throw new Error('Metadata was already set');
     return this._metadata = data;
   }
 
   throw new Error('Unrecognized use of metadata method');
 };
-		    
