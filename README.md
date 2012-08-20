@@ -3,7 +3,7 @@ baucis
 
 ![David Rjckaert III - Philemon and Baucis Giving Hospitality to Jupiter and Mercury](http://github.com/murmux/baucis/raw/master/david_rijckaert_iii-philemon_and_baucis.jpg "Hermes is like: 'Hey Baucis, don't kill that goose.  And thanks for the REST.'")
 
-David Rijckaert - Philemon and Baucis Giving Hospitality to Jupiter and Mercury
+*David Rijckaert - Philemon and Baucis Giving Hospitality to Jupiter and Mercury*
 
 Like Baucis and Philemon of old, this library provides REST to the weary traveler.  Automatically creates REST services from Mongoose models:
 
