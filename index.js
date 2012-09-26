@@ -5,6 +5,8 @@ var lingo    = require('lingo');
 var BASE_URI = '/api/'; // TODO config
 
 var model = function(schema) {
+  var singular = schema.metadata('singular');
+  if (!mongoose.models[singular]) return;
   return mongoose.model(schema.metadata('singular'));
 };
 
@@ -151,9 +153,7 @@ module.exports.rest = function (app, schemata) {
     var middleware  = schema.metadata('middleware') || [];
 
     // add if not already present
-    if (!model(schema)) {
-      mongoose.model(singular, schema, plural);
-    }
+    if (!model(schema)) mongoose.model(singular, schema, plural);
 
 //    app.head(singularUrl, middleware, head(schema)); // TODO
     app.get(singularUrl,  middleware, get(schema));
