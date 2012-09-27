@@ -14,7 +14,7 @@ var get = function(schema) {
   // retrieve the addressed document
   var r = function(request, response, next) {
     var id = request.params.id;
-    model(schema).findById(id).run(function (err, doc) {
+    model(schema).findById(id).exec(function (err, doc) {
       if (err) return response.send(500); // TODO ?
       if (doc === null) return response.send(404);
       return response.json(doc);
@@ -36,7 +36,11 @@ var post = function(schema) {
 var put = function (schema) { 
   // replace the addressed document, or create it if nonexistant
   var r = function(request, response, next) {
-    var id  = request.params.id || null;
+    var id = request.params.id || null;
+
+    // TODO hsould strip body of non-mongo fields (and in other methods)
+
+    delete request.body._id; // can't send id for update, even if unchanged
     
     model(schema).update({_id: id}, request.body, {upsert: true}, function (err, doc) {
       if (err) return next(err);
@@ -51,7 +55,7 @@ var del = function (schema) {
   // delete the addressed object
   var r = function (request, response, next) {
     var id = request.params.id;
-    model(schema).remove({ _id: id }).run( function (err, count) {
+    model(schema).remove({ _id: id }).exec( function (err, count) {
       if (err) return next(err);
       response.json(count);
     });
@@ -95,7 +99,7 @@ var pluralPost = function (schema) {
       doc.save(function (err, doc) {
 	if (err) return next(err);
 	ids.push(doc._id);
-	if (ids.length === docs.length) response.json(ids);
+	if (ids.length === docs.length) return response.json(ids);
       });
     });
   };
@@ -146,6 +150,8 @@ module.exports.rest = function (app, schemata) {
   }
 
   schemata.forEach( function (schema) {
+    if (schema.metadata('private')) return;
+
     var singular    = schema.metadata('singular');
     var plural      = schema.metadata('plural') || lingo.pluralize(singular);
     var singularUrl = BASE_URI + singular + '/:id';
