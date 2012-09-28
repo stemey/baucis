@@ -6,7 +6,7 @@ var BASE_URI = '/api/'; // TODO config
 
 var model = function(schema) {
   var singular = schema.metadata('singular');
-  if (!mongoose.models[singular]) return;
+  if (!mongoose.models[singular]) return null;
   return mongoose.model(schema.metadata('singular'));
 };
 
@@ -37,6 +37,7 @@ var put = function (schema) {
   // replace the addressed document, or create it if nonexistant
   var r = function(request, response, next) {
     var id = request.params.id || null;
+    var create = (id === null);
 
     // TODO hsould strip body of non-mongo fields (and in other methods)
 
@@ -44,7 +45,11 @@ var put = function (schema) {
     
     model(schema).update({_id: id}, request.body, {upsert: true}, function (err, doc) {
       if (err) return next(err);
-      response.send(200); // TODO send 201 when creating or 200/204 when updating
+
+      if (create) response.status(201);
+      else response.status(200);
+
+      response.json(doc); // TODO backbone might expect doc for 201, but spec says return url
     });
   };
   
@@ -93,13 +98,13 @@ var pluralPost = function (schema) {
       return new (model(schema))(e);
     });
 
-    response.statusCode = 201;
+    response.status(201);
 
     docs.forEach( function (doc) {
       doc.save(function (err, doc) {
 	if (err) return next(err);
 	ids.push(doc._id);
-	if (ids.length === docs.length) return response.json(ids);
+	if (ids.length === docs.length) return response.json(ids); // TODO not sure this is http 1.1
       });
     });
   };
