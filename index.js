@@ -13,8 +13,15 @@ var model = function(schema) {
 var get = function(schema) {
   // retrieve the addressed document
   var r = function(request, response, next) {
-    var id = request.params.id;
-    model(schema).findById(id).exec(function (err, doc) {
+    var id        = request.params.id;
+    var query     = model(schema).findById(id);
+    var populated = schema.metadata('populate') || [];
+
+    populated.forEach( function (field) {
+      query.populate(field);
+    });
+
+    query.exec(function (err, doc) {
       if (err) return response.send(500); // TODO ?
       if (doc === null) return response.send(404);
       return response.json(doc);
@@ -73,7 +80,13 @@ var pluralGet = function (schema) {
   // retrieve documents matching conditions
   var r = function (request, response, next) {
     var conditions = request.body || {};
-    var query = model(schema).find(conditions);    
+    var query      = model(schema).find(conditions);    
+    var populated  = schema.metadata('populate') || [];
+
+    populated.forEach( function (field) {
+      query.populate(field);
+    });
+
     query.exec(function(err, docs) {
       if (err) return next(err);
       response.json(docs);
@@ -90,7 +103,9 @@ var pluralPost = function (schema) {
       return next(new Error('Must supply a document or array to POST'));
     }
 
-    var ids   = [];
+    // TODO ids or objects in put/post?
+//    var ids   = [];
+    var newDocs = [];
     var given = request.body;
     if (!Array.isArray(given)) given = [given];
 
@@ -103,8 +118,8 @@ var pluralPost = function (schema) {
     docs.forEach( function (doc) {
       doc.save(function (err, doc) {
 	if (err) return next(err);
-	ids.push(doc._id);
-	if (ids.length === docs.length) return response.json(ids); // TODO not sure this is http 1.1
+	newDocs.push(doc);
+	if (newDocs.length === docs.length) return response.json(docs); // TODO not sure this is http 1.1
       });
     });
   };
