@@ -43,14 +43,20 @@ var post = function(schema) {
 var put = function (schema) { 
   // replace the addressed document, or create it if nonexistant
   var r = function(request, response, next) {
-    var id = request.params.id || null;
-    var create = (id === null);
+    var id        = request.params.id || null;
+    var create    = (id === null);
+    var query     = model(schema).update({_id: id}, request.body, {upsert: true});
+    var populated = schema.metadata('populate') || [];
+
+    populated.forEach( function (field) {
+      query.populate(field);
+    });
 
     // TODO hsould strip body of non-mongo fields (and in other methods)
 
     delete request.body._id; // can't send id for update, even if unchanged
     
-    model(schema).update({_id: id}, request.body, {upsert: true}, function (err, doc) {
+    query.exec( function (err, doc) {
       if (err) return next(err);
 
       if (create) response.status(201);
@@ -103,23 +109,36 @@ var pluralPost = function (schema) {
       return next(new Error('Must supply a document or array to POST'));
     }
 
-    // TODO ids or objects in put/post?
-//    var ids   = [];
+    var Model = model(schema);
     var newDocs = [];
+    var populated = schema.metadata('populate') || [];
     var given = request.body;
+
     if (!Array.isArray(given)) given = [given];
 
     var docs = given.map( function(e) { 
-      return new (model(schema))(e);
+      return new Model(e);
     });
-
-    response.status(201);
 
     docs.forEach( function (doc) {
       doc.save(function (err, doc) {
 	if (err) return next(err);
-	newDocs.push(doc);
-	if (newDocs.length === docs.length) return response.json(docs); // TODO not sure this is http 1.1
+
+	var query = Model.findById(doc._id);
+
+	populated.forEach( function (field) {
+	  query.populate(field);
+	});
+
+	query.exec( function (err, doc) {
+	  if (err) return next(err);
+	  newDocs.push(doc);
+	
+	  if (newDocs.length === docs.length) {
+	    response.status(201);
+	    return response.json(docs); // TODO not sure this is http 1.1
+	  }
+	});
       });
     });
   };
