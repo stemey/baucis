@@ -13,6 +13,7 @@ var model = function(schema) {
 var get = function(schema) {
   // retrieve the addressed document
   var r = function(request, response, next) {
+    console.log('GETIT');
     var id        = request.params.id;
     var query     = model(schema).findById(id);
     var populated = schema.metadata('populate') || [];
@@ -34,6 +35,7 @@ var get = function(schema) {
 var post = function(schema) {
   // treat the addressed document as a collection, and push the addressed object to it (?)
   var r = function (request, response, next) {
+    console.log('SINGLE POST');
     response.send(405); // method not allowed (as of yet unimplemented)	 ??? //TODO or 501?
   };
   
@@ -43,19 +45,16 @@ var post = function(schema) {
 var put = function (schema) { 
   // replace the addressed document, or create it if nonexistant
   var r = function(request, response, next) {
+    console.log('SPUT');
+    console.log(request.body);
+    delete request.body._id; // can't send id for update, even if unchanged
+    
     var id        = request.params.id || null;
     var create    = (id === null);
-    var query     = model(schema).update({_id: id}, request.body, {upsert: true});
-    var populated = schema.metadata('populate') || [];
-
-    populated.forEach( function (field) {
-      query.populate(field);
-    });
+    var query     = model(schema).findByIdAndUpdate(id, request.body, {upsert: true});
 
     // TODO hsould strip body of non-mongo fields (and in other methods)
 
-    delete request.body._id; // can't send id for update, even if unchanged
-    
     query.exec( function (err, doc) {
       if (err) return next(err);
 
@@ -72,6 +71,7 @@ var put = function (schema) {
 var del = function (schema) {
   // delete the addressed object
   var r = function (request, response, next) {
+    console.log('SEGETSIT');
     var id = request.params.id;
     model(schema).remove({ _id: id }).exec( function (err, count) {
       if (err) return next(err);
@@ -85,7 +85,14 @@ var del = function (schema) {
 var pluralGet = function (schema) {
   // retrieve documents matching conditions
   var r = function (request, response, next) {
-    var conditions = request.body || {};
+    var conditions;
+
+    if (request.query && request.query.query) {
+      conditions = JSON.parse(request.query.query);
+    }
+
+    console.log('conditions: '); console.log(conditions);
+
     var query      = model(schema).find(conditions);    
     var populated  = schema.metadata('populate') || [];
 
@@ -93,7 +100,7 @@ var pluralGet = function (schema) {
       query.populate(field);
     });
 
-    query.exec(function(err, docs) {
+    query.exec( function(err, docs) {
       if (err) return next(err);
       response.json(docs);
     });
@@ -105,6 +112,8 @@ var pluralGet = function (schema) {
 var pluralPost = function (schema) {
   // create a new document and return its ID
   var r = function(request, response, next) {
+    console.log('PPOST');
+
     if (!request.body || request.body.length === 0) {
       return next(new Error('Must supply a document or array to POST'));
     }
@@ -126,9 +135,9 @@ var pluralPost = function (schema) {
 
 	var query = Model.findById(doc._id);
 
-	populated.forEach( function (field) {
-	  query.populate(field);
-	});
+	// populated.forEach( function (field) {
+	//   query.populate(field);
+	// });
 
 	query.exec( function (err, doc) {
 	  if (err) return next(err);
@@ -149,6 +158,7 @@ var pluralPost = function (schema) {
 var pluralPut = function (schema) {
   // repalce all docs with given docs ... 
   var r = function (request, response, next) {
+    console.log('PLURAL PUT');
     response.send(405); // method not allowed (as of yet unimplemented)	 ??? // TODO 501?
   };
 
