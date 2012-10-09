@@ -28,7 +28,7 @@ var get = function(schema) {
       return response.json(doc);
     });
   };
-  
+
   return r;
 };
 
@@ -36,22 +36,22 @@ var post = function(schema) {
   // treat the addressed document as a collection, and push the addressed object to it (?)
   var r = function (request, response, next) {
     console.log('SINGLE POST');
-    response.send(405); // method not allowed (as of yet unimplemented)	 ??? //TODO or 501?
+    response.send(405); // method not allowed (as of yet unimplemented)  ??? //TODO or 501?
   };
-  
+
   return r;
 };
 
-var put = function (schema) { 
+var put = function (schema) {
   // replace the addressed document, or create it if nonexistant
   var r = function(request, response, next) {
     console.log('SPUT');
     console.log(request.body);
     delete request.body._id; // can't send id for update, even if unchanged
-    
-    var id        = request.params.id || null;
-    var create    = (id === null);
-    var query     = model(schema).findByIdAndUpdate(id, request.body, {upsert: true});
+
+    var id     = request.params.id || null;
+    var create = (id === null);
+    var query  = model(schema).findByIdAndUpdate(id, request.body, {upsert: true});
 
     // TODO hsould strip body of non-mongo fields (and in other methods)
 
@@ -64,7 +64,7 @@ var put = function (schema) {
       response.json(doc); // TODO backbone might expect doc for 201, but spec says return url
     });
   };
-  
+
   return r;
 };
 
@@ -78,7 +78,7 @@ var del = function (schema) {
       response.json(count);
     });
   };
-    
+
   return r;
 };
 
@@ -93,7 +93,7 @@ var pluralGet = function (schema) {
 
     console.log('conditions: '); console.log(conditions);
 
-    var query      = model(schema).find(conditions);    
+    var query      = model(schema).find(conditions);
     var populated  = schema.metadata('populate') || [];
 
     populated.forEach( function (field) {
@@ -125,41 +125,42 @@ var pluralPost = function (schema) {
 
     if (!Array.isArray(given)) given = [given];
 
-    var docs = given.map( function(e) { 
+    var docs = given.map( function(e) {
       return new Model(e);
     });
 
     docs.forEach( function (doc) {
       doc.save(function (err, doc) {
-	if (err) return next(err);
+  if (err) return next(err);
 
-	var query = Model.findById(doc._id);
+  var query = Model.findById(doc._id);
 
-	// populated.forEach( function (field) {
-	//   query.populate(field);
-	// });
+  // populated.forEach( function (field) {
+  //   query.populate(field);
+  // });
 
-	query.exec( function (err, doc) {
-	  if (err) return next(err);
-	  newDocs.push(doc);
-	
-	  if (newDocs.length === docs.length) {
-	    response.status(201);
-	    return response.json(docs); // TODO not sure this is http 1.1
-	  }
-	});
+  query.exec( function (err, doc) {
+    if (err) return next(err);
+    newDocs.push(doc);
+
+    if (newDocs.length === docs.length) {
+      response.status(201);
+      if (docs.length === 1) return response.json(docs[0]); // TODO formalize when obj/array is returned
+      else return response.json(docs); // TODO not sure this is http 1.1
+    }
+  });
       });
     });
   };
-  
+
   return r;
 };
 
 var pluralPut = function (schema) {
-  // repalce all docs with given docs ... 
+  // repalce all docs with given docs ...
   var r = function (request, response, next) {
     console.log('PLURAL PUT');
-    response.send(405); // method not allowed (as of yet unimplemented)	 ??? // TODO 501?
+    response.send(405); // method not allowed (as of yet unimplemented)  ??? // TODO 501?
   };
 
   return r;
@@ -169,7 +170,7 @@ var pluralDel = function (schema) {
   // delete all documents matching conditions
   var r = function(request, response, next) {
     var conditions = request.body || {};
-    var query = model(schema).remove(conditions);    
+    var query = model(schema).remove(conditions);
     query.exec(function (err, count) {
       if (err) return next(err);
       response.json(count);
@@ -186,14 +187,14 @@ module.exports = {};
 module.exports.rest = function (app, schemata) {
   if (!Array.isArray(schemata)) {
     // if array leave alone, otherwise
-    if (schemata.paths) { 
+    if (schemata.paths) {
       // single schema -> array
       schemata = [schemata];
     }
     else {
       // hash -> array
       schemata = Object.keys(schemata).map( function (key) {
-	return schemata[key];
+  return schemata[key];
       });
     }
   }
@@ -215,7 +216,7 @@ module.exports.rest = function (app, schemata) {
     app.post(singularUrl, middleware, post(schema));
     app.put(singularUrl,  middleware, put(schema));
     app.del(singularUrl,  middleware, del(schema));
-        
+
 //    app.head(pluralUrl, middleware, pluralHead(schema)); // TODO
     app.get(pluralUrl,  middleware, pluralGet(schema));
     app.post(pluralUrl, middleware, pluralPost(schema));
@@ -223,7 +224,7 @@ module.exports.rest = function (app, schemata) {
     app.del(pluralUrl,  middleware, pluralDel(schema));
   });
 };
-		    
+
 mongoose.Schema.prototype.metadata = function (data) {
   if(!data)                             return this._metadata;
   if(data && typeof(data) === 'string') return this._metadata[data];
