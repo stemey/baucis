@@ -1,6 +1,8 @@
 baucis
 =====================
 
+This is a bit of a work in progress, but should be mostly stable, if not well documented at the moment.
+
 ![David Rjckaert III - Philemon and Baucis Giving Hospitality to Jupiter and Mercury](http://github.com/murmux/baucis/raw/master/david_rijckaert_iii-philemon_and_baucis.jpg "Hermes is like: 'Hey Baucis, don't kill that goose.  And thanks for the REST.'")
 
 *David Rijckaert - Philemon and Baucis Giving Hospitality to Jupiter and Mercury*
@@ -32,7 +34,7 @@ Later make requests:
  * DEL /vegetable/:id &mdash; delete the addressed object
 
  * GET /vegetables/ &mdash; get all documents (in the future will accept query args to pass to the mongo server)
- * POST /vegetables/ &mdash; creates a new document and sends back its ID  
+ * POST /vegetables/ &mdash; creates a new document and sends back its ID
  * PUT /vegetables/ &mdash; replace all documents with given new documents
  * DEL /vegetables/ &mdash; delete all documents (also will accept query args in future)
 
@@ -73,5 +75,3 @@ Contact Info
  * @wprl
 
 &copy; 2012 William P. Riley-Land
-Licensed under the GPL v3  
-Please fork and create issues!
