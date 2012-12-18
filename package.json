@@ -14,5 +14,8 @@
   "devDependencies": {
     "mongoose": "~2.7.1",
     "express": "~2.5.11"
+  },
+  "dependencies": {
+    "lingo": "0.0.5"
   }
 }

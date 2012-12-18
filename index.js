@@ -12,8 +12,7 @@ var model = function(schema) {
 
 var get = function(schema) {
   // retrieve the addressed document
-  var r = function(request, response, next) {
-    console.log('GETIT');
+  var f = function(request, response, next) {
     var id        = request.params.id;
     var query     = model(schema).findById(id);
     var populated = schema.metadata('populate') || [];
@@ -29,24 +28,21 @@ var get = function(schema) {
     });
   };
 
-  return r;
+  return f;
 };
 
 var post = function(schema) {
   // treat the addressed document as a collection, and push the addressed object to it (?)
-  var r = function (request, response, next) {
-    console.log('SINGLE POST');
+  var f = function (request, response, next) {
     response.send(405); // method not allowed (as of yet unimplemented)  ??? //TODO or 501?
   };
 
-  return r;
+  return f;
 };
 
 var put = function (schema) {
   // replace the addressed document, or create it if nonexistant
-  var r = function(request, response, next) {
-    console.log('SPUT');
-    console.log(request.body);
+  var f = function(request, response, next) {
     delete request.body._id; // can't send id for update, even if unchanged
 
     var id     = request.params.id || null;
@@ -65,13 +61,12 @@ var put = function (schema) {
     });
   };
 
-  return r;
+  return f;
 };
 
 var del = function (schema) {
   // delete the addressed object
-  var r = function (request, response, next) {
-    console.log('SEGETSIT');
+  var f = function (request, response, next) {
     var id = request.params.id;
     model(schema).remove({ _id: id }).exec( function (err, count) {
       if (err) return next(err);
@@ -79,19 +74,17 @@ var del = function (schema) {
     });
   };
 
-  return r;
+  return f;
 };
 
 var pluralGet = function (schema) {
   // retrieve documents matching conditions
-  var r = function (request, response, next) {
+  var f = function (request, response, next) {
     var conditions;
 
     if (request.query && request.query.query) {
       conditions = JSON.parse(request.query.query);
     }
-
-    console.log('conditions: '); console.log(conditions);
 
     var query      = model(schema).find(conditions);
     var populated  = schema.metadata('populate') || [];
@@ -106,14 +99,12 @@ var pluralGet = function (schema) {
     });
   };
 
-  return r;
+  return f;
 };
 
 var pluralPost = function (schema) {
   // create a new document and return its ID
-  var r = function(request, response, next) {
-    console.log('PPOST');
-
+  var f = function(request, response, next) {
     if (!request.body || request.body.length === 0) {
       return next(new Error('Must supply a document or array to POST'));
     }
@@ -153,22 +144,21 @@ var pluralPost = function (schema) {
     });
   };
 
-  return r;
+  return f;
 };
 
 var pluralPut = function (schema) {
   // repalce all docs with given docs ...
-  var r = function (request, response, next) {
-    console.log('PLURAL PUT');
+  var f = function (request, response, next) {
     response.send(405); // method not allowed (as of yet unimplemented)  ??? // TODO 501?
   };
 
-  return r;
+  return f;
 };
 
 var pluralDel = function (schema) {
   // delete all documents matching conditions
-  var r = function(request, response, next) {
+  var f = function(request, response, next) {
     var conditions = request.body || {};
     var query = model(schema).remove(conditions);
     query.exec(function (err, count) {
@@ -177,8 +167,41 @@ var pluralDel = function (schema) {
     });
   };
 
-  return r;
+  return f;
 };
+
+// ---- Validation routes set up function ---- //
+var validation = function (schema) {
+  var validators = {};
+  var f = function(request, response, next) {
+    response.json(validators);
+  };
+
+  Object.keys(s.paths).forEach( function(path) {
+    var pathValidators = [];
+
+    if (path.enumValues.length > 0) {
+      // TODO
+      pathValidators.push( );
+    }
+
+    if (path.regExp !== null) {
+      // TODO
+      pathValidators.push( );
+    }
+
+    // test path.instance TODO or path.options.type
+
+    // TODO use any path.validators?
+
+    // TODO other path.options?
+
+    validators[path.path] = pathValidators;
+  });
+
+  return f;
+};
+
 
 module.exports = {};
 
