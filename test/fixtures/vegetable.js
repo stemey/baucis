@@ -3,12 +3,13 @@ var express = require('express');
 var baucis = require('../..');
 
 var app;
+var server;
 
 module.exports = {
   init: function(done) {
     var Schema = mongoose.Schema;
 
-    mongoose.connect('mongodb://localhost/xXxBaUcIsTeStXxX'); // TODO probably check don't overwrite it ? ....
+    mongoose.connect('mongodb://localhost/xXxBaUcIsTeStXxX');
 
     var Vegetable = new Schema({
       name: String
@@ -25,18 +26,18 @@ module.exports = {
 
     mongoose.model(Vegetable.metadata('singular'), Vegetable, Vegetable.metadata('plural'));
     
-    app = express.createServer();
+    app = express();
     app.configure(function(){
       app.use(express.bodyParser());
     });
 
-    app.rest(Vegetable);
-    app.listen(8012);
+    app.use('/api/', baucis.rest(Vegetable));
+    server = app.listen(8012);
 
     done();
   },
   deinit: function(done) {
-    app.close();
+    server.close();
     done();
   },
   create: function(done) {
