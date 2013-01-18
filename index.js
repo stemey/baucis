@@ -1,15 +1,16 @@
+// Dependencies
 var express  = require('express');
 var mongoose = require('mongoose');
 var lingo    = require('lingo');
 
-var BASE_URI = '/api/'; // TODO config
-
+// Function to return the model for a schema
 var model = function(schema) {
   var singular = schema.metadata('singular');
   if (!mongoose.models[singular]) return null;
   return mongoose.model(schema.metadata('singular'));
 };
 
+// Functions to return middleware for HTTP verbs
 var get = function(schema) {
   // retrieve the addressed document
   var f = function(request, response, next) {
@@ -22,7 +23,7 @@ var get = function(schema) {
     });
 
     query.exec(function (err, doc) {
-      if (err) return response.send(500); // TODO ?
+      if (err) return response.send(500);
       if (doc === null) return response.send(404);
       return response.json(doc);
     });
@@ -32,9 +33,9 @@ var get = function(schema) {
 };
 
 var post = function(schema) {
-  // treat the addressed document as a collection, and push the addressed object to it (?)
+  // treat the addressed document as a collection, and push the addressed object to it
   var f = function (request, response, next) {
-    response.send(405); // method not allowed (as of yet unimplemented)  ??? //TODO or 501?
+    response.send(405); // method not allowed (as of yet unimplemented)
   };
 
   return f;
@@ -49,15 +50,13 @@ var put = function (schema) {
     var create = (id === null);
     var query  = model(schema).findByIdAndUpdate(id, request.body, {upsert: true});
 
-    // TODO hsould strip body of non-mongo fields (and in other methods)
-
     query.exec( function (err, doc) {
       if (err) return next(err);
 
       if (create) response.status(201);
       else response.status(200);
 
-      response.json(doc); // TODO backbone might expect doc for 201, but spec says return url
+      response.json(doc);
     });
   };
 
@@ -86,12 +85,7 @@ var pluralGet = function (schema) {
       conditions = JSON.parse(request.query.query);
     }
 
-    var query      = model(schema).find(conditions);
-    var populated  = schema.metadata('populate') || [];
-
-    populated.forEach( function (field) {
-      query.populate(field);
-    });
+    var query = model(schema).find(conditions);
 
     query.exec( function(err, docs) {
       if (err) return next(err);
@@ -109,10 +103,10 @@ var pluralPost = function (schema) {
       return next(new Error('Must supply a document or array to POST'));
     }
 
-    var Model = model(schema);
-    var newDocs = [];
+    var Model     = model(schema);
+    var newDocs   = [];
     var populated = schema.metadata('populate') || [];
-    var given = request.body;
+    var given     = request.body;
 
     if (!Array.isArray(given)) given = [given];
 
@@ -122,24 +116,20 @@ var pluralPost = function (schema) {
 
     docs.forEach( function (doc) {
       doc.save(function (err, doc) {
-  if (err) return next(err);
+      	if (err) return next(err);
 
-  var query = Model.findById(doc._id);
+      	var query = Model.findById(doc._id);
 
-  // populated.forEach( function (field) {
-  //   query.populate(field);
-  // });
+      	query.exec( function (err, doc) {
+      	  if (err) return next(err);
+      	  newDocs.push(doc);
 
-  query.exec( function (err, doc) {
-    if (err) return next(err);
-    newDocs.push(doc);
-
-    if (newDocs.length === docs.length) {
-      response.status(201);
-      if (docs.length === 1) return response.json(docs[0]); // TODO formalize when obj/array is returned
-      else return response.json(docs); // TODO not sure this is http 1.1
-    }
-  });
+      	  if (newDocs.length === docs.length) {
+      	    response.status(201);
+      	    if (docs.length === 1) return response.json(docs[0]);
+      	    else return response.json(docs);
+      	  }
+      	});
       });
     });
   };
@@ -150,7 +140,7 @@ var pluralPost = function (schema) {
 var pluralPut = function (schema) {
   // repalce all docs with given docs ...
   var f = function (request, response, next) {
-    response.send(405); // method not allowed (as of yet unimplemented)  ??? // TODO 501?
+    response.send(405); // method not allowed (as of yet unimplemented)
   };
 
   return f;
@@ -171,43 +161,42 @@ var pluralDel = function (schema) {
 };
 
 // ---- Validation routes set up function ---- //
-var validation = function (schema) {
-  var validators = {};
-  var f = function(request, response, next) {
-    response.json(validators);
-  };
+// var validation = function (schema) {
+//   var validators = {};
+//   var f = function(request, response, next) {
+//     response.json(validators);
+//   };
 
-  Object.keys(s.paths).forEach( function(path) {
-    var pathValidators = [];
+//   Object.keys(s.paths).forEach( function(path) {
+//     var pathValidators = [];
 
-    if (path.enumValues.length > 0) {
-      // TODO
-      pathValidators.push( );
-    }
+//     if (path.enumValues.length > 0) {
+//       // TODO
+//       pathValidators.push( );
+//     }
 
-    if (path.regExp !== null) {
-      // TODO
-      pathValidators.push( );
-    }
+//     if (path.regExp !== null) {
+//       // TODO
+//       pathValidators.push( );
+//     }
 
-    // test path.instance TODO or path.options.type
+//     // test path.instance TODO or path.options.type
 
-    // TODO use any path.validators?
+//     // TODO use any path.validators?
 
-    // TODO other path.options?
+//     // TODO other path.options?
 
-    validators[path.path] = pathValidators;
-  });
+//     validators[path.path] = pathValidators;
+//   });
 
-  return f;
-};
-
+//   return f;
+// };
 
 module.exports = {};
 
-// TODO maybe check if express.HTTPServer exists and hook that up for backward compat.
+module.exports.rest = function (schemata) {
+  var app = express();
 
-module.exports.rest = function (app, schemata) {
   if (!Array.isArray(schemata)) {
     // if array leave alone, otherwise
     if (schemata.paths) {
@@ -217,7 +206,7 @@ module.exports.rest = function (app, schemata) {
     else {
       // hash -> array
       schemata = Object.keys(schemata).map( function (key) {
-  return schemata[key];
+        return schemata[key];
       });
     }
   }
@@ -227,11 +216,11 @@ module.exports.rest = function (app, schemata) {
 
     var singular    = schema.metadata('singular');
     var plural      = schema.metadata('plural') || lingo.pluralize(singular);
-    var singularUrl = BASE_URI + singular + '/:id';
-    var pluralUrl   = BASE_URI + plural + '/';
+    var singularUrl = singular + '/:id';
+    var pluralUrl   = plural + '/';
     var middleware  = schema.metadata('middleware') || [];
 
-    // add if not already present
+    // Add to mongoose models if not already present
     if (!model(schema)) mongoose.model(singular, schema, plural);
 
 //    app.head(singularUrl, middleware, head(schema)); // TODO
@@ -246,11 +235,14 @@ module.exports.rest = function (app, schemata) {
     app.put(pluralUrl,  middleware, pluralPut(schema));
     app.del(pluralUrl,  middleware, pluralDel(schema));
   });
+
+  return app;
 };
 
+// This mehtod for adding metadata is added to the Schema prototype
 mongoose.Schema.prototype.metadata = function (data) {
-  if(!data)                             return this._metadata;
-  if(data && typeof(data) === 'string') return this._metadata[data];
+  if (!data)                             return this._metadata;
+  if (data && typeof(data) === 'string') return this._metadata[data];
 
   if(data && typeof(data) === 'object') {
     if (this._metadata) throw new Error('Metadata was already set');
