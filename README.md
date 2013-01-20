@@ -1,13 +1,15 @@
 baucis
 =====================
 
-This is a bit of a work in progress, but should be mostly stable, if not well documented at the moment.  The goal is to create a JSON REST API for Mongoose that matches as closely as possible the richness and versatility of the [HTTP 1.1 protocol](http://www.w3.org/Protocols/rfc2616/rfc2616.html).
+This is a bit of a work in progress, but should be mostly stable, if not well documented at the moment.  The API is subject to change.
+
+Like Baucis and Philemon of old, this library provides REST to the weary traveler.  The goal is to create a JSON REST API for Mongoose that matches as closely as possible the richness and versatility of the [HTTP 1.1 protocol](http://www.w3.org/Protocols/rfc2616/rfc2616.html).  
 
 ![David Rjckaert III - Philemon and Baucis Giving Hospitality to Jupiter and Mercury](http://github.com/wprl/baucis/raw/master/david_rijckaert_iii-philemon_and_baucis.jpg "Hermes is like: 'Hey Baucis, don't kill that goose.  And thanks for the REST.'")
 
 *David Rijckaert - Philemon and Baucis Giving Hospitality to Jupiter and Mercury*
 
-Like Baucis and Philemon of old, this library provides REST to the weary traveler.  Automatically creates REST services from Mongoose schemata:
+Baucis automatically creates REST services from Mongoose schemata:
 
     var baucis = require('baucis');
 
@@ -31,11 +33,12 @@ Later make requests:
  * PUT /api/vegetable/:id &mdash; create or update the addressed document
  * DEL /api/vegetable/:id &mdash; delete the addressed object
 
+  
 
- * GET /api/vegetables/ &mdash; get all documents (in the future will accept query args to pass to the mongo server)
+ * GET /api/vegetables/ &mdash; get all documents
  * POST /api/vegetables/ &mdash; creates a new document and sends back its ID
  * PUT /api/vegetables/ &mdash; replace all documents with given new documents
- * DEL /api/vegetables/ &mdash; delete all documents (also will accept query args in future)
+ * DEL /api/vegetables/ &mdash; delete all documents
 
 Examples with jQuery:
 
