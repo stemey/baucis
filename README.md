@@ -1,13 +1,15 @@
 baucis
 =====================
 
-This is a bit of a work in progress, but should be mostly stable, if not well documented at the moment.
+This is a bit of a work in progress, but should be mostly stable, if not well documented at the moment.  The goal is to create a JSON REST API for Mongoose that matches as closely as possible the richness and versatility of the [HTTP 1.1 protocol](http://www.w3.org/Protocols/rfc2616/rfc2616.html).
 
 ![David Rjckaert III - Philemon and Baucis Giving Hospitality to Jupiter and Mercury](http://github.com/wprl/baucis/raw/master/david_rijckaert_iii-philemon_and_baucis.jpg "Hermes is like: 'Hey Baucis, don't kill that goose.  And thanks for the REST.'")
 
 *David Rijckaert - Philemon and Baucis Giving Hospitality to Jupiter and Mercury*
 
 Like Baucis and Philemon of old, this library provides REST to the weary traveler.  Automatically creates REST services from Mongoose schemata:
+
+    var baucis = require('baucis');
 
     var Vegetable = new Schema({
       name: String
@@ -18,29 +20,25 @@ Like Baucis and Philemon of old, this library provides REST to the weary travele
     });
 
     var app = express.createServer();
-    app.configure(function(){
-      app.use(express.bodyParser());
-    });
-
-    // create RESTful routes
-    app.rest(Vegetable);
+    app.use('/api', baucis.rest(Vegetable));
 
     app.listen(80);
 
 Later make requests:
 
- * GET /vegetable/:id &mdash; get the addressed document
- * PUT /vegetable/:id &mdash; create or update the addressed document
- * DEL /vegetable/:id &mdash; delete the addressed object
+ * GET /api/vegetable/:id &mdash; get the addressed document
+ * POST /api/vegetable/:id &mdash; not yet implemented
+ * PUT /api/vegetable/:id &mdash; create or update the addressed document
+ * DEL /api/vegetable/:id &mdash; delete the addressed object
 
- * GET /vegetables/ &mdash; get all documents (in the future will accept query args to pass to the mongo server)
- * POST /vegetables/ &mdash; creates a new document and sends back its ID
- * PUT /vegetables/ &mdash; replace all documents with given new documents
- * DEL /vegetables/ &mdash; delete all documents (also will accept query args in future)
+ * GET /api/vegetables/ &mdash; get all documents (in the future will accept query args to pass to the mongo server)
+ * POST /api/vegetables/ &mdash; creates a new document and sends back its ID
+ * PUT /api/vegetables/ &mdash; replace all documents with given new documents
+ * DEL /api/vegetables/ &mdash; delete all documents (also will accept query args in future)
 
 Examples with jQuery:
 
-    $.getJSON('/vegetable/4f4028e6e5139bf4e472cca1', function (data) {
+    $.getJSON('/api/vegetable/4f4028e6e5139bf4e472cca1', function (data) {
       console.log(data);
     });
 
@@ -52,12 +50,25 @@ Examples with jQuery:
     }).done(function( id ) {
       console.log(id);
     });
+    
+An example `sync` method for a Backbone model:
 
+      function (method, model, options) {
+        var name = (method === 'create' ? 'vegetables' : 'vegetable'); 
+        var url  = '/api/' + name + '/';
 
-app.rest will accept arrays, hashes, or single Schema objects.  An example with require-index:
+        if (method !== 'create') url += model.id;
+
+        options = options || {};
+        options.url = url;
+
+        return Backbone.sync(method, model, options);
+      }
+
+ucis.rest will accept arrays, hashes, or single Mongoose `Schema` objects.  An example with require-index:
 
     var schemata = requireindex('./schemata');
-    app.rest(schemata);
+    app.use('/api', baucis.rest(schemata));
 
 Use middleware for security, etc.  Middleware is plain old Connect middleware, so it can be used with pre-existing modules like passport.  Set the middleware metadata to a function or array of functions.
 
