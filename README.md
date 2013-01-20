@@ -1,7 +1,7 @@
 baucis
 =====================
 
-Baucis automatically creates REST services from Mongoose schemata.
+Baucis is Express middleware for automatically creating REST services from Mongoose schemata.
 
 This is a bit of a work in progress, but should be mostly stable.  The API is subject to change.
 
@@ -34,9 +34,6 @@ Later make requests:
  * POST /api/vegetable/:id &mdash; not yet implemented
  * PUT /api/vegetable/:id &mdash; create or update the addressed document
  * DEL /api/vegetable/:id &mdash; delete the addressed object
-
-  
-
  * GET /api/vegetables/ &mdash; get all documents
  * POST /api/vegetables/ &mdash; creates a new document and sends back its ID
  * PUT /api/vegetables/ &mdash; replace all documents with given new documents
@@ -71,7 +68,7 @@ An example `sync` method for a Backbone model:
         return Backbone.sync(method, model, options);
       }
 
-ucis.rest will accept arrays, hashes, or single Mongoose `Schema` objects.  An example with require-index:
+`baucis.rest` will accept arrays, hashes, or single Mongoose `Schema` objects.  An example with require-index:
 
     var schemata = requireindex('./schemata');
     app.use('/api', baucis.rest(schemata));
