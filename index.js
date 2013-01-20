@@ -81,8 +81,6 @@ var pluralGet = function (schema) {
   var f = function (request, response, next) {
     var conditions;
 
-    console.log('ddddddd');
-
     if (request.query && request.query.query) {
       conditions = JSON.parse(request.query.query);
     }
@@ -245,12 +243,13 @@ baucis.rest = function (schemata) {
   return app;
 };
 
-// This method for adding metadata is added to the Schema prototype
+// This getter/setter method for adding metadata is added to the Schema prototype.
+// This will be deprecated soon...
 mongoose.Schema.prototype.metadata = function (data) {
-  if (!data)                             return this._metadata;
-  if (data && typeof(data) === 'string') return this._metadata[data];
+  if (!data)                     return this._metadata;
+  if (typeof(data) === 'string') return this._metadata[data];
 
-  if(data && typeof(data) === 'object') {
+  if (typeof(data) === 'object') {
     if (this._metadata) throw new Error('Metadata was already set');
     return this._metadata = data;
   }

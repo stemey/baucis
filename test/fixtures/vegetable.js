@@ -21,23 +21,25 @@ module.exports = {
 
     Vegetable.metadata({
       singular: 'vegetable',
-      plural: 'vegetables'
+      plural: 'vegetables',
+      middleware: function (request, response, next) {
+        if (request.query.block === 1) return response.status(401);
+        else return next();
+      }
     });
 
     mongoose.model(Vegetable.metadata('singular'), Vegetable, Vegetable.metadata('plural'));
 
     app = express();
-    app.configure(function(){
-      app.use(express.bodyParser());
-    });
-
     app.use('/api', baucis.rest(Vegetable));
+
     server = app.listen(8012);
 
     done();
   },
   deinit: function(done) {
     server.close();
+    mongoose.disconnect();
     done();
   },
   create: function(done) {
