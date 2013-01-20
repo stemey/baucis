@@ -3,7 +3,7 @@ baucis
 
 Baucis automatically creates REST services from Mongoose schemata.
 
-This is a bit of a work in progress, but should be mostly stable, if not well documented at the moment.  The API is subject to change.
+This is a bit of a work in progress, but should be mostly stable.  The API is subject to change.
 
 Like Baucis and Philemon of old, this library provides REST to the weary traveler.  The goal is to create a JSON REST API for Mongoose that matches as closely as possible the richness and versatility of the [HTTP 1.1 protocol](http://www.w3.org/Protocols/rfc2616/rfc2616.html).  
 
