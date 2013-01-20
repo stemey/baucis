@@ -81,6 +81,8 @@ var pluralGet = function (schema) {
   var f = function (request, response, next) {
     var conditions;
 
+    console.log('ddddddd');
+
     if (request.query && request.query.query) {
       conditions = JSON.parse(request.query.query);
     }
@@ -138,7 +140,7 @@ var pluralPost = function (schema) {
 };
 
 var pluralPut = function (schema) {
-  // repalce all docs with given docs ...
+  // replace all docs with given docs ...
   var f = function (request, response, next) {
     response.send(405); // method not allowed (as of yet unimplemented)
   };
@@ -192,10 +194,14 @@ var pluralDel = function (schema) {
 //   return f;
 // };
 
-module.exports = {};
+var baucis = module.exports = {};
 
-module.exports.rest = function (schemata) {
+baucis.rest = function (schemata) {
   var app = express();
+
+  app.use(express.bodyParser());
+  app.use(express.methodOverride());
+  app.use(app.router);
 
   if (!Array.isArray(schemata)) {
     // if array leave alone, otherwise
@@ -204,7 +210,7 @@ module.exports.rest = function (schemata) {
       schemata = [schemata];
     }
     else {
-      // hash -> array
+      // hash -> array.  hash is e.g. result of requireindex
       schemata = Object.keys(schemata).map( function (key) {
         return schemata[key];
       });
@@ -216,8 +222,8 @@ module.exports.rest = function (schemata) {
 
     var singular    = schema.metadata('singular');
     var plural      = schema.metadata('plural') || lingo.pluralize(singular);
-    var singularUrl = singular + '/:id';
-    var pluralUrl   = plural + '/';
+    var singularUrl = '/' + singular + '/:id';
+    var pluralUrl   = '/' + plural;
     var middleware  = schema.metadata('middleware') || [];
 
     // Add to mongoose models if not already present
@@ -239,7 +245,7 @@ module.exports.rest = function (schemata) {
   return app;
 };
 
-// This mehtod for adding metadata is added to the Schema prototype
+// This method for adding metadata is added to the Schema prototype
 mongoose.Schema.prototype.metadata = function (data) {
   if (!data)                             return this._metadata;
   if (data && typeof(data) === 'string') return this._metadata[data];
