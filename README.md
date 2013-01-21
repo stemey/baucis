@@ -85,7 +85,7 @@ Use middleware for security, etc.  Middleware is plain old Connect middleware, s
 
 Contact Info
 
- * http://william.nodejitsu.com/
+ * http://kun.io/
  * @wprl
 
 &copy; 2012 William P. Riley-Land
