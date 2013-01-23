@@ -23,7 +23,7 @@ var get = function(schema) {
     });
 
     query.exec(function (err, doc) {
-      if (err) return response.send(500);
+      if (err) return next(err);
       if (doc === null) return response.send(404);
       return response.json(doc);
     });
