@@ -3,13 +3,19 @@ baucis v0.0.2
 
 *** WORK IN PROGRESS ***
 
-This is a work in progress, but should be mostly stable…
+This is a work in progress, but should be mostly stable. The API is subject to change.
+
+Baucis is Express middleware for automatically creating REST services from Mongoose schemata.
+
+Like Baucis and Philemon of old, this library provides REST to the weary traveler.  The goal is to create a JSON REST API for Mongoose that matches as closely as possible the richness and versatility of the [HTTP 1.1 protocol](http://www.w3.org/Protocols/rfc2616/rfc2616.html).
 
 ![David Rjckaert III - Philemon and Baucis Giving Hospitality to Jupiter and Mercury](http://github.com/wprl/baucis/raw/master/david_rijckaert_iii-philemon_and_baucis.jpg "Hermes is like: 'Hey Baucis, don't kill that goose.  And thanks for the REST.'")
 
 *David Rijckaert - Philemon and Baucis Giving Hospitality to Jupiter and Mercury*
 
-Like Baucis and Philemon of old, this library provides REST to the weary traveler.  Automatically creates REST services from Mongoose schemata:
+An example of creating a REST API:
+
+    var baucis = require('baucis');
 
     var Vegetable = new Schema({
       name: String
@@ -20,9 +26,7 @@ Like Baucis and Philemon of old, this library provides REST to the weary travele
     });
 
     var app = express.createServer();
-    app.configure(function(){
-      app.use('/api', baucis.rest(Vegetable));
-    });
+    app.use('/api', baucis.rest(Vegetable));
 
     app.listen(80);
 
@@ -54,6 +58,18 @@ Examples with jQuery:
       console.log(id);
     });
 
+An example `sync` method for a Backbone model:
+
+      function (method, model, options) {
+        var url  = '/api/vegetables/';
+
+        if (method !== 'create') url += model.id;
+
+        options = options || {};
+        options.url = url;
+
+        return Backbone.sync(method, model, options);
+      }
 
 `baucis.rest` will accept arrays, hashes, or single `Schema` objects.  An example with require-index:
 
