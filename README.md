@@ -1,7 +1,9 @@
-baucis
+baucis v0.0.2
 =====================
 
-This is a bit of a work in progress, but should be mostly stable, if not well documented at the moment.
+*** WORK IN PROGRESS ***
+
+This is a work in progress, but should be mostly stable…
 
 ![David Rjckaert III - Philemon and Baucis Giving Hospitality to Jupiter and Mercury](http://github.com/wprl/baucis/raw/master/david_rijckaert_iii-philemon_and_baucis.jpg "Hermes is like: 'Hey Baucis, don't kill that goose.  And thanks for the REST.'")
 
@@ -19,45 +21,44 @@ Like Baucis and Philemon of old, this library provides REST to the weary travele
 
     var app = express.createServer();
     app.configure(function(){
-      app.use(express.bodyParser());
+      app.use('/api', baucis.rest(Vegetable));
     });
-
-    // create RESTful routes
-    app.rest(Vegetable);
 
     app.listen(80);
 
 Later make requests:
 
- * GET /vegetable/:id &mdash; get the addressed document
- * PUT /vegetable/:id &mdash; create or update the addressed document
- * DEL /vegetable/:id &mdash; delete the addressed object
+ * GET /api/vegetables/:id &mdash; get the addressed document
+ * PUT /api/vegetables/:id &mdash; create or update the addressed document
+ * DEL /api/vegetables/:id &mdash; delete the addressed object
 
- * GET /vegetables/ &mdash; get all documents (in the future will accept query args to pass to the mongo server)
- * POST /vegetables/ &mdash; creates a new document and sends back its ID
- * PUT /vegetables/ &mdash; replace all documents with given new documents
- * DEL /vegetables/ &mdash; delete all documents (also will accept query args in future)
+ * GET /api/vegetables/ &mdash; get all documents
+ * POST /api/vegetables/ &mdash; creates a new document and sends back its ID
+ * PUT /api/vegetables/ &mdash; replace all documents with given new documents
+ * DEL /api/vegetables/ &mdash; delete all documents
+
+Requests to the collection (not its members) take standard MongoDB query parameters to filter the documents based on custom criteria.
 
 Examples with jQuery:
 
-    $.getJSON('/vegetable/4f4028e6e5139bf4e472cca1', function (data) {
+    $.getJSON('/api/vegetables/4f4028e6e5139bf4e472cca1', function (data) {
       console.log(data);
     });
 
     $.ajax({
       type: 'POST',
       dataType: 'json',
-      url: '/vegetables/',
+      url: '/api/vegetables/',
       data: { name: 'Potato' }
     }).done(function( id ) {
       console.log(id);
     });
 
 
-app.rest will accept arrays, hashes, or single Schema objects.  An example with require-index:
+`baucis.rest` will accept arrays, hashes, or single `Schema` objects.  An example with require-index:
 
     var schemata = requireindex('./schemata');
-    app.rest(schemata);
+    app.user('/api/v1', baucis.rest(schemata));
 
 Use middleware for security, etc.  Middleware is plain old Connect middleware, so it can be used with pre-existing modules like passport.  Set the middleware metadata to a function or array of functions.
 
@@ -65,13 +66,13 @@ Use middleware for security, etc.  Middleware is plain old Connect middleware, s
       singular: 'vegetable',
       middleware: function(request, response, next) {
         if (request.isAuthenticated()) return next();
-        else return response.send(401);
+        return response.send(401);
       }
     });
 
 Contact Info
 
- * http://william.nodejitsu.com/
+ * http://kun.io/
  * @wprl
 
 &copy; 2012 William P. Riley-Land

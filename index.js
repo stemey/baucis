@@ -1,7 +1,7 @@
 // Dependencies
-var express  = require('express');
+var express = require('express');
 var mongoose = require('mongoose');
-var lingo    = require('lingo');
+var lingo = require('lingo');
 
 // Function to return the model for a schema
 var model = function(schema) {
@@ -14,8 +14,8 @@ var model = function(schema) {
 var get = function(schema) {
   // retrieve the addressed document
   var f = function(request, response, next) {
-    var id        = request.params.id;
-    var query     = model(schema).findById(id);
+    var id = request.params.id;
+    var query = model(schema).findById(id);
     var populated = schema.metadata('populate') || [];
 
     populated.forEach( function (field) {
@@ -76,7 +76,7 @@ var del = function (schema) {
   return f;
 };
 
-var pluralGet = function (schema) {
+var getCollection = function (schema) {
   // retrieve documents matching conditions
   var f = function (request, response, next) {
     var conditions;
@@ -96,7 +96,7 @@ var pluralGet = function (schema) {
   return f;
 };
 
-var pluralPost = function (schema) {
+var postCollection = function (schema) {
   // create a new document and return its ID
   var f = function(request, response, next) {
     if (!request.body || request.body.length === 0) {
@@ -137,7 +137,7 @@ var pluralPost = function (schema) {
   return f;
 };
 
-var pluralPut = function (schema) {
+var putCollection = function (schema) {
   // replace all docs with given docs ...
   var f = function (request, response, next) {
     response.send(405); // method not allowed (as of yet unimplemented)
@@ -146,7 +146,7 @@ var pluralPut = function (schema) {
   return f;
 };
 
-var pluralDel = function (schema) {
+var delCollection = function (schema) {
   // delete all documents matching conditions
   var f = function(request, response, next) {
     var conditions = request.body || {};
@@ -215,29 +215,28 @@ baucis.rest = function (schemata) {
     }
   }
 
-  schemata.forEach( function (schema) {
+  schemata.forEach(function (schema) {
     if (schema.metadata('private')) return;
 
-    var singular    = schema.metadata('singular');
-    var plural      = schema.metadata('plural') || lingo.pluralize(singular);
-    var singularUrl = '/' + singular + '/:id';
-    var pluralUrl   = '/' + plural;
-    var middleware  = schema.metadata('middleware') || [];
+    var singular = schema.metadata('singular');
+    var plural = schema.metadata('plural') || lingo.pluralize(singular);
+    var middleware = schema.metadata('middleware') || [];
+    var url = '/' + plural;
 
     // Add to mongoose models if not already present
     if (!model(schema)) mongoose.model(singular, schema, plural);
 
 //    app.head(singularUrl, middleware, head(schema)); // TODO
-    app.get(singularUrl,  middleware, get(schema));
-    app.post(singularUrl, middleware, post(schema));
-    app.put(singularUrl,  middleware, put(schema));
-    app.del(singularUrl,  middleware, del(schema));
+    app.get(url + '/:id', middleware, get(schema));
+    app.post(url + '/:id', middleware, post(schema));
+    app.put(url + '/:id', middleware, put(schema));
+    app.del(url + '/:id', middleware, del(schema));
 
 //    app.head(pluralUrl, middleware, pluralHead(schema)); // TODO
-    app.get(pluralUrl,  middleware, pluralGet(schema));
-    app.post(pluralUrl, middleware, pluralPost(schema));
-    app.put(pluralUrl,  middleware, pluralPut(schema));
-    app.del(pluralUrl,  middleware, pluralDel(schema));
+    app.get(url, middleware, getCollection(schema));
+    app.post(url, middleware, postCollection(schema));
+    app.put(url, middleware, putCollection(schema));
+    app.del(url, middleware, delCollection(schema));
   });
 
   return app;
