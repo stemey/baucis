@@ -74,7 +74,7 @@ An example `sync` method for a Backbone model:
 `baucis.rest` will accept arrays, hashes, or single `Schema` objects.  An example with require-index:
 
     var schemata = requireindex('./schemata');
-    app.user('/api/v1', baucis.rest(schemata));
+    app.use('/api/v1', baucis.rest(schemata));
 
 Use middleware for security, etc.  Middleware is plain old Connect middleware, so it can be used with pre-existing modules like passport.  Set the middleware metadata to a function or array of functions.
 
