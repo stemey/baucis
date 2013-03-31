@@ -25,7 +25,7 @@ module.exports = {
     });
 
     app = express();
-    app.use(baucis());
+    app.use('/api/v1', baucis());
 
     server = app.listen(8012);
 

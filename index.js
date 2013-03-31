@@ -9,8 +9,7 @@ var lingo = require('lingo');
 var baucis = module.exports = function (options) {
   options = options || {};
 
-  if (options.prefixUrl) baucis.app.set('urlPrefix', options.urlPrefix);
-  if (options.version) baucis.app.set('version', options.version);
+  //if (options.prefixUrl) baucis.app.set('urlPrefix', options.urlPrefix);
 
   return baucis.app;
 };
@@ -20,15 +19,7 @@ baucis.app.use(express.bodyParser());
 
 // Default Settings
 // ----------------
-baucis.app.set('urlPrefix', '/api');
-baucis.app.set('version', 1);
-
-// Private Functions
-// -----------------
-function generateUrlFor (plural) {
-  var app = baucis.app;
-  return app.get('urlPrefix') + '/v' + app.get('version') + '/' + plural;
-};
+//baucis.app.set('urlPrefix', '/api');
 
 // Middleware
 // ----------
@@ -256,7 +247,7 @@ baucis.rest = function (options) {
   if (!options.plural) options.plural = lingo.en.pluralize(options.singular);
 
   var app = baucis.app;
-  var url = generateUrlFor(options.plural);
+  var url = '/' + options.plural;
   var middleware = {
     all: options.all || [],
     head: options.head || [],
