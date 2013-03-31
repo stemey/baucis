@@ -4,26 +4,26 @@ var mongoose = require('mongoose');
 var lingo = require('lingo');
 
 // Function to return the model for a schema
-var model = function(schema) {
+var model = function (schema) {
   var singular = schema.metadata('singular');
   if (!mongoose.models[singular]) return null;
   return mongoose.model(schema.metadata('singular'));
 };
 
 // Functions to return middleware for HTTP verbs
-var get = function(schema) {
+var get = function (schema) {
   // retrieve the addressed document
-  var f = function(request, response, next) {
+  var f = function (request, response, next) {
     var id = request.params.id;
     var query = model(schema).findById(id);
     var populated = schema.metadata('populate') || [];
 
-    populated.forEach( function (field) {
+    populated.forEach(function (field) {
       query.populate(field);
     });
 
-    query.exec(function (err, doc) {
-      if (err) return next(err);
+    query.exec(function (error, doc) {
+      if (error) return next(error);
       if (doc === null) return response.send(404);
       return response.json(doc);
     });
@@ -32,7 +32,7 @@ var get = function(schema) {
   return f;
 };
 
-var post = function(schema) {
+var post = function (schema) {
   // treat the addressed document as a collection, and push the addressed object to it
   var f = function (request, response, next) {
     response.send(405); // method not allowed (as of yet unimplemented)
@@ -43,15 +43,15 @@ var post = function(schema) {
 
 var put = function (schema) {
   // replace the addressed document, or create it if nonexistant
-  var f = function(request, response, next) {
+  var f = function (request, response, next) {
     delete request.body._id; // can't send id for update, even if unchanged
 
-    var id     = request.params.id || null;
+    var id = request.params.id || null;
     var create = (id === null);
-    var query  = model(schema).findByIdAndUpdate(id, request.body, {upsert: true});
+    var query = model(schema).findByIdAndUpdate(id, request.body, {upsert: true});
 
-    query.exec( function (err, doc) {
-      if (err) return next(err);
+    query.exec(function (error, doc) {
+      if (error) return next(error);
 
       if (create) response.status(201);
       else response.status(200);
@@ -67,8 +67,8 @@ var del = function (schema) {
   // delete the addressed object
   var f = function (request, response, next) {
     var id = request.params.id;
-    model(schema).remove({ _id: id }).exec( function (err, count) {
-      if (err) return next(err);
+    model(schema).remove({ _id: id }).exec(function (error, count) {
+      if (error) return next(error);
       response.json(count);
     });
   };
@@ -87,8 +87,8 @@ var getCollection = function (schema) {
 
     var query = model(schema).find(conditions);
 
-    query.exec( function(err, docs) {
-      if (err) return next(err);
+    query.exec(function (error, docs) {
+      if (error) return next(error);
       response.json(docs);
     });
   };
@@ -98,30 +98,30 @@ var getCollection = function (schema) {
 
 var postCollection = function (schema) {
   // create a new document and return its ID
-  var f = function(request, response, next) {
+  var f = function (request, response, next) {
     if (!request.body || request.body.length === 0) {
       return next(new Error('Must supply a document or array to POST'));
     }
 
-    var Model     = model(schema);
-    var newDocs   = [];
+    var Model = model(schema);
+    var newDocs = [];
     var populated = schema.metadata('populate') || [];
-    var given     = request.body;
+    var given = request.body;
 
     if (!Array.isArray(given)) given = [given];
 
-    var docs = given.map( function(e) {
-      return new Model(e);
+    var docs = given.map(function (doc) {
+      return new Model(doc);
     });
 
-    docs.forEach( function (doc) {
-      doc.save(function (err, doc) {
-      	if (err) return next(err);
+    docs.forEach(function (doc) {
+      doc.save(function (error, doc) {
+      	if (error) return next(error);
 
       	var query = Model.findById(doc._id);
 
-      	query.exec( function (err, doc) {
-      	  if (err) return next(err);
+      	query.exec(function (error, doc) {
+      	  if (error) return next(error);
       	  newDocs.push(doc);
 
       	  if (newDocs.length === docs.length) {
@@ -148,11 +148,11 @@ var putCollection = function (schema) {
 
 var delCollection = function (schema) {
   // delete all documents matching conditions
-  var f = function(request, response, next) {
+  var f = function (request, response, next) {
     var conditions = request.body || {};
     var query = model(schema).remove(conditions);
-    query.exec(function (err, count) {
-      if (err) return next(err);
+    query.exec(function (error, count) {
+      if (error) return next(error);
       response.json(count);
     });
   };
@@ -163,11 +163,11 @@ var delCollection = function (schema) {
 // ---- Validation routes set up function ---- //
 // var validation = function (schema) {
 //   var validators = {};
-//   var f = function(request, response, next) {
+//   var f = function (request, response, next) {
 //     response.json(validators);
 //   };
 
-//   Object.keys(s.paths).forEach( function(path) {
+//   Object.keys(s.paths).forEach(function (path) {
 //     var pathValidators = [];
 
 //     if (path.enumValues.length > 0) {
@@ -209,7 +209,7 @@ baucis.rest = function (schemata) {
     }
     else {
       // hash -> array.  hash is e.g. result of requireindex
-      schemata = Object.keys(schemata).map( function (key) {
+      schemata = Object.keys(schemata).map(function (key) {
         return schemata[key];
       });
     }
