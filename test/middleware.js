@@ -1,13 +1,12 @@
-var requireindex  = require('requireindex');
-var expect        = require('expect.js');
-var mongoose      = require('mongoose');
-var express       = require('express');
-var passport      = require('passport')
+var expect = require('expect.js');
+var mongoose = require('mongoose');
+var express = require('express');
+var passport = require('passport')
 var LocalStrategy = require('passport-local').Strategy;
-var request       = require('request');
-var baucis        = require('..');
+var request = require('request');
+var baucis = require('..');
 
-var fixtures = requireindex('./test/fixtures');
+var fixtures = require('./fixtures');
 
 describe('Middleware', function () {
   before(fixtures.vegetable.init);

@@ -1,8 +1,7 @@
-var requireindex = require('requireindex');
-var expect       = require('expect.js');
-var request      = require('request');
+var expect = require('expect.js');
+var request = require('request');
 
-var fixtures = requireindex('./test/fixtures');
+var fixtures = require('./fixtures');
 
 describe('DEL plural', function () {
   before(fixtures.vegetable.init);
@@ -11,7 +10,7 @@ describe('DEL plural', function () {
 
   it('should delete all documents in addressed collection', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/vegetables/',
+      url: 'http://localhost:8012/api/v1/vegetables/',
       json: true
     };
     request.del(options, function (err, response, body) {

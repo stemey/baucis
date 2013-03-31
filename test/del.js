@@ -1,8 +1,7 @@
-var requireindex = require('requireindex');
-var expect       = require('expect.js');
-var request      = require('request');
+var expect = require('expect.js');
+var request = require('request');
 
-var fixtures = requireindex('./test/fixtures');
+var fixtures = require('./fixtures');
 
 describe('DEL singular', function () {
   before(fixtures.vegetable.init);
@@ -13,7 +12,7 @@ describe('DEL singular', function () {
     // make sure it's there
     var shitake = vegetables[3];
     var options = {
-      url: 'http://localhost:8012/api/vegetable/' + shitake._id,
+      url: 'http://localhost:8012/api/v1/vegetables/' + shitake._id,
       json: true
     };
 
@@ -21,7 +20,7 @@ describe('DEL singular', function () {
       if (error) return done(error);
 
       var options = {
-        url: 'http://localhost:8012/api/vegetable/' + shitake._id,
+        url: 'http://localhost:8012/api/v1/vegetables/' + shitake._id,
         json: true
       };
 
@@ -32,7 +31,7 @@ describe('DEL singular', function () {
 	      if (error) return done(error);
 
         var options = {
-          url: 'http://localhost:8012/api/vegetable/' + shitake._id,
+          url: 'http://localhost:8012/api/v1/vegetables/' + shitake._id,
           json: true
         };
 

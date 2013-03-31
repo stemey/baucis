@@ -7,23 +7,27 @@ var lingo = require('lingo');
 // Module Definition
 // -----------------
 var baucis = module.exports = function (options) {
-  options || (options = {});
+  options = options || {};
 
-  var app = baucis.app = express();
+  if (options.prefixUrl) baucis.app.set('urlPrefix', options.urlPrefix);
+  if (options.version) baucis.app.set('version', options.version);
 
-  app.set('urlPrefix', options.urlPrefix || '/api');
-  app.set('version', options.version || 1);
-
-  app.use(express.bodyParser());
-
-  return app;
+  return baucis.app;
 };
+
+baucis.app = express();
+baucis.app.use(express.bodyParser());
+
+// Default Settings
+// ----------------
+baucis.app.set('urlPrefix', '/api');
+baucis.app.set('version', 1);
 
 // Private Functions
 // -----------------
 function generateUrlFor (plural) {
   var app = baucis.app;
-  return app.get('urlPrefix') + '/' + app.get('version') + '/' + plural;
+  return app.get('urlPrefix') + '/v' + app.get('version') + '/' + plural;
 };
 
 // Middleware
@@ -148,8 +152,8 @@ var getCollection = function (options) {
   return f;
 };
 
+// Create a new document and return its ID
 var postCollection = function (options) {
-  // create a new document and return its ID
   var f = function (request, response, next) {
     if (!request.body || request.body.length === 0) {
       return next(new Error('Must supply a document or array to POST'));
@@ -188,8 +192,8 @@ var postCollection = function (options) {
   return f;
 };
 
+// Replace all docs with given docs ...
 var putCollection = function (options) {
-  // replace all docs with given docs ...
   var f = function (request, response, next) {
     response.send(405); // method not allowed (as of yet unimplemented)
   };
@@ -197,8 +201,8 @@ var putCollection = function (options) {
   return f;
 };
 
+// Delete all documents matching conditions
 var delCollection = function (options) {
-  // delete all documents matching conditions
   var f = function (request, response, next) {
     var conditions = request.body || {};
     var query = mongoose.model(options.singular).remove(conditions);
@@ -249,28 +253,35 @@ baucis.rest = function (options) {
   if (options.private) return null;
   if (!options.schema) throw new Error('Must supply a schema')
 
-  if (!options.plural) options.plural = lingo.pluralize(singular);
+  if (!options.plural) options.plural = lingo.en.pluralize(options.singular);
 
   var app = baucis.app;
-  var middleware = options.middleware || [];
   var url = generateUrlFor(options.plural);
+  var middleware = {
+    all: options.all || [],
+    head: options.head || [],
+    get: options.get || [],
+    post: options.post || [],
+    put: options.put || [],
+    del: options.del || []
+  };
 
   // Add to mongoose models if not already present
   if (!mongoose.models[options.singular]) {
     mongoose.model(options.singular, options.schema, options.plural);
   }
 
-  app.head(url + '/:id', middleware, head(options));
-  app.get(url + '/:id', middleware, get(options));
-  app.post(url + '/:id', middleware, post(options));
-  app.put(url + '/:id', middleware, put(options));
-  app.del(url + '/:id', middleware, del(options));
+  app.head(url + '/:id', middleware.all, middleware.head, head(options));
+  app.get(url + '/:id', middleware.all, middleware.get, get(options));
+  app.post(url + '/:id', middleware.all, middleware.post, post(options));
+  app.put(url + '/:id', middleware.all, middleware.put, put(options));
+  app.del(url + '/:id', middleware.all, middleware.del, del(options));
 
-  app.head(url, middleware, headCollection(options));
-  app.get(url, middleware, getCollection(options));
-  app.post(url, middleware, postCollection(options));
-  app.put(url, middleware, putCollection(options));
-  app.del(url, middleware, delCollection(options));
+  app.head(url, middleware.all, middleware.head, headCollection(options));
+  app.get(url, middleware.all, middleware.get, getCollection(options));
+  app.post(url, middleware.all, middleware.post, postCollection(options));
+  app.put(url, middleware.all, middleware.put, putCollection(options));
+  app.del(url, middleware.all, middleware.del, delCollection(options));
 
   return url;
 };

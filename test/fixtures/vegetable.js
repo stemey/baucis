@@ -13,25 +13,19 @@ module.exports = {
 
     var Vegetable = new Schema({
       name: String
-    },
-    {
-      safe: true,
-      strict: true
     });
 
-    Vegetable.metadata({
+    baucis.rest({
+      schema: Vegetable,
       singular: 'vegetable',
-      plural: 'vegetables',
-      middleware: function (request, response, next) {
+      all: function (request, response, next) {
         if (request.query.block === 1) return response.status(401);
-        else return next();
+        next();
       }
     });
 
-    mongoose.model(Vegetable.metadata('singular'), Vegetable, Vegetable.metadata('plural'));
-
     app = express();
-    app.use('/api', baucis.rest(Vegetable));
+    app.use(baucis());
 
     server = app.listen(8012);
 
@@ -44,23 +38,23 @@ module.exports = {
   },
   create: function(done) {
     // clear all first
-    mongoose.models['vegetable'].remove({}, function (err) {
-      if (err) return done(err);
+    mongoose.model('vegetable').remove({}, function (error) {
+      if (error) return done(error);
 
       var names = ['Turnip',   'Spinach',   'Pea',
           		     'Shitake',  'Lima Bean', 'Carrot',
                    'Zucchini', 'Radicchio'];
 
-      vegetables = names.map( function (name) { // TODO leaked global
-	      return new mongoose.models['vegetable']({ name: name });
+      vegetables = names.map(function (name) { // TODO leaked global
+	      return new (mongoose.model('vegetable'))({ name: name });
       });
 
       var numberToSave = names.length;
 
-      vegetables.forEach( function (vege) {
-      	vege.save( function (err) {
+      vegetables.forEach(function (vege) {
+      	vege.save(function (error) {
       	  numberToSave--;
-      	  if (err)                return done(err);
+      	  if (error) return done(error);
       	  if (numberToSave === 0) return done();
       	});
       });
