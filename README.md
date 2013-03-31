@@ -17,51 +17,54 @@ An example of creating a REST API:
 
     var baucis = require('baucis');
 
+    // Define a Mongoose schema
     var Vegetable = new Schema({
       name: String
     });
 
-    Vegetable.metadata({
+    // Create routes for the schema
+    baucis.rest({
+      schema: Vegetable,
       singular: 'vegetable'
     });
 
-    var app = express.createServer();
-    app.use('/api', baucis.rest(Vegetable));
-
+    // Create the app and listen for API requests
+    var app = express();
+    app.use('/api/v1', baucis());
     app.listen(80);
 
 Later make requests:
 
- * GET /api/vegetables/:id &mdash; get the addressed document
- * PUT /api/vegetables/:id &mdash; create or update the addressed document
- * DEL /api/vegetables/:id &mdash; delete the addressed object
+ * GET /api/v1/vegetables/:id &mdash; get the addressed document
+ * PUT /api/v1/vegetables/:id &mdash; create or update the addressed document
+ * DEL /api/v1/vegetables/:id &mdash; delete the addressed object
 
- * GET /api/vegetables/ &mdash; get all documents
- * POST /api/vegetables/ &mdash; creates a new document and sends back its ID
- * PUT /api/vegetables/ &mdash; replace all documents with given new documents
- * DEL /api/vegetables/ &mdash; delete all documents
+ * GET /api/v1/vegetables &mdash; get all documents
+ * POST /api/v1/vegetables &mdash; creates a new document and sends back its ID
+ * PUT /api/v1/vegetables &mdash; replace all documents with given new documents
+ * DEL /api/v1/vegetables &mdash; delete all documents
 
 Requests to the collection (not its members) take standard MongoDB query parameters to filter the documents based on custom criteria.
 
 Examples with jQuery:
 
-    $.getJSON('/api/vegetables/4f4028e6e5139bf4e472cca1', function (data) {
+    $.getJSON('/api/v1/vegetables/4f4028e6e5139bf4e472cca1', function (data) {
       console.log(data);
     });
 
     $.ajax({
       type: 'POST',
       dataType: 'json',
-      url: '/api/vegetables/',
+      url: '/api/v1/vegetables',
       data: { name: 'Potato' }
-    }).done(function( id ) {
-      console.log(id);
+    }).done(function (vegetable) {
+      console.dir(vegetable);
     });
 
 An example `sync` method for a Backbone model:
 
       function (method, model, options) {
-        var url  = '/api/vegetables/';
+        var url  = '/api/v1/vegetables';
 
         if (method !== 'create') url += model.id;
 
@@ -71,16 +74,12 @@ An example `sync` method for a Backbone model:
         return Backbone.sync(method, model, options);
       }
 
-`baucis.rest` will accept arrays, hashes, or single `Schema` objects.  An example with require-index:
+Use middleware for security, etc.  Middleware is plain old Connect middleware, so it can be used with pre-existing modules like `passport`.  For example, set the `all` option to add middleware to be called before all the model's API routes.
 
-    var schemata = requireindex('./schemata');
-    app.use('/api/v1', baucis.rest(schemata));
-
-Use middleware for security, etc.  Middleware is plain old Connect middleware, so it can be used with pre-existing modules like passport.  Set the middleware metadata to a function or array of functions.
-
-    Vegetable.metadata({
+    baucis.rest({
+      schema: Vegetable,
       singular: 'vegetable',
-      middleware: function(request, response, next) {
+      all: function (request, response, next) {
         if (request.isAuthenticated()) return next();
         return response.send(401);
       }
@@ -91,4 +90,4 @@ Contact Info
  * http://kun.io/
  * @wprl
 
-&copy; 2012 William P. Riley-Land
+&copy; 2012-2013 William P. Riley-Land
