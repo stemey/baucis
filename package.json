@@ -11,6 +11,7 @@
   },
   "license": "MIT",
   "description": "Module for automatically creating REST interfaces for mongoose schemata",
+  "keywords": [ 'REST', 'API', 'mongoose', 'schema', 'schemata', 'mongo', 'automatic' ],
   "devDependencies": {
     "mocha": "~1.8.2"
   },
