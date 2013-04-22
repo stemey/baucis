@@ -45,8 +45,6 @@ Later make requests:
 
 Baucis supports embedding controllers in other controllers, as well as embedding arbitrary routes and middleware.
 
-    var baucis = require('baucis');
-
     var controller = baucis.rest({
       singular: 'foo'
     });
