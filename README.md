@@ -51,7 +51,10 @@ Baucis supports embedding controllers in other controllers, as well as embedding
 
     var subcontroller = baucis.rest({
       singular: 'bar',
-      publish: false // don't add routes automatically
+      publish: false, // don't add routes automatically
+      restrict: function (query, request) {
+        query.where({ parent: request.params.fooId });
+      }
     });
 
     // Embed the subcontroller at /foos/:fooId/bars

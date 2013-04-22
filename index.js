@@ -34,7 +34,7 @@ var head = function (options) {
     var id = request.params.id;
     var query = mongoose.model(options.singular).findById(id);
 
-    if (options.restrict) options.restrict(query);
+    if (options.restrict) options.restrict(query, request);
 
     query.count(function (error, count) {
       if (error) return next(error);
@@ -52,7 +52,7 @@ var get = function (options) {
     var id = request.params.id;
     var query = mongoose.model(options.singular).findById(id);
 
-    if (options.restrict) options.restrict(query);
+    if (options.restrict) options.restrict(query, request);
 
     query.exec(function (error, doc) {
       if (error) return next(error);
@@ -84,7 +84,7 @@ var put = function (options) {
     var create = (id === null);
     var query = mongoose.model(options.singular).findByIdAndUpdate(id, request.body, {upsert: true});
 
-    if (options.restrict) options.restrict(query);
+    if (options.restrict) options.restrict(query, request);
 
     query.exec(function (error, doc) {
       if (error) return next(error);
@@ -105,7 +105,7 @@ var del = function (options) {
     var id = request.params.id;
     var query = mongoose.model(options.singular).remove({ _id: id });
 
-    if (options.restrict) options.restrict(query);
+    if (options.restrict) options.restrict(query, request);
 
     query.exec(function (error, count) {
       if (error) return next(error);
@@ -128,7 +128,7 @@ var headCollection = function (options) {
 
     query = mongoose.model(options.singular).find(conditions);
 
-    if (options.restrict) options.restrict(query);
+    if (options.restrict) options.restrict(query, request);
 
     query.count(function (error, count) {
       if (error) return next(error);
@@ -151,7 +151,7 @@ var getCollection = function (options) {
 
     query = mongoose.model(options.singular).find(conditions);
 
-    if (options.restrict) options.restrict(query);
+    if (options.restrict) options.restrict(query, request);
 
     query.exec(function (error, docs) {
       if (error) return next(error);
@@ -185,7 +185,7 @@ var postCollection = function (options) {
 
       	var query = Model.findById(doc._id);
 
-        if (options.restrict) options.restrict(query);
+        if (options.restrict) options.restrict(query, request);
 
       	query.exec(function (error, doc) {
       	  if (error) return next(error);
@@ -219,7 +219,7 @@ var delCollection = function (options) {
     var conditions = request.body || {};
     var query = mongoose.model(options.singular).remove(conditions);
 
-    if (options.restrict) options.restrict(query);
+    if (options.restrict) options.restrict(query, request);
 
     query.exec(function (error, count) {
       if (error) return next(error);
