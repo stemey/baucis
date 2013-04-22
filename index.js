@@ -246,8 +246,7 @@ baucis.rest = function (options) {
 
   if (!options.plural) options.plural = lingo.en.pluralize(options.singular);
 
-  var app = baucis.app;
-  var url = '/' + options.plural;
+  var controller = express();
   var middleware = {
     all: options.all || [],
     head: options.head || [],
@@ -262,17 +261,19 @@ baucis.rest = function (options) {
     mongoose.model(options.singular, options.schema, options.plural);
   }
 
-  app.head(url + '/:id', middleware.all, middleware.head, head(options));
-  app.get(url + '/:id', middleware.all, middleware.get, get(options));
-  app.post(url + '/:id', middleware.all, middleware.post, post(options));
-  app.put(url + '/:id', middleware.all, middleware.put, put(options));
-  app.del(url + '/:id', middleware.all, middleware.del, del(options));
+  controller.head('/:id', middleware.all, middleware.head, head(options));
+  controller.get('/:id', middleware.all, middleware.get, get(options));
+  controller.post('/:id', middleware.all, middleware.post, post(options));
+  controller.put('/:id', middleware.all, middleware.put, put(options));
+  controller.del('/:id', middleware.all, middleware.del, del(options));
 
-  app.head(url, middleware.all, middleware.head, headCollection(options));
-  app.get(url, middleware.all, middleware.get, getCollection(options));
-  app.post(url, middleware.all, middleware.post, postCollection(options));
-  app.put(url, middleware.all, middleware.put, putCollection(options));
-  app.del(url, middleware.all, middleware.del, delCollection(options));
+  controller.head('/', middleware.all, middleware.head, headCollection(options));
+  controller.get('/', middleware.all, middleware.get, getCollection(options));
+  controller.post('/', middleware.all, middleware.post, postCollection(options));
+  controller.put('/', middleware.all, middleware.put, putCollection(options));
+  controller.del('/', middleware.all, middleware.del, delCollection(options));
 
-  return url;
+  baucis.use('/' + options.plural, controller);
+
+  return controller;
 };
