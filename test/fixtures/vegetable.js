@@ -15,8 +15,9 @@ module.exports = {
       name: String
     });
 
+    if (!mongoose.models['vegetable']) mongoose.model('vegetable', Vegetable);
+
     baucis.rest({
-      schema: Vegetable,
       singular: 'vegetable',
       all: function (request, response, next) {
         if (request.query.block === 1) return response.status(401);

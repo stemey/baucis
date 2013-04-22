@@ -1,25 +1,28 @@
 // Dependencies
 // ------------
+// Dependencies
+// ------------
 var express = require('express');
 var mongoose = require('mongoose');
 var lingo = require('lingo');
+
+// Private Members
+// ---------------
+var app = express();
 
 // Module Definition
 // -----------------
 var baucis = module.exports = function (options) {
   options = options || {};
 
-  //if (options.prefixUrl) baucis.app.set('urlPrefix', options.urlPrefix);
+  //if (options.prefixUrl) app.set('urlPrefix', options.urlPrefix);
 
-  return baucis.app;
+  return app;
 };
-
-baucis.app = express();
-baucis.app.use(express.bodyParser());
 
 // Default Settings
 // ----------------
-//baucis.app.set('urlPrefix', '/api');
+//app.set('urlPrefix', '/api');
 
 // Middleware
 // ----------
@@ -30,6 +33,8 @@ var head = function (options) {
   var f = function (request, response, next) {
     var id = request.params.id;
     var query = mongoose.model(options.singular).findById(id);
+
+    if (options.restrict) options.restrict(query);
 
     query.count(function (error, count) {
       if (error) return next(error);
@@ -46,6 +51,8 @@ var get = function (options) {
   var f = function (request, response, next) {
     var id = request.params.id;
     var query = mongoose.model(options.singular).findById(id);
+
+    if (options.restrict) options.restrict(query);
 
     query.exec(function (error, doc) {
       if (error) return next(error);
@@ -77,6 +84,8 @@ var put = function (options) {
     var create = (id === null);
     var query = mongoose.model(options.singular).findByIdAndUpdate(id, request.body, {upsert: true});
 
+    if (options.restrict) options.restrict(query);
+
     query.exec(function (error, doc) {
       if (error) return next(error);
 
@@ -94,7 +103,11 @@ var put = function (options) {
 var del = function (options) {
   var f = function (request, response, next) {
     var id = request.params.id;
-    mongoose.model(options.singular).remove({ _id: id }).exec(function (error, count) {
+    var query = mongoose.model(options.singular).remove({ _id: id });
+
+    if (options.restrict) options.restrict(query);
+
+    query.exec(function (error, count) {
       if (error) return next(error);
       response.json(count);
     });
@@ -114,6 +127,9 @@ var headCollection = function (options) {
     }
 
     query = mongoose.model(options.singular).find(conditions);
+
+    if (options.restrict) options.restrict(query);
+
     query.count(function (error, count) {
       if (error) return next(error);
       response.send(200);
@@ -134,6 +150,9 @@ var getCollection = function (options) {
     }
 
     query = mongoose.model(options.singular).find(conditions);
+
+    if (options.restrict) options.restrict(query);
+
     query.exec(function (error, docs) {
       if (error) return next(error);
       response.json(docs);
@@ -166,6 +185,8 @@ var postCollection = function (options) {
 
       	var query = Model.findById(doc._id);
 
+        if (options.restrict) options.restrict(query);
+
       	query.exec(function (error, doc) {
       	  if (error) return next(error);
       	  newDocs.push(doc);
@@ -197,6 +218,9 @@ var delCollection = function (options) {
   var f = function (request, response, next) {
     var conditions = request.body || {};
     var query = mongoose.model(options.singular).remove(conditions);
+
+    if (options.restrict) options.restrict(query);
+
     query.exec(function (error, count) {
       if (error) return next(error);
       response.json(count);
@@ -206,7 +230,8 @@ var delCollection = function (options) {
   return f;
 };
 
-// ---- Validation routes set up function ---- //
+// Validation
+// ----------
 // var validation = function (options) {
 //   var validators = {};
 //   var f = function (request, response, next) {
@@ -238,42 +263,38 @@ var delCollection = function (options) {
 //   return f;
 // };
 
+// Public Methods
+// --------------
 baucis.rest = function (options) {
-  options || (options = {});
+  options || (options = {}); // TODO clone
 
-  if (options.private) return null;
-  if (!options.schema) throw new Error('Must supply a schema')
-
+  if (!options.singular) throw new Error('Must provide the Mongoose schema name');
   if (!options.plural) options.plural = lingo.en.pluralize(options.singular);
 
   var controller = express();
-  var middleware = {
-    all: options.all || [],
-    head: options.head || [],
-    get: options.get || [],
-    post: options.post || [],
-    put: options.put || [],
-    del: options.del || []
-  };
 
-  // Add to mongoose models if not already present
-  if (!mongoose.models[options.singular]) {
-    mongoose.model(options.singular, options.schema, options.plural);
-  }
+  controller.use(express.bodyParser());
 
-  controller.head('/:id', middleware.all, middleware.head, head(options));
-  controller.get('/:id', middleware.all, middleware.get, get(options));
-  controller.post('/:id', middleware.all, middleware.post, post(options));
-  controller.put('/:id', middleware.all, middleware.put, put(options));
-  controller.del('/:id', middleware.all, middleware.del, del(options));
+  if (options.all) controller.all('/:id?', options.all);
+  if (options.head) controller.head('/:id?', options.head);
+  if (options.get) controller.get('/:id?', options.get);
+  if (options.post) controller.post('/:id?', options.post);
+  if (options.put) controller.put('/:id?', options.put);
+  if (options.del) controller.del('/:id?', options.del);
 
-  controller.head('/', middleware.all, middleware.head, headCollection(options));
-  controller.get('/', middleware.all, middleware.get, getCollection(options));
-  controller.post('/', middleware.all, middleware.post, postCollection(options));
-  controller.put('/', middleware.all, middleware.put, putCollection(options));
-  controller.del('/', middleware.all, middleware.del, delCollection(options));
+  if (options.head !== false) controller.head('/:id', head(options));
+  if (options.get  !== false) controller.get('/:id', get(options));
+  if (options.post !== false) controller.post('/:id', post(options));
+  if (options.put  !== false) controller.put('/:id', put(options));
+  if (options.del  !== false) controller.del('/:id', del(options));
 
-  baucis.use('/' + options.plural, controller);
+  if (options.head !== false) controller.head('/', headCollection(options));
+  if (options.get  !== false) controller.get('/', getCollection(options));
+  if (options.post !== false) controller.post('/', postCollection(options));
+  if (options.put  !== false) controller.put('/', putCollection(options));
+  if (options.del  !== false) controller.del('/', delCollection(options));
+
+  if (options.publish !== false) app.use('/' + options.plural, controller);
 
   return controller;
 };
