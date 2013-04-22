@@ -52,7 +52,7 @@ Baucis supports embedding controllers in other controllers, as well as embedding
     var subcontroller = baucis.rest({
       singular: 'bar',
       publish: false, // don't add routes automatically
-      restrict: function (query, request) {
+      restrict: function (query, request) { // allows direct access to the Mongoose query
         query.where({ parent: request.params.fooId });
       }
     });
@@ -60,7 +60,7 @@ Baucis supports embedding controllers in other controllers, as well as embedding
     // Embed the subcontroller at /foos/:fooId/bars
     controller.use('/:fooId/bars', subcontroller);
 
-    // Embed arbitrary middleware
+    // Embed arbitrary middleware at /foos/:fooId/qux
     controller.use('/:fooId/qux', function (request, response, next) {
       // Do something cool…
       next();
@@ -72,7 +72,6 @@ Controllers are Express apps, so do whatever you want with them.
       singular: 'robot'
     });
 
-    controller.use(express.cookieParser());
     controller.set('some option name', 'value');
     controller.listen(3000);
 
