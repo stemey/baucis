@@ -24,7 +24,6 @@ An example of creating a REST API:
 
     // Create routes for the schema
     baucis.rest({
-      schema: Vegetable,
       singular: 'vegetable'
     });
 
@@ -43,6 +42,43 @@ Later make requests:
  * POST /api/v1/vegetables &mdash; creates a new document and sends back its ID
  * PUT /api/v1/vegetables &mdash; replace all documents with given new documents
  * DEL /api/v1/vegetables &mdash; delete all documents
+
+Baucis supports embedding controllers in other controllers, as well as embedding arbitrary routes and middleware.
+
+    var baucis = require('baucis');
+
+    var controller = baucis.rest({
+      singular: 'foo'
+    });
+
+    var subcontroller = baucis.rest({
+      singular: 'bar',
+      publish: false, // don't add routes automatically
+      restrict: function (query) {
+        query.where({ ticket: request.param('ticket') });
+      }
+    });
+
+    // Embed the subcontroller at /foos/:fooId/bars
+    controller.use('/:fooId/bars', subcontroller);
+
+    // Embed arbitrary middleware
+    controller.use('/:fooId/qux', function (request, response, next) {
+      // Do something cool…
+      next();
+    });
+
+Controllers are Express apps, so do whatever you want with them.
+
+    var controller = baucis.rest({
+      singular: 'robot'
+    });
+
+    controller.use(express.cookieParser());
+    controller.set('some option name', 'value');
+    controller.listen(3000);
+
+Baucis uses the power of Express, without getting in its way.  It's meant to be a way to organize your REST API's Express middleware.
 
 Requests to the collection (not its members) take standard MongoDB query parameters to filter the documents based on custom criteria.
 
