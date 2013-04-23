@@ -13,9 +13,7 @@ Like Baucis and Philemon of old, this library provides REST to the weary travele
 
 *David Rijckaert - Philemon and Baucis Giving Hospitality to Jupiter and Mercury*
 
-An example of creating a REST API:
-
-    var baucis = require('baucis');
+An example of creating a REST API from a Mongoose schema:
 
     // Define a Mongoose schema
     var Vegetable = new Schema({
@@ -43,7 +41,7 @@ Later make requests:
  * PUT /api/v1/vegetables &mdash; replace all documents with given new documents
  * DEL /api/v1/vegetables &mdash; delete all documents
 
-Baucis supports embedding controllers in other controllers, as well as embedding arbitrary routes and middleware.
+Baucis supports embedding controllers in other controllers, as well as embedding arbitrary routes and middleware.  `baucis.rest` returns an instance of the controller created to handle the schema's routes.
 
     var controller = baucis.rest({
       singular: 'foo'
@@ -72,6 +70,7 @@ Controllers are Express apps, so do whatever you want with them.
       singular: 'robot'
     });
 
+    controller.use(function () { ... });
     controller.set('some option name', 'value');
     controller.listen(3000);
 
@@ -94,20 +93,17 @@ Examples with jQuery:
       console.dir(vegetable);
     });
 
-An example `sync` method for a Backbone model:
+An example with Backbone:
 
-      function (method, model, options) {
-        var url  = '/api/v1/vegetables';
+    var Foos = Backbone.Collection.extend({
+      url: '/foos'
+    });
 
-        if (method !== 'create') url += model.id;
+    var Bar = Backbone.Model.extend({
+      urlRoot: '/bars'
+    });
 
-        options = options || {};
-        options.url = url;
-
-        return Backbone.sync(method, model, options);
-      }
-
-Use middleware for security, etc.  Middleware is plain old Connect middleware, so it can be used with pre-existing modules like `passport`.  For example, set the `all` option to add middleware to be called before all the model's API routes.
+Use middleware for security, etc.  Middleware is plain old Connect/Express middleware, so it can be used with pre-existing modules like `passport`.  For example, set the `all` option to add middleware to be called before all the model's API routes.
 
     baucis.rest({
       schema: Vegetable,
