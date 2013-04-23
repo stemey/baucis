@@ -1,7 +1,5 @@
 // Dependencies
 // ------------
-// Dependencies
-// ------------
 var express = require('express');
 var mongoose = require('mongoose');
 var lingo = require('lingo');
