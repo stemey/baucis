@@ -16,7 +16,7 @@ Like Baucis and Philemon of old, this library provides REST to the weary travele
 An example of creating a REST API from a Mongoose schema:
 
     // Define a Mongoose schema
-    var Vegetable = new Schema({
+    var Vegetable = new mongoose.Schema({
       name: String
     });
 
@@ -30,7 +30,7 @@ An example of creating a REST API from a Mongoose schema:
     app.use('/api/v1', baucis());
     app.listen(80);
 
-Later make requests:
+Later, make requests:
 
  * GET /api/v1/vegetables/:id &mdash; get the addressed document
  * PUT /api/v1/vegetables/:id &mdash; create or update the addressed document
@@ -41,7 +41,7 @@ Later make requests:
  * PUT /api/v1/vegetables &mdash; replace all documents with given new documents
  * DEL /api/v1/vegetables &mdash; delete all documents
 
-Baucis supports embedding controllers in other controllers, as well as embedding arbitrary routes and middleware.  `baucis.rest` returns an instance of the controller created to handle the schema's routes.
+`baucis.rest` returns an instance of the controller created to handle the schema's routes.
 
     var controller = baucis.rest({
       singular: 'foo'
@@ -50,7 +50,7 @@ Baucis supports embedding controllers in other controllers, as well as embedding
     var subcontroller = baucis.rest({
       singular: 'bar',
       publish: false, // don't add routes automatically
-      restrict: function (query, request) { // allows direct access to the Mongoose query
+      restrict: function (query, request) { // allows direct access to the Mongoose queries
         query.where({ parent: request.params.fooId });
       }
     });
@@ -103,10 +103,9 @@ An example with Backbone:
       urlRoot: '/bars'
     });
 
-Use middleware for security, etc.  Middleware is plain old Connect/Express middleware, so it can be used with pre-existing modules like `passport`.  For example, set the `all` option to add middleware to be called before all the model's API routes.
+Use plain old Connect/Express middleware, including pre-existing modules like `passport`.  For example, set the `all` option to add middleware to be called before all the model's API routes.
 
     baucis.rest({
-      schema: Vegetable,
       singular: 'vegetable',
       all: function (request, response, next) {
         if (request.isAuthenticated()) return next();
@@ -114,7 +113,17 @@ Use middleware for security, etc.  Middleware is plain old Connect/Express middl
       }
     });
 
+Or, set some middleware for specific HTTP verbs:
+
+    baucis.rest({
+      singular: 'vegetable',
+      get: [middleware1, middleware2],
+      post: middleware3,
+      del: [middleware4, middleware5]
+    });
+
 Contact Info
+------------
 
  * http://kun.io/
  * @wprl
