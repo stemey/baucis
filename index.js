@@ -275,6 +275,8 @@ baucis.rest = function (options) {
 
   controller.use(express.bodyParser());
 
+  if (options.configure) options.configure(controller);
+
   if (options.all) controller.all('/:id?', options.all);
   if (options.head) controller.head('/:id?', options.head);
   if (options.get) controller.get('/:id?', options.get);

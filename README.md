@@ -1,4 +1,4 @@
-baucis v0.2.1
+baucis v0.2.2
 =============
 
 *** WORK IN PROGRESS ***
