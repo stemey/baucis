@@ -19,6 +19,8 @@ An example of creating a REST API from a Mongoose schema:
     var Vegetable = new mongoose.Schema({
       name: String
     });
+    
+    mongoose.model('vegetable', Vegetable);
 
     // Create routes for the schema
     baucis.rest({
