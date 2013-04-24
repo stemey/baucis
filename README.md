@@ -1,4 +1,4 @@
-baucis v0.2.2
+baucis v0.2.3
 =============
 
 *** WORK IN PROGRESS ***
@@ -19,7 +19,7 @@ An example of creating a REST API from a Mongoose schema:
     var Vegetable = new mongoose.Schema({
       name: String
     });
-    
+
     mongoose.model('vegetable', Vegetable);
 
     // Create routes for the schema

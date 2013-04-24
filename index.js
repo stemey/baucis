@@ -3,6 +3,7 @@
 var express = require('express');
 var mongoose = require('mongoose');
 var lingo = require('lingo');
+var path = require('path');
 
 // Private Members
 // ---------------
@@ -270,29 +271,34 @@ baucis.rest = function (options) {
   if (!options.plural) options.plural = lingo.en.pluralize(options.singular);
 
   var controller = express();
+  var basePath = path.join('/', options.basePath);
+  var basePathWithId = path.join(basePath, ':id');
+  var basePathWithOptionalId = path.join(basePath, ':id?');
+
+  console.log(basePathWithOptionalId);
 
   controller.use(express.bodyParser());
 
   if (options.configure) options.configure(controller);
 
-  if (options.all) controller.all('/:id?', options.all);
-  if (options.head) controller.head('/:id?', options.head);
-  if (options.get) controller.get('/:id?', options.get);
-  if (options.post) controller.post('/:id?', options.post);
-  if (options.put) controller.put('/:id?', options.put);
-  if (options.del) controller.del('/:id?', options.del);
+  if (options.all) controller.all(basePathWithOptionalId, options.all);
+  if (options.head) controller.head(basePathWithOptionalId, options.head);
+  if (options.get) controller.get(basePathWithOptionalId, options.get);
+  if (options.post) controller.post(basePathWithOptionalId, options.post);
+  if (options.put) controller.put(basePathWithOptionalId, options.put);
+  if (options.del) controller.del(basePathWithOptionalId, options.del);
 
-  if (options.head !== false) controller.head('/:id', head(options));
-  if (options.get  !== false) controller.get('/:id', get(options));
-  if (options.post !== false) controller.post('/:id', post(options));
-  if (options.put  !== false) controller.put('/:id', put(options));
-  if (options.del  !== false) controller.del('/:id', del(options));
+  if (options.head !== false) controller.head(basePathWithId, head(options));
+  if (options.get  !== false) controller.get(basePathWithId, get(options));
+  if (options.post !== false) controller.post(basePathWithId, post(options));
+  if (options.put  !== false) controller.put(basePathWithId, put(options));
+  if (options.del  !== false) controller.del(basePathWithId, del(options));
 
-  if (options.head !== false) controller.head('/', headCollection(options));
-  if (options.get  !== false) controller.get('/', getCollection(options));
-  if (options.post !== false) controller.post('/', postCollection(options));
-  if (options.put  !== false) controller.put('/', putCollection(options));
-  if (options.del  !== false) controller.del('/', delCollection(options));
+  if (options.head !== false) controller.head(basePath, headCollection(options));
+  if (options.get  !== false) controller.get(basePath, getCollection(options));
+  if (options.post !== false) controller.post(basePath, postCollection(options));
+  if (options.put  !== false) controller.put(basePath, putCollection(options));
+  if (options.del  !== false) controller.del(basePath, delCollection(options));
 
   if (options.publish !== false) app.use('/' + options.plural, controller);
 
