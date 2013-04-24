@@ -275,8 +275,6 @@ baucis.rest = function (options) {
   var basePathWithId = path.join(basePath, ':id');
   var basePathWithOptionalId = path.join(basePath, ':id?');
 
-  console.log(basePathWithOptionalId);
-
   controller.use(express.bodyParser());
 
   if (options.configure) options.configure(controller);
