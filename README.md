@@ -1,4 +1,4 @@
-baucis v0.2.3-1
+baucis v0.2.3-2
 ===============
 
 *** WORK IN PROGRESS ***
@@ -12,6 +12,13 @@ Like Baucis and Philemon of old, this library provides REST to the weary travele
 ![David Rjckaert III - Philemon and Baucis Giving Hospitality to Jupiter and Mercury](http://github.com/wprl/baucis/raw/master/david_rijckaert_iii-philemon_and_baucis.jpg "Hermes is like: 'Hey Baucis, don't kill that goose.  And thanks for the REST.'")
 
 *David Rijckaert - Philemon and Baucis Giving Hospitality to Jupiter and Mercury*
+
+Usage
+-----
+
+To install:
+
+    npm install baucis
 
 An example of creating a REST API from a Mongoose schema:
 
@@ -43,40 +50,75 @@ Later, make requests:
  * PUT /api/v1/vegetables &mdash; replace all documents with given new documents
  * DEL /api/v1/vegetables &mdash; delete all documents
 
-`baucis.rest` returns an instance of the controller created to handle the schema's routes.
+Use plain old Connect/Express middleware, including pre-existing modules like `passport`.  For example, set the `all` option to add middleware to be called before all the model's API routes.
 
-    var controller = baucis.rest({
-      singular: 'foo'
-    });
-
-    var subcontroller = baucis.rest({
-      singular: 'bar',
-      publish: false, // don't add routes automatically
-      restrict: function (query, request) { // allows direct access to the Mongoose queries
-        query.where({ parent: request.params.fooId });
+    baucis.rest({
+      singular: 'vegetable',
+      all: function (request, response, next) {
+        if (request.isAuthenticated()) return next();
+        return response.send(401);
       }
     });
 
-    // Embed the subcontroller at /foos/:fooId/bars
-    controller.use('/:fooId/bars', subcontroller);
+Or, set some middleware for specific HTTP verbs or disable verbs completely:
 
-    // Embed arbitrary middleware at /foos/:fooId/qux
-    controller.use('/:fooId/qux', function (request, response, next) {
-      // Do something cool…
-      next();
+    baucis.rest({
+      singular: 'vegetable',
+      get: [middleware1, middleware2],
+      post: middleware3,
+      del: false,
+      put: false
+    });
+
+`baucis.rest` returns an instance of the controller created to handle the schema's API routes.
+
+    var subcontroller = baucis.rest({
+      singular: 'bar',
+      basePath: '/:fooId/bars'
+      publish: false, // don't add API routes automatically
+      restrict: function (query, request) {
+        // Only retrieve bars that are children of the given foo
+        query.where('parent', request.params.fooId);
+      }
+    });
+
+    var controller = baucis.rest({
+      singular: 'foo',
+      configure: function (controller) {
+        // Embed the subcontroller at /foos/:fooId/bars
+        controller.use(subcontroller);
+
+        // Embed arbitrary middleware at /foos/qux
+        controller.use('/qux', function (request, response, next) {
+          // Do something cool…
+          next();
+        });
+      }
     });
 
 Controllers are Express apps, so do whatever you want with them.
 
     var controller = baucis.rest({
-      singular: 'robot'
+      singular: 'robot',
+      configure: function (controller) {
+        // Add middleware before all other rotues in the controller
+        controller.use(express.cookieParser());
+      }
     });
 
+    // Add middleware after default controller routes
     controller.use(function () { ... });
     controller.set('some option name', 'value');
     controller.listen(3000);
 
 Baucis uses the power of Express, without getting in its way.  It's meant to be a way to organize your REST API's Express middleware.
+
+Also note that Mongoose middleware will be executed as usual.
+
+    Vegetable.pre('save', function () { ... });
+
+Examples
+--------
 
 Requests to the collection (not its members) take standard MongoDB query parameters to filter the documents based on custom criteria.
 
@@ -95,34 +137,30 @@ Examples with jQuery:
       console.dir(vegetable);
     });
 
+    $.ajax({
+      type: 'GET',
+      dataType: 'json',
+      url: '/api/v1/vegetables',
+      data: { query: JSON.stringify({ color: 'red' }) }
+    }).done(function (vegetables) {
+      console.dir(vegetables);
+    });
+
 An example with Backbone:
 
-    var Foos = Backbone.Collection.extend({
-      url: '/foos'
-    });
-
-    var Bar = Backbone.Model.extend({
-      urlRoot: '/bars'
-    });
-
-Use plain old Connect/Express middleware, including pre-existing modules like `passport`.  For example, set the `all` option to add middleware to be called before all the model's API routes.
-
-    baucis.rest({
-      singular: 'vegetable',
-      all: function (request, response, next) {
-        if (request.isAuthenticated()) return next();
-        return response.send(401);
+    var Vegetables = Backbone.Collection.extend({
+      url: '/vegetables',
+      baucis: function (query) {
+        return this.fetch({ data: { query: JSON.stringify(query) } });
       }
     });
 
-Or, set some middleware for specific HTTP verbs:
-
-    baucis.rest({
-      singular: 'vegetable',
-      get: [middleware1, middleware2],
-      post: middleware3,
-      del: [middleware4, middleware5]
+    var Vegetable = Backbone.Model.extend({
+      urlRoot: '/vegetables'
     });
+
+    var redVeges = new Vegetables();
+    redVeges.baucis({ color: 'red' }).then(function () { ... });
 
 Contact Info
 ------------
