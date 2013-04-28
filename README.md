@@ -11,7 +11,7 @@ Those versions published to npm represent release versions.  Those versions not 
 
 Relase versions of baucis can be considered stable.  (Please report issues on  GitHub if bugs are encountered.)
 
-The API is subject to change.  (Using semver to not changes in API.)
+The API is subject to change.  (Baucis uses semver.)
 
 ![David Rjckaert III - Philemon and Baucis Giving Hospitality to Jupiter and Mercury](http://github.com/wprl/baucis/raw/master/david_rijckaert_iii-philemon_and_baucis.jpg "Hermes is like: 'Hey Baucis, don't kill that goose.  And thanks for the REST.'")
 
