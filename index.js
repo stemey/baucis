@@ -228,6 +228,7 @@ function addLinkRelations (options) {
       collection: options.basePath,
       search: options.basePath,
       edit: path.join(options.basePath, request.params.id),
+      self: path.join(options.basePath, request.params.id),
       'latest-version': path.join(options.basePath, request.params.id)
     });
 
@@ -241,6 +242,7 @@ function addLinkRelationsCollection (options) {
   var f = function (request, response, next) {
     response.links({
       search: options.basePath,
+      self: options.basePath,
       'latest-version': options.basePath
     });
 
