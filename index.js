@@ -252,6 +252,24 @@ function addLinkRelationsCollection (options) {
   return f;
 }
 
+function addAllowResponseHeader (options) {
+  var f = function (request, response, next) {
+    var allowed = [];
+
+    if (options.head !== false) allowed.push('HEAD');
+    if (options.get  !== false) allowed.push('GET');
+    if (options.post !== false) allowed.push('POST');
+    if (options.put  !== false) allowed.push('PUT');
+    if (options.del  !== false) allowed.push('DELETE');
+
+    response.set('Allow', allowed.join(', '));
+
+    next();
+  };
+
+  return f;
+}
+
 // Validation
 // ----------
 // var validation = function (options) {
@@ -299,6 +317,9 @@ baucis.rest = function (options) {
   var controller = express();
 
   controller.use(express.bodyParser());
+
+  controller.all(basePathWithId, addAllowResponseHeader(options));
+  controller.all(basePath, addAllowResponseHeader(options));
 
   if (options.configure) options.configure(controller);
 
