@@ -241,7 +241,7 @@ function addLinkRelationsCollection (options) {
   var f = function (request, response, next) {
     response.links({
       search: options.basePath,
-      'latest-version': path.join(options.basePath, request.params.id)
+      'latest-version': options.basePath
     });
 
     next();
