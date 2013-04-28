@@ -301,10 +301,12 @@ baucis.rest = function (options) {
   if (options.configure) options.configure(controller);
 
   if (options.relations === true) {
+    controller.head(basePathWithId, addLinkRelations(options));
     controller.get(basePathWithId, addLinkRelations(options));
     controller.post(basePathWithId, addLinkRelations(options));
     controller.put(basePathWithId, addLinkRelations(options));
 
+    controller.head(basePath, addLinkRelationsCollection(options));
     controller.get(basePath, addLinkRelationsCollection(options));
     controller.post(basePath, addLinkRelationsCollection(options));
     controller.put(basePath, addLinkRelationsCollection(options));
