@@ -91,6 +91,8 @@ function put (options) {
       if (create) response.status(201);
       else response.status(200);
 
+      response.set('Location', path.join(options.basePath, doc.id));
+
       response.json(doc);
     });
   };
@@ -170,27 +172,58 @@ function getCollection (options) {
 function postCollection (options) {
   var f = function (request, response, next) {
     var body = request.body;
-    var isArray = ;
 
     // Must be object or array
     if (!body || typeof body !== "object")) {
       return next(new Error('Must supply a document or array to POST'));
     }
 
-    if (Array.isArray(body) && body.length === 0) {
-      return next(new Error('Array was empty.'))
+    response.status(201);
+
+    // If just one object short circuit
+    if (!Array.isArray(body)) {
+      return mongoose.model(options.singular).create(body, function (error, doc) {
+        if (error) return next(error);
+        response.set('Location', path.join(options.basePath, doc.id));
+        response.json(doc);
+      });
     }
 
-    mongoose.model(options.singular).create(body, function (error) {
-      if (error) return next(error);
+    // No empty arrays
+    if (body.length === 0) return next(new Error('Array was empty.'));
 
-      // Arguments after error are the created documents
-      var docs = arguments.slice(1);
+    // Create and save given document(s)
+    var promises = body.map(mongoose.model(options.singular).create);
+    var ids = [];
+    var processedCount = 0;
+    var location;
 
-      response.status(201);
-      if (docs.length === 1) return response.json(docs[0]);
-      else return response.json(docs);
+    // Stream the response JSON array
+    response.write('[');
+
+    promises.forEach(function (promise) {
+      promise.then(function (doc) {
+        response.write(doc.toJSON());
+
+        ids.push(doc.id);
+
+        // Still more to process?
+        if (processedCount !== body.length) return response.write(', ');
+
+        // Last one was processed
+        response.write(']');
+
+        location = options.basePath + '?query={ id: { $in: [' + ids.join(',') + '] } }';
+        response.set('Location', location);
+
+        response.json();
+      });
+
+      promise.error(function (error) {
+        next(new Error(error));
+      });
     });
+
   };
 
   return f;
@@ -222,6 +255,7 @@ function delCollection (options) {
   return f;
 }
 
+// Add Link header field, with some basic defaults
 function addLinkRelations (options) {
   var f = function (request, response, next) {
     response.links({
@@ -238,6 +272,7 @@ function addLinkRelations (options) {
   return f;
 }
 
+// Add "Link" header field, with some basic defaults (for collection routes)
 function addLinkRelationsCollection (options) {
   var f = function (request, response, next) {
     response.links({
@@ -252,6 +287,7 @@ function addLinkRelationsCollection (options) {
   return f;
 }
 
+// Build the "Allow" response header
 function addAllowResponseHeader (options) {
   var f = function (request, response, next) {
     var allowed = [];
