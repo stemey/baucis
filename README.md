@@ -3,11 +3,15 @@ baucis v0.2.5
 
 *** WORK IN PROGRESS ***
 
-This is a work in progress, but should be mostly stable. The API is subject to change.
-
 Baucis is Express middleware for automatically creating REST services from Mongoose schemata.
 
 Like Baucis and Philemon of old, this library provides REST to the weary traveler.  The goal is to create a JSON REST API for Mongoose that matches as closely as possible the richness and versatility of the [HTTP 1.1 protocol](http://www.w3.org/Protocols/rfc2616/rfc2616.html).
+
+Those versions published to npm represent release versions.  Those versions not published to npm are development releases. 
+
+Reelase versions of baucis can be considered stable.  (Please report issues on  GitHub if bugs are encountered.)
+
+The API is subject to change.  (Using semver to not changes in API.)
 
 ![David Rjckaert III - Philemon and Baucis Giving Hospitality to Jupiter and Mercury](http://github.com/wprl/baucis/raw/master/david_rijckaert_iii-philemon_and_baucis.jpg "Hermes is like: 'Hey Baucis, don't kill that goose.  And thanks for the REST.'")
 
