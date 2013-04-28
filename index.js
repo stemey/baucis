@@ -142,20 +142,25 @@ var headCollection = function (options) {
 var getCollection = function (options) {
   var f = function (request, response, next) {
     var conditions;
-    var query;
 
     if (request.query && request.query.query) {
       conditions = JSON.parse(request.query.query);
     }
 
-    query = mongoose.model(options.singular).find(conditions);
+    var query = mongoose.model(options.singular).find(conditions);
 
     if (options.restrict) options.restrict(query, request);
 
-    query.exec(function (error, docs) {
-      if (error) return next(error);
-      response.json(docs);
-    });
+    response.write('[');
+
+    query.stream()
+      .on('data', function (doc) {
+        response.write(doc.toJSON());
+      })
+      .on('error', next)
+      .on('close', function () {
+        response.end(']');
+      });
   };
 
   return f;
@@ -164,39 +169,27 @@ var getCollection = function (options) {
 // Create a new document and return its ID
 var postCollection = function (options) {
   var f = function (request, response, next) {
-    if (!request.body || request.body.length === 0) {
+    var body = request.body;
+    var isArray = ;
+
+    // Must be object or array
+    if (!body || typeof body !== "object")) {
       return next(new Error('Must supply a document or array to POST'));
     }
 
-    var Model = mongoose.model(options.singular);
-    var newDocs = [];
-    var given = request.body;
+    if (Array.isArray(body) && body.length === 0) {
+      return next(new Error('Array was empty.'))
+    }
 
-    if (!Array.isArray(given)) given = [given];
+    mongoose.model(options.singular).create(body, function (error) {
+      if (error) return next(error);
 
-    var docs = given.map(function (doc) {
-      return new Model(doc);
-    });
+      // Arguments after error are the created documents
+      var docs = arguments.slice(1);
 
-    docs.forEach(function (doc) {
-      doc.save(function (error, doc) {
-      	if (error) return next(error);
-
-      	var query = Model.findById(doc._id);
-
-        if (options.restrict) options.restrict(query, request);
-
-      	query.exec(function (error, doc) {
-      	  if (error) return next(error);
-      	  newDocs.push(doc);
-
-      	  if (newDocs.length === docs.length) {
-      	    response.status(201);
-      	    if (docs.length === 1) return response.json(docs[0]);
-      	    else return response.json(docs);
-      	  }
-      	});
-      });
+      response.status(201);
+      if (docs.length === 1) return response.json(docs[0]);
+      else return response.json(docs);
     });
   };
 
