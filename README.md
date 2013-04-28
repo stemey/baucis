@@ -9,7 +9,7 @@ Like Baucis and Philemon of old, this library provides REST to the weary travele
 
 Those versions published to npm represent release versions.  Those versions not published to npm are development releases. 
 
-Reelase versions of baucis can be considered stable.  (Please report issues on  GitHub if bugs are encountered.)
+Relase versions of baucis can be considered stable.  (Please report issues on  GitHub if bugs are encountered.)
 
 The API is subject to change.  (Using semver to not changes in API.)
 
