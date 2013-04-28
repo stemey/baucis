@@ -28,7 +28,7 @@ var baucis = module.exports = function (options) {
 // Functions to return middleware for HTTP verbs
 
 // Retrieve header for the addressed document
-var head = function (options) {
+function head (options) {
   var f = function (request, response, next) {
     var id = request.params.id;
     var query = mongoose.model(options.singular).findById(id);
@@ -43,10 +43,10 @@ var head = function (options) {
   };
 
   return f;
-};
+}
 
 // Retrieve the addressed document
-var get = function (options) {
+function get (options) {
   var f = function (request, response, next) {
     var id = request.params.id;
     var query = mongoose.model(options.singular).findById(id);
@@ -61,20 +61,20 @@ var get = function (options) {
   };
 
   return f;
-};
+}
 
 // Treat the addressed document as a collection, and push
 // the addressed object to it
-var post = function (options) {
+function post (options) {
   var f = function (request, response, next) {
     response.send(405); // method not allowed (as of yet unimplemented)
   };
 
   return f;
-};
+}
 
 // Replace the addressed document, or create it if it doesn't exist
-var put = function (options) {
+function put (options) {
   var f = function (request, response, next) {
     // Can't send id for update, even if unchanged
     delete request.body._id;
@@ -96,10 +96,10 @@ var put = function (options) {
   };
 
   return f;
-};
+}
 
 // Delete the addressed object
-var del = function (options) {
+function del (options) {
   var f = function (request, response, next) {
     var id = request.params.id;
     var query = mongoose.model(options.singular).remove({ _id: id });
@@ -113,10 +113,10 @@ var del = function (options) {
   };
 
   return f;
-};
+}
 
 // Retrieve documents matching conditions
-var headCollection = function (options) {
+function headCollection (options) {
   var f = function (request, response, next) {
     var conditions;
     var query;
@@ -136,10 +136,10 @@ var headCollection = function (options) {
   };
 
   return f;
-};
+}
 
 // retrieve documents matching conditions
-var getCollection = function (options) {
+function getCollection (options) {
   var f = function (request, response, next) {
     var conditions;
 
@@ -159,15 +159,15 @@ var getCollection = function (options) {
       })
       .on('error', next)
       .on('close', function () {
-        response.end(']');
+        response.json(']');
       });
   };
 
   return f;
-};
+}
 
 // Create a new document and return its ID
-var postCollection = function (options) {
+function postCollection (options) {
   var f = function (request, response, next) {
     var body = request.body;
     var isArray = ;
@@ -194,19 +194,19 @@ var postCollection = function (options) {
   };
 
   return f;
-};
+}
 
 // Replace all docs with given docs ...
-var putCollection = function (options) {
+function putCollection (options) {
   var f = function (request, response, next) {
     response.send(405); // method not allowed (as of yet unimplemented)
   };
 
   return f;
-};
+}
 
 // Delete all documents matching conditions
-var delCollection = function (options) {
+function delCollection (options) {
   var f = function (request, response, next) {
     var conditions = request.body || {};
     var query = mongoose.model(options.singular).remove(conditions);
@@ -220,7 +220,35 @@ var delCollection = function (options) {
   };
 
   return f;
-};
+}
+
+function addLinkRelations (options) {
+  var f = function (request, response, next) {
+    response.links({
+      collection: options.basePath,
+      search: options.basePath,
+      edit: path.join(options.basePath, request.params.id),
+      'latest-version': path.join(options.basePath, request.params.id)
+    });
+
+    next();
+  };
+
+  return f;
+}
+
+function addLinkRelationsCollection (options) {
+  var f = function (request, response, next) {
+    response.links({
+      search: options.basePath,
+      'latest-version': path.join(options.basePath, request.params.id)
+    });
+
+    next();
+  };
+
+  return f;
+}
 
 // Validation
 // ----------
@@ -263,14 +291,24 @@ baucis.rest = function (options) {
   if (!options.singular) throw new Error('Must provide the Mongoose schema name');
   if (!options.plural) options.plural = lingo.en.pluralize(options.singular);
 
+  var basePath = options.basePath = path.join('/', options.basePath);
+  var basePathWithId = options.basePathWithId = path.join(basePath, ':id');
+  var basePathWithOptionalId = options.basePathWithOptionalId = path.join(basePath, ':id?');
   var controller = express();
-  var basePath = path.join('/', options.basePath);
-  var basePathWithId = path.join(basePath, ':id');
-  var basePathWithOptionalId = path.join(basePath, ':id?');
 
   controller.use(express.bodyParser());
 
   if (options.configure) options.configure(controller);
+
+  if (options.relations === true) {
+    controller.get(basePathWithId, addLinkRelations);
+    controller.post(basePathWithId, addLinkRelations);
+    controller.put(basePathWithId, addLinkRelations);
+
+    controller.get(basePath, addLinkRelationsCollection);
+    controller.post(basePath, addLinkRelationsCollection);
+    controller.put(basePath, addLinkRelationsCollection);
+  }
 
   if (options.all) controller.all(basePathWithOptionalId, options.all);
   if (options.head) controller.head(basePathWithOptionalId, options.head);
@@ -291,7 +329,7 @@ baucis.rest = function (options) {
   if (options.put  !== false) controller.put(basePath, putCollection(options));
   if (options.del  !== false) controller.del(basePath, delCollection(options));
 
-  if (options.publish !== false) app.use('/' + options.plural, controller);
+  if (options.publish !== false) app.use(path.join('/', options.plural), controller);
 
   return controller;
 };
