@@ -13,6 +13,7 @@ var app = express();
 function populateQuery (query, populate) {
   if (!query) throw new Error('Query was undefined');
   if (!populate) return;
+  populate = JSON.parse(populate);
   if (!Array.isArray(populate)) populate = [ populate ];
   populate.forEach(function (field) { query.populate(field) });
 }
