@@ -156,6 +156,7 @@ function headCollection (options) {
 // retrieve documents matching conditions
 function getCollection (options) {
   var f = function (request, response, next) {
+    var firstWasProcessed = false;
     var conditions;
 
     if (request.query && request.query.conditions) {
@@ -167,15 +168,20 @@ function getCollection (options) {
     if (options.restrict) options.restrict(query, request);
     populateQuery(query, request.query.populate);
 
+    // Stream the array to the client
+    response.set('Content-Type', 'application/json');
     response.write('[');
 
     query.stream()
       .on('data', function (doc) {
+        if (firstWasProcessed) response.write(', ');
         response.write(JSON.stringify(doc.toJSON()));
+        firstWasProcessed = true;
       })
       .on('error', next)
       .on('close', function () {
-        response.json(']');
+        response.write(']');
+        response.send();
       });
   };
 
@@ -213,6 +219,7 @@ function postCollection (options) {
     var location;
 
     // Stream the response JSON array
+    response.set('Content-Type', 'application/json');
     response.write('[');
 
     promises.forEach(function (promise) {
@@ -222,7 +229,7 @@ function postCollection (options) {
         ids.push(doc.id);
 
         // Still more to process?
-        if (processedCount !== body.length) return response.write(', ');
+        if (processedCount < body.length) return response.write(', ');
 
         // Last one was processed
         response.write(']');
@@ -230,7 +237,7 @@ function postCollection (options) {
         location = options.basePath + '?query={ id: { $in: [' + ids.join(',') + '] } }';
         response.set('Location', location);
 
-        response.json();
+        response.send();
       });
 
       promise.error(function (error) {

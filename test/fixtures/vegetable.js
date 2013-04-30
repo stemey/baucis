@@ -20,7 +20,7 @@ module.exports = {
     baucis.rest({
       singular: 'vegetable',
       all: function (request, response, next) {
-        if (request.query.block === 1) return response.status(401);
+        if (request.query.block === "true") return response.send(401);
         next();
       }
     });
