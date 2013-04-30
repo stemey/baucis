@@ -329,6 +329,16 @@ function addAllowResponseHeader (options) {
   return f;
 }
 
+// Build the "Accept" response header
+function addAcceptResponseHeader (options) {
+  var f = function (request, response, next) {
+    response.set('Accept', 'application/json');
+    next();
+  };
+
+  return f;
+}
+
 // Validation
 // ----------
 // var validation = function (options) {
@@ -375,10 +385,12 @@ baucis.rest = function (options) {
   var basePathWithOptionalId = options.basePathWithOptionalId = path.join(basePath, ':id?');
   var controller = express();
 
-  controller.use(express.bodyParser());
+  controller.use(express.json());
 
   controller.all(basePathWithId, addAllowResponseHeader(options));
+  controller.all(basePathWithId, addAcceptResponseHeader(options));
   controller.all(basePath, addAllowResponseHeader(options));
+  controller.all(basePath, addAcceptResponseHeader(options));
 
   if (options.configure) options.configure(controller);
 
