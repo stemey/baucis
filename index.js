@@ -9,6 +9,14 @@ var path = require('path');
 // ---------------
 var app = express();
 
+// Set a field or array off fields to be populated
+function populateQuery (query, populate) {
+  if (!query) throw new Error('Query was undefined');
+  if (!populate) return;
+  if (!Array.isArray(populate)) populate = [ populate ];
+  populate.forEach(function (field) { query.populate(field) });
+}
+
 // Module Definition
 // -----------------
 var baucis = module.exports = function (options) {
@@ -34,6 +42,7 @@ function head (options) {
     var query = mongoose.model(options.singular).findById(id);
 
     if (options.restrict) options.restrict(query, request);
+    populateQuery(query, request.query.populate);
 
     query.count(function (error, count) {
       if (error) return next(error);
@@ -52,6 +61,7 @@ function get (options) {
     var query = mongoose.model(options.singular).findById(id);
 
     if (options.restrict) options.restrict(query, request);
+    populateQuery(query, request.query.populate);
 
     query.exec(function (error, doc) {
       if (error) return next(error);
@@ -84,6 +94,7 @@ function put (options) {
     var query = mongoose.model(options.singular).findByIdAndUpdate(id, request.body, {upsert: true});
 
     if (options.restrict) options.restrict(query, request);
+    populateQuery(query, request.query.populate);
 
     query.exec(function (error, doc) {
       if (error) return next(error);
@@ -107,6 +118,7 @@ function del (options) {
     var query = mongoose.model(options.singular).remove({ _id: id });
 
     if (options.restrict) options.restrict(query, request);
+    populateQuery(query, request.query.populate);
 
     query.exec(function (error, count) {
       if (error) return next(error);
@@ -123,13 +135,14 @@ function headCollection (options) {
     var conditions;
     var query;
 
-    if (request.query && request.query.query) {
-      conditions = JSON.parse(request.query.query);
+    if (request.query && request.query.conditions) {
+      conditions = JSON.parse(request.query.conditions);
     }
 
     query = mongoose.model(options.singular).find(conditions);
 
     if (options.restrict) options.restrict(query, request);
+    populateQuery(query, request.query.populate);
 
     query.count(function (error, count) {
       if (error) return next(error);
@@ -145,19 +158,20 @@ function getCollection (options) {
   var f = function (request, response, next) {
     var conditions;
 
-    if (request.query && request.query.query) {
-      conditions = JSON.parse(request.query.query);
+    if (request.query && request.query.conditions) {
+      conditions = JSON.parse(request.query.conditions);
     }
 
     var query = mongoose.model(options.singular).find(conditions);
 
     if (options.restrict) options.restrict(query, request);
+    populateQuery(query, request.query.populate);
 
     response.write('[');
 
     query.stream()
       .on('data', function (doc) {
-        response.write(doc.toJSON());
+        response.write(JSON.stringify(doc.toJSON()));
       })
       .on('error', next)
       .on('close', function () {
@@ -174,7 +188,7 @@ function postCollection (options) {
     var body = request.body;
 
     // Must be object or array
-    if (!body || typeof body !== "object")) {
+    if (!body || typeof body !== 'object') {
       return next(new Error('Must supply a document or array to POST'));
     }
 
@@ -192,7 +206,7 @@ function postCollection (options) {
     // No empty arrays
     if (body.length === 0) return next(new Error('Array was empty.'));
 
-    // Create and save given document(s)
+    // Create and save given documents
     var promises = body.map(mongoose.model(options.singular).create);
     var ids = [];
     var processedCount = 0;
@@ -203,7 +217,7 @@ function postCollection (options) {
 
     promises.forEach(function (promise) {
       promise.then(function (doc) {
-        response.write(doc.toJSON());
+        response.write(JSON.stringify(doc.toJSON()));
 
         ids.push(doc.id);
 
@@ -245,6 +259,7 @@ function delCollection (options) {
     var query = mongoose.model(options.singular).remove(conditions);
 
     if (options.restrict) options.restrict(query, request);
+    populateQuery(query, request.query.populate);
 
     query.exec(function (error, count) {
       if (error) return next(error);
@@ -255,7 +270,7 @@ function delCollection (options) {
   return f;
 }
 
-// Add Link header field, with some basic defaults
+// Add "Link" header field, with some basic defaults
 function addLinkRelations (options) {
   var f = function (request, response, next) {
     response.links({
