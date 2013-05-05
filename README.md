@@ -1,5 +1,5 @@
-baucis v0.3.1
-=============
+baucis v0.3.1-1
+===============
 
 Baucis is Express middleware used to build REST services based on Mongoose schemata.
 
@@ -134,16 +134,11 @@ Examples with jQuery:
       type: 'POST',
       dataType: 'json',
       url: '/api/v1/vegetables',
-      data: { name: 'Potato' }
-    }).done(function (vegetable) {
-      console.dir(vegetable);
-    });
-
-    $.ajax({
-      type: 'GET',
-      dataType: 'json',
-      url: '/api/v1/vegetables',
-      data: { query: JSON.stringify({ color: 'red' }) }
+      data: {
+        conditions: JSON.stringify({
+          name: 'Potato'
+        })
+      }
     }).done(function (vegetables) {
       console.dir(vegetables);
     });
@@ -152,8 +147,19 @@ An example with Backbone:
 
     var Vegetables = Backbone.Collection.extend({
       url: '/vegetables',
-      baucis: function (query) {
-        return this.fetch({ data: { query: JSON.stringify(query) } });
+      // This method JSONifies baucis' options into fetch's `data` option,
+      // while leaving regular fetch options as they are.
+      baucis: function (baucisOptions, fetchOptions) {
+        fetchOptions = _.clone(fetchOptions || {});
+        fetchOptions.data = {};
+
+        if (baucisOptions) {
+          Object.keys(baucisOptions).forEach(function (key) {
+            fetchOptions.data[key] = JSON.stringify(baucisOptions[key])
+          });
+        }
+
+        return this.fetch(fetchOptions);
       }
     });
 
@@ -161,8 +167,34 @@ An example with Backbone:
       urlRoot: '/vegetables'
     });
 
-    var redVeges = new Vegetables();
-    redVeges.baucis({ color: 'red' }).then(function () { ... });
+    var vegetables = new Vegetables();
+    vegetables.baucis({ conditions: { color: 'red' } }).then( ... );
+
+    // Besides, the `conditions` option, `populate` is also currently
+    // supported, to allow population of references to other documents.
+    var promise = vegetables.baucis({
+      conditions: { color: red, 'nutirition.soudium': { $lte: 10 } },
+      populate: 'child'
+    }});
+
+    // or
+
+    populate: ['child1i', 'child2' ]
+
+    // or
+
+    populate: [{
+      path: 'child1',
+      select: ['fieldA', 'fieldB'],
+      match: {
+        'foo': { $gte: 7 }
+      },
+      options: { limit: 1 }
+    }, ... ]
+
+See the Mongoose [population documentation](http://mongoosejs.com/docs/populate.html) for more information!
+
+
 
 Contact Info
 ------------

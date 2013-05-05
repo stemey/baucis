@@ -1,6 +1,6 @@
 {
   "name": "baucis",
-  "version": "0.3.1",
+  "version": "0.3.1-1",
   "main": "index.js",
   "scripts": {
     "test": "mocha --globals vegetables"
@@ -11,7 +11,7 @@
   },
   "license": "MIT",
   "description": "Module for automatically creating REST interfaces for mongoose schemata",
-  "keywords": [ "REST", "API", "mongoose", "schema", "schemata", "mongo", "automatic" ],
+  "keywords": [ "REST", "API", "express", "mongoose", "schema", "schemata", "mongo" ],
   "devDependencies": {
     "mocha": "~1.8.2"
   },
