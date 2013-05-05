@@ -1,4 +1,4 @@
-baucis v0.3.1-1
+baucis v0.3.1-2
 ===============
 
 Baucis is Express middleware used to build REST services based on Mongoose schemata.
@@ -122,8 +122,6 @@ Also note that Mongoose middleware will be executed as usual.
 Examples
 --------
 
-Requests to the collection (not its members) take standard MongoDB query parameters to filter the documents based on custom criteria.
-
 Examples with jQuery:
 
     $.getJSON('/api/v1/vegetables/4f4028e6e5139bf4e472cca1', function (data) {
@@ -135,8 +133,24 @@ Examples with jQuery:
       dataType: 'json',
       url: '/api/v1/vegetables',
       data: {
+        name: 'carrot',
+        color: 'orange'
+      }
+    }).done(function (vegetable) {
+      // The new document that was just created
+      console.dir(vegetable);
+    });
+
+    Requests to the collection (not its members) take standard MongoDB query parameters to filter the documents based on custom criteria.
+
+    $.ajax({
+      type: 'GET',
+      dataType: 'json',
+      url: '/api/v1/vegetables',
+      data: {
         conditions: JSON.stringify({
-          name: 'Potato'
+          color: 'red',
+          'nutrition.sodium': { $lte: 10 }
         })
       }
     }).done(function (vegetables) {
@@ -147,7 +161,7 @@ An example with Backbone:
 
     var Vegetables = Backbone.Collection.extend({
       url: '/vegetables',
-      // This method JSONifies baucis' options into fetch's `data` option,
+      // This method stringifies baucis' options into fetch's `data` option,
       // while leaving regular fetch options as they are.
       baucis: function (baucisOptions, fetchOptions) {
         fetchOptions = _.clone(fetchOptions || {});
@@ -170,10 +184,11 @@ An example with Backbone:
     var vegetables = new Vegetables();
     vegetables.baucis({ conditions: { color: 'red' } }).then( ... );
 
-    // Besides, the `conditions` option, `populate` is also currently
-    // supported, to allow population of references to other documents.
+Besides, the `conditions` option, `populate` is also currently
+supported, to allow population of references to other documents.
+
     var promise = vegetables.baucis({
-      conditions: { color: red, 'nutirition.soudium': { $lte: 10 } },
+      conditions: { color: red },
       populate: 'child'
     }});
 
@@ -192,9 +207,7 @@ An example with Backbone:
       options: { limit: 1 }
     }, ... ]
 
-See the Mongoose [population documentation](http://mongoosejs.com/docs/populate.html) for more information!
-
-
+See the Mongoose [population documentation](http://mongoosejs.com/docs/populate.html) for more information.
 
 Contact Info
 ------------
