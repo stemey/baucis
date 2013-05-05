@@ -1,4 +1,4 @@
-baucis v0.3.1-2
+baucis v0.3.1-3
 ===============
 
 Baucis is Express middleware used to build REST services based on Mongoose schemata.
@@ -141,7 +141,7 @@ Examples with jQuery:
       console.dir(vegetable);
     });
 
-    Requests to the collection (not its members) take standard MongoDB query parameters to filter the documents based on custom criteria.
+Requests to the collection (not its members) take standard MongoDB query parameters to filter the documents based on custom criteria.
 
     $.ajax({
       type: 'GET',
@@ -157,7 +157,7 @@ Examples with jQuery:
       console.dir(vegetables);
     });
 
-An example with Backbone:
+Examples with Backbone:
 
     var Vegetables = Backbone.Collection.extend({
       url: '/vegetables',
