@@ -1,7 +1,7 @@
-baucis v0.3.1-3
+baucis v0.3.1-4
 ===============
 
-Baucis is Express middleware used to build REST services based on Mongoose schemata.
+Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.
 
 Like Baucis and Philemon of old, this library provides REST to the weary traveler.  The goal is to create a JSON REST API for Mongoose & Express that matches as closely as possible the richness and versatility of the [HTTP 1.1 protocol](http://www.w3.org/Protocols/rfc2616/rfc2616.html).
 
