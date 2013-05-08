@@ -375,10 +375,12 @@ function addAcceptResponseHeader (options) {
 // Public Methods
 // --------------
 baucis.rest = function (options) {
-  options || (options = {}); // TODO clone
+  options || (options = {}); // TODO clone, defaults
 
   if (!options.singular) throw new Error('Must provide the Mongoose schema name');
+
   if (!options.plural) options.plural = lingo.en.pluralize(options.singular);
+  if (!options.basePath) options.basePath = '/';
 
   var basePath = options.basePath = path.join('/', options.basePath);
   var basePathWithId = options.basePathWithId = path.join(basePath, ':id');
