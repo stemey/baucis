@@ -1,4 +1,4 @@
-baucis v0.3.1-4
+baucis v0.3.1-5
 ===============
 
 Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.
@@ -51,69 +51,6 @@ Later, make requests:
  * POST /api/v1/vegetables &mdash; creates a new document and sends back its ID
  * PUT /api/v1/vegetables &mdash; replace all documents with given new documents
  * DEL /api/v1/vegetables &mdash; delete all documents
-
-Use plain old Connect/Express middleware, including pre-existing modules like `passport`.  For example, set the `all` option to add middleware to be called before all the model's API routes.
-
-    baucis.rest({
-      singular: 'vegetable',
-      all: function (request, response, next) {
-        if (request.isAuthenticated()) return next();
-        return response.send(401);
-      }
-    });
-
-Or, set some middleware for specific HTTP verbs or disable verbs completely:
-
-    baucis.rest({
-      singular: 'vegetable',
-      get: [middleware1, middleware2],
-      post: middleware3,
-      del: false,
-      put: false
-    });
-
-`baucis.rest` returns an instance of the controller created to handle the schema's API routes.
-
-    var subcontroller = baucis.rest({
-      singular: 'bar',
-      basePath: '/:fooId/bars'
-      publish: false, // don't add API routes automatically
-      restrict: function (query, request) {
-        // Only retrieve bars that are children of the given foo
-        query.where('parent', request.params.fooId);
-      }
-    });
-
-    var controller = baucis.rest({
-      singular: 'foo',
-      configure: function (controller) {
-        // Embed the subcontroller at /foos/:fooId/bars
-        controller.use(subcontroller);
-
-        // Embed arbitrary middleware at /foos/qux
-        controller.use('/qux', function (request, response, next) {
-          // Do something cool…
-          next();
-        });
-      }
-    });
-
-Controllers are Express apps, so do whatever you want with them.
-
-    var controller = baucis.rest({
-      singular: 'robot',
-      configure: function (controller) {
-        // Add middleware before all other rotues in the controller
-        controller.use(express.cookieParser());
-      }
-    });
-
-    // Add middleware after default controller routes
-    controller.use(function () { ... });
-    controller.set('some option name', 'value');
-    controller.listen(3000);
-
-Baucis uses the power of Express, without getting in its way.  It's meant to be a way to organize your REST API's Express middleware.
 
 Also note that Mongoose middleware will be executed as usual.
 
@@ -208,6 +145,84 @@ supported, to allow population of references to other documents.
     }, ... ]
 
 See the Mongoose [population documentation](http://mongoosejs.com/docs/populate.html) for more information.
+
+`bacuis.rest`
+-------------
+
+Use plain old Connect/Express middleware, including pre-existing modules like `passport`.  For example, set the `all` option to add middleware to be called before all the model's API routes.
+
+    baucis.rest({
+      singular: 'vegetable',
+      all: function (request, response, next) {
+        if (request.isAuthenticated()) return next();
+        return response.send(401);
+      }
+    });
+
+Or, set some middleware for specific HTTP verbs or disable verbs completely:
+
+    baucis.rest({
+      singular: 'vegetable',
+      get: [middleware1, middleware2],
+      post: middleware3,
+      del: false,
+      put: false
+    });
+
+RESTful Headers
+---------------
+
+ * `Accept: application/json` is set for all responses.
+ * The `Allow` header is set automatically, correctly removing HTTP verbs when
+   those verbs have been disabled with e.g. `put: false`.
+ * The `Location` HTTP header is set for PUT and POST responses.
+ * If `relations: true` is passed to `baucis.rest`, HTTP link headers will be set for all responses.
+
+Controllers
+-----------
+
+`baucis.rest` returns an instance of the controller created to handle the schema's API routes.
+
+    var subcontroller = baucis.rest({
+      singular: 'bar',
+      basePath: '/:fooId/bars'
+      publish: false, // don't add API routes automatically
+      restrict: function (query, request) {
+        // Only retrieve bars that are children of the given foo
+        query.where('parent', request.params.fooId);
+      }
+    });
+
+    var controller = baucis.rest({
+      singular: 'foo',
+      configure: function (controller) {
+        // Embed the subcontroller at /foos/:fooId/bars
+        controller.use(subcontroller);
+
+        // Embed arbitrary middleware at /foos/qux
+        controller.use('/qux', function (request, response, next) {
+          // Do something cool…
+          next();
+        });
+      }
+    });
+
+Controllers are Express apps, so do whatever you want with them.
+
+    var controller = baucis.rest({
+      singular: 'robot',
+      configure: function (controller) {
+        // Add middleware before all other rotues in the controller
+        controller.use(express.cookieParser());
+      }
+    });
+
+    // Add middleware after default controller routes
+    controller.use(function () { ... });
+    controller.set('some option name', 'value');
+    controller.listen(3000);
+
+Baucis uses the power of Express, without getting in its way.  It's meant to be a way to organize your REST API's Express middleware.
 
 Contact Info
 ------------
