@@ -1,4 +1,4 @@
-baucis v0.3.2
+baucis v0.3.3
 =============
 
 Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.
@@ -24,16 +24,28 @@ To install:
 
 An example of creating a REST API from a Mongoose schema:
 
-    // Define a Mongoose schema
+    // Define a couple Mongoose schema
     var Vegetable = new mongoose.Schema({
       name: String
     });
 
+    var Fruit = new mongoose.Schema({
+      name: String
+    });
+
+    // Also note that Mongoose middleware will be executed as usual.
+    Vegetable.pre('save', function () { ... });
+
+    // Register the schema
     mongoose.model('vegetable', Vegetable);
 
-    // Create routes for the schema
+    // Create routes for the schemata
     baucis.rest({
-      singular: 'vegetable'
+      singular: 'vegetable',
+    });
+
+    baucis.rest({
+      singular: 'fruit'
     });
 
     // Create the app and listen for API requests
@@ -51,10 +63,6 @@ Later, make requests:
  * POST /api/v1/vegetables &mdash; creates a new document and sends back its ID
  * PUT /api/v1/vegetables &mdash; replace all documents with given new documents
  * DEL /api/v1/vegetables &mdash; delete all documents
-
-Also note that Mongoose middleware will be executed as usual.
-
-    Vegetable.pre('save', function () { ... });
 
 Examples
 --------
@@ -98,19 +106,16 @@ Examples with Backbone:
 
     var Vegetables = Backbone.Collection.extend({
       url: '/vegetables',
-      // This method stringifies baucis' options into fetch's `data` option,
-      // while leaving regular fetch options as they are.
-      baucis: function (baucisOptions, fetchOptions) {
-        fetchOptions = _.clone(fetchOptions || {});
-        fetchOptions.data = {};
+      baucis: function (options) {
+        if (!options) return this.fetch();
 
-        if (baucisOptions) {
-          Object.keys(baucisOptions).forEach(function (key) {
-            fetchOptions.data[key] = JSON.stringify(baucisOptions[key])
-          });
-        }
+        var data = {};
 
-        return this.fetch(fetchOptions);
+        Object.keys(options).forEach(function (key) {
+          data[key] = JSON.stringify(options[key])
+        });
+
+        return this.fetch({ data: data });
       }
     });
 
@@ -124,10 +129,10 @@ Examples with Backbone:
 Besides, the `conditions` option, `populate` is also currently
 supported, to allow population of references to other documents.
 
-    var promise = vegetables.baucis({
+    vegetables.baucis({
       conditions: { color: red },
       populate: 'child'
-    }});
+    });
 
     // or
 
@@ -145,6 +150,13 @@ supported, to allow population of references to other documents.
     }, ... ]
 
 See the Mongoose [population documentation](http://mongoosejs.com/docs/populate.html) for more information.
+
+`skip` and `limit` are available as well, typically used for paging:
+
+    vegetables.baucis({
+      skip: 20,
+      limit: 10
+    });
 
 `bacuis.rest`
 -------------
