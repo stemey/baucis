@@ -9,13 +9,19 @@ var path = require('path');
 // ---------------
 var app = express();
 
-// Set a field or array off fields to be populated
-function populateQuery (query, populate) {
-  if (!query) throw new Error('Query was undefined');
-  if (!populate) return;
-  populate = JSON.parse(populate);
-  if (!Array.isArray(populate)) populate = [ populate ];
-  populate.forEach(function (field) { query.populate(field) });
+// Apply various options based on request query parameters
+function applyQueryParams (query, request) {
+  var populate;
+
+  if (!query) throw new Error('Query was falsy');
+
+  if (request.query.skip) query.skip(request.query.skip);
+  if (request.query.limit) query.limit(request.query.limit);
+  if (request.query.populate) {
+    populate = JSON.parse(populate);
+    if (!Array.isArray(populate)) populate = [ populate ];
+    populate.forEach(function (field) { query.populate(field) });
+  }
 }
 
 // Module Definition
@@ -43,7 +49,7 @@ function head (options) {
     var query = mongoose.model(options.singular).findById(id);
 
     if (options.restrict) options.restrict(query, request);
-    populateQuery(query, request.query.populate);
+    applyQueryParams(query, request);
 
     query.count(function (error, count) {
       if (error) return next(error);
@@ -62,7 +68,7 @@ function get (options) {
     var query = mongoose.model(options.singular).findById(id);
 
     if (options.restrict) options.restrict(query, request);
-    populateQuery(query, request.query.populate);
+    applyQueryParams(query, request);
 
     query.exec(function (error, doc) {
       if (error) return next(error);
@@ -95,7 +101,6 @@ function put (options) {
     var query = mongoose.model(options.singular).findByIdAndUpdate(id, request.body, {upsert: true});
 
     if (options.restrict) options.restrict(query, request);
-    populateQuery(query, request.query.populate);
 
     query.exec(function (error, doc) {
       if (error) return next(error);
@@ -119,7 +124,6 @@ function del (options) {
     var query = mongoose.model(options.singular).remove({ _id: id });
 
     if (options.restrict) options.restrict(query, request);
-    populateQuery(query, request.query.populate);
 
     query.exec(function (error, count) {
       if (error) return next(error);
@@ -143,7 +147,7 @@ function headCollection (options) {
     query = mongoose.model(options.singular).find(conditions);
 
     if (options.restrict) options.restrict(query, request);
-    populateQuery(query, request.query.populate);
+    applyQueryParams(query, request);
 
     query.count(function (error, count) {
       if (error) return next(error);
@@ -167,7 +171,7 @@ function getCollection (options) {
     var query = mongoose.model(options.singular).find(conditions);
 
     if (options.restrict) options.restrict(query, request);
-    populateQuery(query, request.query.populate);
+    applyQueryParams(query, request);
 
     // Stream the array to the client
     response.set('Content-Type', 'application/json');
@@ -235,7 +239,7 @@ function postCollection (options) {
         // Last one was processed
         response.write(']');
 
-        location = options.basePath + '?query={ id: { $in: [' + ids.join(',') + '] } }';
+        location = options.basePath + '?conditions={ _id: { $in: [' + ids.join() + '] } }';
         response.set('Location', location);
 
         response.send();
@@ -267,7 +271,7 @@ function delCollection (options) {
     var query = mongoose.model(options.singular).remove(conditions);
 
     if (options.restrict) options.restrict(query, request);
-    populateQuery(query, request.query.populate);
+    applyQueryParams(query, request);
 
     query.exec(function (error, count) {
       if (error) return next(error);
@@ -321,7 +325,7 @@ function addAllowResponseHeader (options) {
     if (options.put  !== false) allowed.push('PUT');
     if (options.del  !== false) allowed.push('DELETE');
 
-    response.set('Allow', allowed.join(', '));
+    response.set('Allow', allowed.join());
 
     next();
   };
