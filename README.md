@@ -1,4 +1,4 @@
-baucis v0.3.3-1
+baucis v0.3.3-2
 ===============
 
 Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.
@@ -22,9 +22,8 @@ To install:
 
     npm install baucis
 
-An example of creating a REST API from a Mongoose schema:
+An example of creating a REST API from a couple Mongoose schemata:
 
-    // Define a couple Mongoose schemata
     var Vegetable = new mongoose.Schema({
       name: String
     });
@@ -33,13 +32,14 @@ An example of creating a REST API from a Mongoose schema:
       name: String
     });
 
-    // Also note that Mongoose middleware will be executed as usual.
+    // Note that Mongoose middleware will be executed as usual
     Vegetable.pre('save', function () { ... });
 
-    // Register the schema
+    // Register the schemata
     mongoose.model('vegetable', Vegetable);
+    mongoose.model('fruit', Fruit);
 
-    // Create routes for the schemata
+    // Create the API routes
     baucis.rest({
       singular: 'vegetable',
     });
