@@ -1,5 +1,5 @@
-baucis v0.3.3
-=============
+baucis v0.3.3-1
+===============
 
 Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.
 
@@ -24,7 +24,7 @@ To install:
 
 An example of creating a REST API from a Mongoose schema:
 
-    // Define a couple Mongoose schema
+    // Define a couple Mongoose schemata
     var Vegetable = new mongoose.Schema({
       name: String
     });
@@ -136,7 +136,7 @@ supported, to allow population of references to other documents.
 
     // or
 
-    populate: ['child1i', 'child2' ]
+    populate: ['child1', 'child2' ]
 
     // or
 
@@ -188,7 +188,7 @@ RESTful Headers
  * The `Allow` header is set automatically, correctly removing HTTP verbs when
    those verbs have been disabled with e.g. `put: false`.
  * The `Location` HTTP header is set for PUT and POST responses.
- * If `relations: true` is passed to `baucis.rest`, HTTP link headers will be set for all responses.
+ * If `relations: true` is passed to `baucis.rest`, the HTTP `Link` header will be set with various links for all responses.
 
 Controllers
 -----------
