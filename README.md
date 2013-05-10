@@ -149,6 +149,8 @@ supported, to allow population of references to other documents.
       options: { limit: 1 }
     }, ... ]
 
+It is not permitted to use the `select` option of `populate` with a `+path`.  This allows you to deselect paths at the schema level using `select: false` in the path definition.  The client will not be able to select paths deselected in this way, but your server middleware may select these fields as usual using `query.select`.
+
 See the Mongoose [population documentation](http://mongoosejs.com/docs/populate.html) for more information.
 
 `skip` and `limit` are available as well, typically used for paging:
@@ -199,6 +201,7 @@ Controllers
       singular: 'bar',
       basePath: '/:fooId/bars'
       publish: false, // don't add API routes automatically
+      select: 'foo +bar -password' // select fields for all queries
       restrict: function (query, request) {
         // Only retrieve bars that are children of the given foo
         query.where('parent', request.params.fooId);
