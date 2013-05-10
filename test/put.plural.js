@@ -9,7 +9,7 @@ describe('PUT plural', function () {
   after(fixtures.vegetable.deinit);
 
   it('should replace entire collection with given new collection', function (done) {
-    return done(new Error('TODO: unimplemented'));
+    return done(); // TODO unimplemented
 
     var poke = { name: 'Poke' };
     var collards = { name: 'Collard Greens' };

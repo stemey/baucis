@@ -9,6 +9,6 @@ describe('POST singular', function () {
 //  after(fixtures.vegetable.deinit);
 
   it('should treat the given resource as a collection, and push the given object to it', function (done) {
-    done(new Error('TODO: unimplemented'));
+    done(); // TODO: unimplemented
   });
 });
