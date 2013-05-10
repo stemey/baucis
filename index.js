@@ -9,19 +9,42 @@ var path = require('path');
 // ---------------
 var app = express();
 
+function applyOptions(options, callback) {
+  applyControllerOptions(options, function (error) {
+    if (error) return next(error);
+    applyQueryOptions(options, callback);
+  });
+}
+
+// Apply various options based on controller parameters
+function applyControllerOptions (options, callback) {
+  if (options.controller.select) query.select(options.controller.select);
+  if (options.controller.restrict) {
+    options.controller.restrict(options.query, options.request);
+  }
+  callback();
+}
+
 // Apply various options based on request query parameters
-function applyQueryParams (query, request) {
+function applyQueryOptions (options, callback) {
   var populate;
 
-  if (!query) throw new Error('Query was falsy');
-
-  if (request.query.skip) query.skip(request.query.skip);
-  if (request.query.limit) query.limit(request.query.limit);
-  if (request.query.populate) {
-    populate = JSON.parse(populate);
+  if (options.request.query.skip) options.query.skip(options.request.query.skip);
+  if (options.request.query.limit) options.query.limit(options.request.query.limit);
+  if (options.request.query.populate) {
+    populate = JSON.parse(options.request.query.populate);
     if (!Array.isArray(populate)) populate = [ populate ];
-    populate.forEach(function (field) { query.populate(field) });
+    populate.forEach(function (field) {
+      // Don't allow selecting +field from client
+      if (field.select && field.select.indexOf('+') !== -1) {
+        callback(new Error('Including fields excluded at schema level (using +) is not permitted'));
+        return false;
+      }
+      options.query.populate(field)
+    });
   }
+
+  callback();
 }
 
 // Module Definition
@@ -47,14 +70,20 @@ function head (options) {
   var f = function (request, response, next) {
     var id = request.params.id;
     var query = mongoose.model(options.singular).findById(id);
+    var userOptions = {
+      query: query,
+      controller: options,
+      request: request
+    };
 
-    if (options.restrict) options.restrict(query, request);
-    applyQueryParams(query, request);
-
-    query.count(function (error, count) {
+    applyOptions(userOptions, function (error) {
       if (error) return next(error);
-      if (count === 0) return response.send(404);
-      response.send(200);
+
+      query.count(function (error, count) {
+        if (error) return next(error);
+        if (count === 0) return response.send(404);
+        response.send(200);
+      });
     });
   };
 
@@ -66,14 +95,20 @@ function get (options) {
   var f = function (request, response, next) {
     var id = request.params.id;
     var query = mongoose.model(options.singular).findById(id);
+    var userOptions = {
+      query: query,
+      controller: options,
+      request: request
+    };
 
-    if (options.restrict) options.restrict(query, request);
-    applyQueryParams(query, request);
-
-    query.exec(function (error, doc) {
+    applyOptions(userOptions, function (error) {
       if (error) return next(error);
-      if (!doc) return response.send(404);
-      response.json(doc);
+
+      query.exec(function (error, doc) {
+        if (error) return next(error);
+        if (!doc) return response.send(404);
+        response.json(doc);
+      });
     });
   };
 
@@ -99,18 +134,25 @@ function put (options) {
     var id = request.params.id || null;
     var create = (id === null);
     var query = mongoose.model(options.singular).findByIdAndUpdate(id, request.body, {upsert: true});
+    var userOptions = {
+      query: query,
+      controller: options,
+      request: request
+    };
 
-    if (options.restrict) options.restrict(query, request);
-
-    query.exec(function (error, doc) {
+    applyControllerOptions(userOptions, function (error) {
       if (error) return next(error);
 
-      if (create) response.status(201);
-      else response.status(200);
+      query.exec(function (error, doc) {
+        if (error) return next(error);
 
-      response.set('Location', path.join(options.basePath, doc.id));
+        if (create) response.status(201);
+        else response.status(200);
 
-      response.json(doc);
+        response.set('Location', path.join(options.basePath, doc.id));
+
+        response.json(doc);
+      });
     });
   };
 
@@ -122,12 +164,19 @@ function del (options) {
   var f = function (request, response, next) {
     var id = request.params.id;
     var query = mongoose.model(options.singular).remove({ _id: id });
+    var userOptions = {
+      query: query,
+      controller: options,
+      request: request
+    };
 
-    if (options.restrict) options.restrict(query, request);
-
-    query.exec(function (error, count) {
+    applyControllerOptions(userOptions, function (error) {
       if (error) return next(error);
-      response.json(count);
+
+      query.exec(function (error, count) {
+        if (error) return next(error);
+        response.json(count);
+      });
     });
   };
 
@@ -139,6 +188,11 @@ function headCollection (options) {
   var f = function (request, response, next) {
     var conditions;
     var query;
+    var userOptions = {
+      query: query,
+      controller: options,
+      request: request
+    };
 
     if (request.query && request.query.conditions) {
       conditions = JSON.parse(request.query.conditions);
@@ -146,12 +200,13 @@ function headCollection (options) {
 
     query = mongoose.model(options.singular).find(conditions);
 
-    if (options.restrict) options.restrict(query, request);
-    applyQueryParams(query, request);
-
-    query.count(function (error, count) {
+    applyOptions(userOptions, function (error) {
       if (error) return next(error);
-      response.send(200);
+
+      query.count(function (error, count) {
+        if (error) return next(error);
+        response.send(200);
+      });
     });
   };
 
@@ -169,25 +224,32 @@ function getCollection (options) {
     }
 
     var query = mongoose.model(options.singular).find(conditions);
+    var userOptions = {
+      query: query,
+      controller: options,
+      request: request
+    };
 
-    if (options.restrict) options.restrict(query, request);
-    applyQueryParams(query, request);
+    applyOptions(userOptions, function (error) {
+      if (error) return next(error);
 
-    // Stream the array to the client
-    response.set('Content-Type', 'application/json');
-    response.write('[');
+      // Stream the array to the client
+      response.set('Content-Type', 'application/json');
+      response.write('[');
 
-    query.stream()
-      .on('data', function (doc) {
-        if (firstWasProcessed) response.write(', ');
-        response.write(JSON.stringify(doc.toJSON()));
-        firstWasProcessed = true;
-      })
-      .on('error', next)
-      .on('close', function () {
-        response.write(']');
-        response.send();
-      });
+      query.stream()
+        .on('data', function (doc) {
+          if (firstWasProcessed) response.write(', ');
+          response.write(JSON.stringify(doc.toJSON()));
+          firstWasProcessed = true;
+        })
+        .on('error', next)
+        .on('close', function () {
+          response.write(']');
+          response.send();
+        });
+
+    });
   };
 
   return f;
@@ -246,7 +308,7 @@ function postCollection (options) {
       });
 
       promise.error(function (error) {
-        next(new Error(error));
+        next(error);
       });
     });
 
@@ -269,13 +331,19 @@ function delCollection (options) {
   var f = function (request, response, next) {
     var conditions = request.body || {};
     var query = mongoose.model(options.singular).remove(conditions);
+    var userOptions = {
+      query: query,
+      controller: options,
+      request: request
+    };
 
-    if (options.restrict) options.restrict(query, request);
-    applyQueryParams(query, request);
-
-    query.exec(function (error, count) {
+    applyOptions(userOptions, function (error) {
       if (error) return next(error);
-      response.json(count);
+
+      query.exec(function (error, count) {
+        if (error) return next(error);
+        response.json(count);
+      });
     });
   };
 
