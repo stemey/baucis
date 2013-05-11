@@ -233,7 +233,17 @@ function getCollection (options) {
     applyOptions(userOptions, function (error) {
       if (error) return next(error);
 
-      // Stream the array to the client
+      // If `count` is set, return the number of documents the query matches
+      if (request.query.count === true) {
+        query.count(function (error, count) {
+          if (error) return next(error);
+          response.json(count);
+        });
+
+        return;
+      }
+
+      // Otherwise, stream the array to the client
       response.set('Content-Type', 'application/json');
       response.write('[');
 
