@@ -11,18 +11,16 @@ describe('POST plural', function () {
   it('should create a new object and return its ID', function (done) {
     var options = {
       url: 'http://localhost:8012/api/v1/vegetables/',
-      json: {
-	      name: 'Tomato'
-      }
+      json: { name: 'Tomato' }
     };
     request.post(options, function (error, response, body) {
       if (error) return done(error);
-      var id = body._id;
+
       expect(response.statusCode).to.equal(201);
-      expect(id).not.to.be.empty(); // TODO check it's an ObjectID
+      expect(body._id).not.to.be.empty(); // TODO check it's an ObjectID
 
       var options = {
-      	url: 'http://localhost:8012/api/v1/vegetables/' + id,
+      	url: 'http://localhost:8012/api/v1/vegetables/' + body._id,
       	json: true
       };
       request.get(options, function (error, response, body) {

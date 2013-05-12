@@ -16,7 +16,7 @@ describe('DEL singular', function () {
       json: true
     };
 
-    request.get(options, function (error, response, body) {
+    request.del(options, function (error, response, body) {
       if (error) return done(error);
 
       var options = {
@@ -25,26 +25,14 @@ describe('DEL singular', function () {
       };
 
       expect(response).to.have.property('statusCode', 200);
-      expect(body).to.have.property('name', 'Shitake');
+      expect(body).to.be(1); // count of deleted objects
 
-      request.del(options, function (error, response, body) {
-	      if (error) return done(error);
+    	request.del(options, function (error, response, body) {
+    	  if (error) return done(error);
 
-        var options = {
-          url: 'http://localhost:8012/api/v1/vegetables/' + shitake._id,
-          json: true
-        };
-
-        expect(response).to.have.property('statusCode', 200);
-	      expect(body).to.be(1); // count of deleted objects
-
-      	request.get(options, function (error, response, body) {
-      	  if (error) return done(error);
-
-          expect(response).to.have.property('statusCode', 404);
-      	  done();
-      	});
-      });
+        expect(response).to.have.property('statusCode', 404);
+    	  done();
+    	});
     });
 
   });

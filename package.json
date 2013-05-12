@@ -1,9 +1,9 @@
 {
   "name": "baucis",
-  "version": "0.3.5",
+  "version": "0.4.0",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --globals vegetables"
+    "test": "mocha --bail --globals vegetables"
   },
   "repository": {
     "type": "git",
