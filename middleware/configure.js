@@ -2,7 +2,7 @@ var middleware = module.exports = {
   conditions: function (request, response, next) {
     if (!request.query.conditions) return next();
 
-    reuqest.baucis.conditions = JSON.parse(request.query.conditions);
+    request.baucis.conditions = JSON.parse(request.query.conditions);
     next();
   },
   // Apply various options based on controller parameters
