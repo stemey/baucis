@@ -16,6 +16,7 @@ var middleware = module.exports = {
     var populate;
     var query = request.baucis.query;
 
+    if (request.query.sort) query.sort(request.query.sort);
     if (request.query.skip) query.skip(request.query.skip);
     if (request.query.limit) query.limit(request.query.limit);
     if (request.query.select) {
