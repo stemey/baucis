@@ -1,4 +1,4 @@
-baucis v0.4.0-1
+baucis v0.4.1
 ===============
 
 Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.
@@ -112,7 +112,7 @@ Examples with Backbone:
         var data = {};
 
         Object.keys(options).forEach(function (key) {
-          data[key] = JSON.stringify(options[key])
+          data[key] = JSON.stringify(options[key]);
         });
 
         return this.fetch({ data: data });
@@ -158,6 +158,12 @@ See the Mongoose [population documentation](http://mongoosejs.com/docs/populate.
     vegetables.baucis({
       skip: 20,
       limit: 10
+    });
+
+Also, `sort`:
+
+    vegetables.baucis({
+      sort: 'foo -bar'
     });
 
 `bacuis.rest`
