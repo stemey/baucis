@@ -1,8 +1,18 @@
+var getIdCondition = function(request, id) {
+  // Takes _id as default id field
+  var idField = request.app.get('idField') || "_id",  
+       filter = {};
+  // Defines the query parameters according idField
+  // and takes the given id field if present
+  filter[idField] = id || request.params.id
+  return filter
+};
+
 var middleware = module.exports = {
   // Retrieve header for the addressed document
   head: function (request, response, next) {
     var Model = request.app.get('model');
-    request.baucis.query = Model.findById(request.params.id);
+    request.baucis.query = Model.findOne( getIdCondition(request) );
     next();
   },
   // Retrieve documents matching conditions
@@ -14,7 +24,7 @@ var middleware = module.exports = {
   // Retrive the addressed document
   get: function (request, response, next) {
     var Model = request.app.get('model');
-    request.baucis.query = Model.findById(request.params.id);
+    request.baucis.query = Model.findOne( getIdCondition(request) );
     next();
   },
   // Retrieve documents matching conditions
@@ -96,7 +106,11 @@ var middleware = module.exports = {
 
     if (!id) response.status(201);
 
-    request.baucis.query = Model.findByIdAndUpdate(id, request.body, { upsert: true });
+    request.baucis.query = Model.findOneAndUpdate( 
+      getIdCondition(request, id), 
+      request.body, 
+      { upsert: true }
+    );
     next();
   },
   // Replace all docs with given docs ...
