@@ -21,26 +21,26 @@ describe('PUT singular', function () {
 
       // put the leek on the server
       var options = {
-	url: 'http://localhost:8012/api/v1/vegetables/' + radicchio._id,
-	json: {
-	  name: 'Leek'
-	}
+        url: 'http://localhost:8012/api/v1/vegetables/' + radicchio._id,
+        json: {
+          name: 'Leek'
+        }
       };
       request.put(options, function (err, response, body) {
-	if (err) return done(err);
-	expect(response).to.have.property('statusCode', 200);
+        if (err) return done(err);
+        expect(response).to.have.property('statusCode', 200);
 
-	// check it's not Radicchio
-	var options = {
-	  url: 'http://localhost:8012/api/v1/vegetables/' + radicchio._id,
-	  json: true
-	};
-	request.get(options, function (err, response, body) {
-	  if (err) return done(err);
-	  expect(response).to.have.property('statusCode', 200);
-	  expect(body).to.have.property('name', 'Leek');
-	  done();
-	});
+        // check it's not Radicchio
+        var options = {
+          url: 'http://localhost:8012/api/v1/vegetables/' + radicchio._id,
+          json: true
+        };
+        request.get(options, function (err, response, body) {
+          if (err) return done(err);
+          expect(response).to.have.property('statusCode', 200);
+          expect(body).to.have.property('name', 'Leek');
+          done();
+        });
       });
     });
   });
@@ -58,29 +58,44 @@ describe('PUT singular', function () {
 
       // put it on server
       var options = {
-	url: 'http://localhost:8012/api/v1/vegetables/' + id,
-	json: {
-	  name: 'Cucumber'
-	}
+        url: 'http://localhost:8012/api/v1/vegetables/' + id,
+        json: { name: 'Cucumber' }
       };
       request.put(options, function (err, response, body) {
-	if (err) return done(err);
-	expect(response).to.have.property('statusCode', 200);
+        if (err) return done(err);
+        expect(response).to.have.property('statusCode', 200);
 
-	// check it's there
-	var options = {
-	  url: 'http://localhost:8012/api/v1/vegetables/' + id,
-	  json: true
-	};
-	request.get(options, function (err, response, body) {
-	  expect(response).to.have.property('statusCode', 200);
-	  expect(body).to.have.property('_id', id);
-	  expect(body).to.have.property('name', 'Cucumber');
-	  done();
-	});
+        // check it's there
+        var options = {
+          url: 'http://localhost:8012/api/v1/vegetables/' + id,
+          json: true
+        };
+        request.get(options, function (err, response, body) {
+          expect(response).to.have.property('statusCode', 200);
+          expect(body).to.have.property('_id', id);
+          expect(body).to.have.property('name', 'Cucumber');
+          done();
+        });
       });
     });
-
   });
+
+  it('should fire pre save Mongoose middleware', function (done) {
+    fixtures.vegetable.preCount = 0;
+
+    // put it on server
+    var id = 'adaadaadaadaadaadaadaada';
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables/' + id,
+      json: { name: 'Micro Turnip Greens' }
+    };
+    request.put(options, function (error, response, body) {
+      if (error) return done(error);
+
+      expect(fixtures.vegetable.preCount).to.be(1);
+      done();
+    });
+  });
+
 });
 

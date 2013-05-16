@@ -5,7 +5,7 @@ var baucis = require('../..');
 var app;
 var server;
 
-module.exports = {
+var fixture = module.exports = {
   init: function(done) {
     var Schema = mongoose.Schema;
 
@@ -13,6 +13,13 @@ module.exports = {
 
     var Vegetable = new Schema({
       name: String
+    });
+
+    fixture.preCount = 0;
+
+    Vegetable.pre('save', function (next) {
+      fixture.preCount += 1;
+      next();
     });
 
     if (!mongoose.models['vegetable']) mongoose.model('vegetable', Vegetable);

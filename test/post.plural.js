@@ -32,4 +32,19 @@ describe('POST plural', function () {
     });
   });
 
+  it('should fire pre save Mongoose middleware', function (done) {
+    fixtures.vegetable.preCount = 0;
+
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables/',
+      json: { name: 'Ground Cherry' }
+    };
+    request.post(options, function (error, response, body) {
+      if (error) return done(error);
+
+      expect(fixtures.vegetable.preCount).to.be(1);
+      done();
+    });
+  });
+
 });
