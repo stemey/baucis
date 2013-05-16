@@ -45,35 +45,34 @@ describe('PUT singular', function () {
     });
   });
 
-  it('should create the addressed document if non-existant', function (done) {
+  it('should only allow updates', function (done) {
     var id = 'badbadbadbadbadbadbadbad';
     var options = {
       url: 'http://localhost:8012/api/v1/vegetables/' + id,
       json: true
     };
-    // first check it's not there
+    // First check it's not there
     request.get(options, function (err, response, body) {
       if (err) return done(err);
       expect(response).to.have.property('statusCode', 404);
 
-      // put it on server
+      // Attempt to update non-existant doc
       var options = {
         url: 'http://localhost:8012/api/v1/vegetables/' + id,
         json: { name: 'Cucumber' }
       };
       request.put(options, function (err, response, body) {
         if (err) return done(err);
-        expect(response).to.have.property('statusCode', 200);
+        expect(response).to.have.property('statusCode', 500);
 
-        // check it's there
+        // Make sure it wasn't created
         var options = {
           url: 'http://localhost:8012/api/v1/vegetables/' + id,
           json: true
         };
         request.get(options, function (err, response, body) {
-          expect(response).to.have.property('statusCode', 200);
-          expect(body).to.have.property('_id', id);
-          expect(body).to.have.property('name', 'Cucumber');
+          if (err) return done(err);
+          expect(response).to.have.property('statusCode', 404);
           done();
         });
       });
@@ -83,11 +82,10 @@ describe('PUT singular', function () {
   it('should fire pre save Mongoose middleware', function (done) {
     fixtures.vegetable.preCount = 0;
 
-    // put it on server
-    var id = 'adaadaadaadaadaadaadaada';
+    var radicchio = vegetables[7];
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables/' + id,
-      json: { name: 'Micro Turnip Greens' }
+      url: 'http://localhost:8012/api/v1/vegetables/' + radicchio._id,
+      json: { name: 'Radicchio di Treviso' }
     };
     request.put(options, function (error, response, body) {
       if (error) return done(error);
