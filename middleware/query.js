@@ -91,27 +91,28 @@ var middleware = module.exports = {
   // Replace the addressed document, or create it if it doesn't exist
   put: function (request, response, next) {
     var Model = request.app.get('model');
-    var id = request.params.id || null;
+    var id = request.params.id;
 
-    if (id && request.body._id && id !== request.body._id) {
+    if (request.body._id && id !== request.body._id) {
       return next(new Error('ID mismatch'));
-    }
-
-    if (!id && request.body._id) {
-      return next(new Error("Cannot specify _id in request body"));
     }
 
     // Can't send id for update, even if unchanged
     delete request.body._id;
 
-    if (!id) response.status(201);
+    Model.findOne(getFindCondition(request), function (error, doc) {
+      if (error) return next(error);
+      if (!doc) return next(new Error('No document with that ID was found'));
 
-    request.baucis.query = Model.findOneAndUpdate(
-      getFindCondition(request, id),
-      request.body,
-      { upsert: true }
-    );
-    next();
+      doc.set(request.body);
+
+      doc.save(function (error, savedDoc) {
+        if (error) return next(error);
+
+        request.baucis.documents = savedDoc;
+        next();
+      });
+    });
   },
   // Replace all docs with given docs ...
   putCollection: function (request, response, next) {

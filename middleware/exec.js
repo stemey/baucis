@@ -18,8 +18,5 @@ var middleware = module.exports = {
       request.baucis.count = count;
       next();
     });
-  },
-  promises: function (request, response, next) {
-    next();
   }
 };
