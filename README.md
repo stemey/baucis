@@ -1,5 +1,5 @@
-baucis v0.4.1
-===============
+baucis v0.4.2
+=============
 
 Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.
 
