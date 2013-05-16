@@ -205,9 +205,10 @@ Controllers
 
     var subcontroller = baucis.rest({
       singular: 'bar',
-      basePath: '/:fooId/bars'
+      basePath: '/:fooId/bars',
       publish: false, // don't add API routes automatically
-      select: 'foo +bar -password' // select fields for all queries
+      select: 'foo +bar -password', // select fields for all queries
+      findBy: 'baz', // use this field instead of `_id` for queries
       restrict: function (query, request) {
         // Only retrieve bars that are children of the given foo
         query.where('parent', request.params.fooId);
