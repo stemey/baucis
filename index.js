@@ -37,6 +37,7 @@ baucis.rest = function (options) {
 
   controller.set('model', mongoose.model(options.singular));
   controller.set('plural', options.plural || lingo.en.pluralize(options.singular));
+  controller.set('findBy', options.findBy || '_id');
 
   controller.set('basePath', basePath);
   controller.set('basePathWithId', basePathWithId);

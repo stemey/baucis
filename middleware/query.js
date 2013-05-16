@@ -1,18 +1,18 @@
-var getIdCondition = function(request, id) {
-  // Takes _id as default id field
-  var idField = request.app.get('idField') || "_id",  
-       filter = {};
-  // Defines the query parameters according idField
-  // and takes the given id field if present
-  filter[idField] = id || request.params.id
-  return filter
-};
- 
+// Private Members
+// ---------------
+function getFindCondition (request) {
+  var conditions = {};
+  conditions[request.app.get('findBy')] = request.params.id;
+  return conditions;
+}
+
+// Module Definition
+// -----------------
 var middleware = module.exports = {
   // Retrieve header for the addressed document
   head: function (request, response, next) {
     var Model = request.app.get('model');
-    request.baucis.query = Model.findOne( getIdCondition(request) );
+    request.baucis.query = Model.findOne(getFindCondition(request));
     next();
   },
   // Retrieve documents matching conditions
@@ -24,7 +24,7 @@ var middleware = module.exports = {
   // Retrive the addressed document
   get: function (request, response, next) {
     var Model = request.app.get('model');
-    request.baucis.query = Model.findOne( getIdCondition(request) );
+    request.baucis.query = Model.findOne(getFindCondition(request));
     next();
   },
   // Retrieve documents matching conditions
@@ -106,9 +106,9 @@ var middleware = module.exports = {
 
     if (!id) response.status(201);
 
-    request.baucis.query = Model.findOneAndUpdate( 
-      getIdCondition(request, id), 
-      request.body, 
+    request.baucis.query = Model.findOneAndUpdate(
+      getFindCondition(request, id),
+      request.body,
       { upsert: true }
     );
     next();
@@ -120,7 +120,7 @@ var middleware = module.exports = {
   // Delete the addressed object
   del: function (request, response, next) {
     var Model = request.app.get('model');
-    request.baucis.query = Model.remove({ _id: request.params.id });
+    request.baucis.query = Model.remove(getFindCondition(request));
     next();
   },
   // Delete all documents matching conditions
