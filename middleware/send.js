@@ -7,6 +7,12 @@ var middleware = module.exports = {
     // 404 if document(s) not found or 0 documents removed
     if (!request.baucis.documents) return response.send(404);
 
+    // If it's a document count (e.g. the result of a DELETE), send it back and short-circuit
+    if (typeof request.baucis.documents === 'number') {
+      return response.json(request.baucis.documents);
+    }
+
+    // Otherwise, set the location and send JSON document(s)
     if (!Array.isArray(request.baucis.documents)
       || request.baucis.documents.length === 1) {
       request.baucis.location = path.join(request.app.get('basePath'), request.baucis.documents.id);
