@@ -47,4 +47,18 @@ describe('POST plural', function () {
     });
   });
 
+  it('should next validation exceptions', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables/',
+      json: {}
+    };
+    request.post(options, function (error, response, body) {
+      if (error) return done(error);
+
+      expect(response).to.have.property('statusCode', 500);
+
+      done();
+    });
+  });
+
 });

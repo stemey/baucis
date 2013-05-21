@@ -42,50 +42,25 @@ var middleware = module.exports = {
   postCollection: function (request, response, next) {
     var body = request.body;
     var Model = request.app.get('model');
-    var ids = [];
-    var processedCount = 0;
-    var wrap;
 
     // Must be an object or array
     if (!body || typeof body !== 'object') {
       return next(new Error('Must supply a document or array to POST'));
     }
 
-    // Make it array if it wasn't already
+    // Make it an array if it wasn't already
     if (!Array.isArray(body)) body = [ body ];
 
     // No empty arrays
     if (body.length === 0) return next(new Error('Array was empty.'));
 
-    wrap = {
-      open: body.length === 1 ? '' : '[',
-      close: body.length === 1 ? '' : ']'
-    };
-
-    // Stream the response JSON array
-    response.set('Content-Type', 'application/json');
     response.status(201);
-    response.write(wrap.open);
 
-    body.forEach(function (doc) {
-      Model.create(doc, function (error, savedDoc) {
-        if (error) return next(error);
-
-        processedCount += 1;
-
-        response.write(JSON.stringify(savedDoc.toJSON()));
-
-        ids.push(savedDoc.id);
-
-        // Keep going if there are still more to process
-        if (processedCount < body.length) return response.write(',');
-
-        // Last one was processed
-        request.baucis.location = request.app.get('basePath') + '?conditions={ _id: { $in: [' + ids.join() + '] } }';
-
-        response.write(wrap.close);
-        response.send();
-      });
+    Model.create(body, function (error) {
+      if (error) return next(error);
+      var documents = Array.prototype.slice.apply(arguments).slice(1);
+      request.baucis.documents = documents.length === 1 ? documents[0] : documents;
+      next();
     });
   },
   // Replace the addressed document, or create it if it doesn't exist

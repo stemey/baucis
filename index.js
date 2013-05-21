@@ -94,8 +94,8 @@ baucis.rest = function (options) {
   // Add routes for collections of documents
   if (options.head !== false) controller.head(basePath, configure.conditions, query.headCollection, configure.controller, configure.query, exec.count, send.count);
   if (options.get  !== false) controller.get(basePath, configure.conditions, query.getCollection, configure.controller, configure.query, exec.stream, send.stream);
-  if (options.post !== false) controller.post(basePath, query.postCollection);
-  if (options.put  !== false) controller.put(basePath, query.putCollection, configure.controller, configure.query, exec.exec, send.exec);
+  if (options.post !== false) controller.post(basePath,                      query.postCollection,                                                    send.exec );
+  if (options.put  !== false) controller.put(basePath,                       query.putCollection, configure.controller, configure.query, exec.exec, send.exec);
   if (options.del  !== false) controller.del(basePath, configure.conditions, query.delCollection, configure.controller, configure.query, exec.exec, send.exec);
 
   // Publish unless told not to
