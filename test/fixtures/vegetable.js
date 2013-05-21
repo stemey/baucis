@@ -12,7 +12,7 @@ var fixture = module.exports = {
     mongoose.connect('mongodb://localhost/xXxBaUcIsTeStXxX');
 
     var Vegetable = new Schema({
-      name: String
+      name: { type: String, required: true }
     });
 
     fixture.preCount = 0;
