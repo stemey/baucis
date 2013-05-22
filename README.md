@@ -56,13 +56,23 @@ An example of creating a REST API from a couple Mongoose schemata:
 Later, make requests:
 
  * GET /api/v1/vegetables/:id &mdash; get the addressed document
- * PUT /api/v1/vegetables/:id &mdash; create or update the addressed document
+ * PUT /api/v1/vegetables/:id &mdash; update the addressed document
  * DEL /api/v1/vegetables/:id &mdash; delete the addressed object
 
  * GET /api/v1/vegetables &mdash; get all documents
  * POST /api/v1/vegetables &mdash; creates a new document and sends back its ID
- * PUT /api/v1/vegetables &mdash; replace all documents with given new documents
  * DEL /api/v1/vegetables &mdash; delete all documents
+
+
+RESTful Headers
+---------------
+
+ * `Accept: application/json` is set for all responses.
+ * The `Allow` header is set automatically, correctly removing HTTP verbs when
+   those verbs have been disabled with e.g. `put: false`.
+ * The `Location` HTTP header is set for PUT and POST responses.
+ * If `relations: true` is passed to `baucis.rest`, the HTTP `Link` header will be set with various links for all responses.
+
 
 Examples
 --------
@@ -188,15 +198,6 @@ Or, set some middleware for specific HTTP verbs or disable verbs completely:
       del: false,
       put: false
     });
-
-RESTful Headers
----------------
-
- * `Accept: application/json` is set for all responses.
- * The `Allow` header is set automatically, correctly removing HTTP verbs when
-   those verbs have been disabled with e.g. `put: false`.
- * The `Location` HTTP header is set for PUT and POST responses.
- * If `relations: true` is passed to `baucis.rest`, the HTTP `Link` header will be set with various links for all responses.
 
 Controllers
 -----------
