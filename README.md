@@ -58,10 +58,9 @@ Later, make requests:
  * GET /api/v1/vegetables/:id &mdash; get the addressed document
  * PUT /api/v1/vegetables/:id &mdash; update the addressed document
  * DEL /api/v1/vegetables/:id &mdash; delete the addressed object
-
- * GET /api/v1/vegetables &mdash; get all documents
- * POST /api/v1/vegetables &mdash; creates a new document and sends back its ID
- * DEL /api/v1/vegetables &mdash; delete all documents
+ * GET /api/v1/vegetables &mdash; get all or a subset of documents
+ * POST /api/v1/vegetables &mdash; creates new document(s) and sends it/them back
+ * DEL /api/v1/vegetables &mdash; delete all or a subset of documents
 
 
 RESTful Headers
