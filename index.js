@@ -85,18 +85,18 @@ baucis.rest = function (options) {
   if (options.del) controller.del(basePathWithOptionalId, options.del);
 
   // Add routes for singular documents
-  if (options.head !== false) controller.head(basePathWithId, query.head, configure.controller, configure.query, exec.count, send.count);
-  if (options.get  !== false) controller.get(basePathWithId, query.get, configure.controller, configure.query, exec.exec, send.exec);
-  if (options.post !== false) controller.post(basePathWithId, query.post, configure.controller, configure.query, exec.exec, send.exec);
-  if (options.put  !== false) controller.put(basePathWithId, query.put, configure.controller, configure.query, send.exec);
-  if (options.del  !== false) controller.del(basePathWithId, query.del, configure.controller, configure.query, exec.exec, send.exec);
+  if (options.head !== false) controller.head(basePathWithId, query.head, configure.controller, configure.query, exec.count, documents.send);
+  if (options.get  !== false) controller.get(basePathWithId, query.get, configure.controller, configure.query, exec.exec, documents.send);
+  if (options.post !== false) controller.post(basePathWithId, query.post, configure.controller, configure.query, exec.exec, documents.send);
+  if (options.put  !== false) controller.put(basePathWithId, query.put, configure.controller, configure.query, documents.send);
+  if (options.del  !== false) controller.del(basePathWithId, query.del, configure.controller, configure.query, exec.exec, documents.send);
 
   // Add routes for collections of documents
-  if (options.head !== false) controller.head(basePath, configure.conditions, query.headCollection, configure.controller, configure.query, exec.count, send.count);
+  if (options.head !== false) controller.head(basePath, configure.conditions, query.headCollection, configure.controller, configure.query, exec.count, documents.send);
   if (options.get  !== false) controller.get(basePath, configure.conditions, query.getCollection, configure.controller, configure.query, exec.stream, send.stream);
-  if (options.post !== false) controller.post(basePath,                      query.postCollection,                                                    send.exec );
-  if (options.put  !== false) controller.put(basePath,                       query.putCollection, configure.controller, configure.query, exec.exec, send.exec);
-  if (options.del  !== false) controller.del(basePath, configure.conditions, query.delCollection, configure.controller, configure.query, exec.exec, send.exec);
+  if (options.post !== false) controller.post(basePath,                      query.postCollection,                                                  documents.send);
+  if (options.put  !== false) controller.put(basePath,                       query.putCollection, configure.controller, configure.query, exec.exec, documents.send);
+  if (options.del  !== false) controller.del(basePath, configure.conditions, query.delCollection, configure.controller, configure.query, exec.exec, documents.send);
 
   // Publish unless told not to
   if (options.publish !== false) app.use(path.join('/', controller.get('plural')), controller);

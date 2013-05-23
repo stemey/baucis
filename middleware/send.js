@@ -1,34 +1,6 @@
 var path = require('path');
 
 var middleware = module.exports = {
-  exec: function (request, response, next) {
-    var ids;
-
-    // 404 if document(s) not found or 0 documents removed
-    if (!request.baucis.documents) return response.send(404);
-
-    // If it's a document count (e.g. the result of a DELETE), send it back and short-circuit
-    if (typeof request.baucis.documents === 'number') {
-      return response.json(request.baucis.documents);
-    }
-
-    // Otherwise, set the location and send JSON document(s)
-    if (!Array.isArray(request.baucis.documents)
-      || request.baucis.documents.length === 1) {
-      request.baucis.location = path.join(request.app.get('basePath'), request.baucis.documents.id);
-    }
-    else {
-      ids = request.baucis.documents.map(function (doc) { return doc.id });
-      request.baucis.location = request.app.get('basePath') + '?conditions={ _id: { $in: [' + ids.join() + '] } }';
-    }
-
-    response.json(request.baucis.documents);
-  },
-  count: function (request, response, next) {
-    // 404 if no matching documents
-    if (request.baucis.count === 0) return response.send(404);
-    response.json(request.baucis.count);
-  },
   stream: function (request, response, next) {
     var firstWasProcessed = false;
 
@@ -47,8 +19,5 @@ var middleware = module.exports = {
       response.write(']');
       response.send();
     });
-  },
-  promises: function (request, response, next) {
-    next();
   }
 }
