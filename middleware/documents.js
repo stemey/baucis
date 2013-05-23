@@ -1,3 +1,5 @@
+var path = require('path');
+
 var middleware = module.exports = {
   lastModified: function (request, response, next) {
     var lastModifiedPath = request.app.get('lastModified');
@@ -10,7 +12,7 @@ var middleware = module.exports = {
     // Validate
     // TODO allow/convert Timestamp, Number, ISODate
     modifiedDates.forEach(function (modified) {
-      if (modified instanceOf Date) return;
+      if (modified instanceof Date) return;
       else next(new Error('lastModified path was not a date'));
     });
 

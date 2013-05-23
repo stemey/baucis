@@ -55,12 +55,12 @@ An example of creating a REST API from a couple Mongoose schemata:
 
 Later, make requests:
 
- * GET /api/v1/vegetables/:id &mdash; get the addressed document
- * PUT /api/v1/vegetables/:id &mdash; update the addressed document
- * DEL /api/v1/vegetables/:id &mdash; delete the addressed object
  * GET /api/v1/vegetables &mdash; get all or a subset of documents
+ * GET /api/v1/vegetables/:id &mdash; get the addressed document
  * POST /api/v1/vegetables &mdash; creates new document(s) and sends it/them back
+ * PUT /api/v1/vegetables/:id &mdash; update the addressed document
  * DEL /api/v1/vegetables &mdash; delete all or a subset of documents
+ * DEL /api/v1/vegetables/:id &mdash; delete the addressed object
 
 
 RESTful Headers
@@ -250,6 +250,6 @@ Contact Info
 ------------
 
  * http://kun.io/
- * @wprl 
+ * @wprl
 
 &copy; 2012-2013 William P. Riley-Land

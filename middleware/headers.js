@@ -41,7 +41,13 @@ var middleware = module.exports = {
   },
   // Add the "Location" response header
   location: function (request, response, next) {
-    response.set('Location', request.baucis.location);
+    if (request.baucis.location) response.set('Location', request.baucis.location);
     next();
+  },
+  eTag: function (request, response, next) {
+    // TODO does Express do this automatically?
+    // TODO add versioning option for strong Etags
+    // TODO how does this work with Vary/query options like populate -- do MD5?
+    response.set('ETag', 'W/"' + request.baucis.model.id + '"');
   }
 };
