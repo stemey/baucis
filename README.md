@@ -1,4 +1,4 @@
-baucis v0.4.6-2
+baucis v0.4.6-3
 ===============
 
 Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.
@@ -55,20 +55,19 @@ An example of creating a REST API from a couple Mongoose schemata:
 
 Later, make requests:
 
- * GET /api/v1/vegetables &mdash; get all or a subset of documents
- * GET /api/v1/vegetables/:id &mdash; get the addressed document
- * POST /api/v1/vegetables &mdash; creates new documents and sends them back.  You may post a single document or an array of documents.
- * PUT /api/v1/vegetables/:id &mdash; update the addressed document
- * DEL /api/v1/vegetables &mdash; delete all or a subset of documents
- * DEL /api/v1/vegetables/:id &mdash; delete the addressed object
-
+| HTTP Verb     | /vegetables   | /vegetables/:id |
+| ------------- | ------------- | --------------- |
+| GET           | Get all or a subset of documents | Get the addressed document |
+| POST          | Creates new documents and sends them back.  You may post a single document or an array of documents.      | n/a |
+| PUT           | n/a | Update the addressed document |
+| DELETE        | Delete all or a subset of documents | Delete the addressed object |
 
 HTTP Headers
 ------------
 
  * `ETag` is supported out-of-the-box by Express
  * `Last-Modified` can be set by passing `lastModified: 'foo'` to `baucis.rest` in order to set the header field to the value of that path on all requests.
- GET requests to the collection set the field to the latest date out of all documents returned by the query. (*Cool huh?*)
+ GET requests to the collection set the field to the latest date out of all documents returned by the query.
  * `Accept: application/json` is set for all responses.
  * The `Allow` header is set automatically, correctly removing HTTP verbs when
    those verbs have been disabled with e.g. `put: false`.
@@ -79,18 +78,20 @@ HTTP Headers
 Examples
 --------
 
- * [Examples with jQuery](examples/jQuery.js)
  * [Examples with Backbone](examples/Backbone.js)
+ * [Examples with jQuery](examples/jQuery.js)
 
 Query Options
 -------------
 
- * `conditions` — Set the Mongoose query's `find` or `remove` arguments when using verbs `HEAD`, `GET`, `DELETE` with collection endpoints.
- * `skip` — Don't send the first *n* documents in the response.
- * `limit` – Limit the response document count to *n*
- * `select` — Set which fields should be selected for response documents
- * `sort` — Sort response documents by the given criteria.  `sort: 'foo -bar'`' sorts the collection by `foo` in ascending order, then by `bar` in descending order.
- * `populate` — Set which fields should be populated for response documents.  See the Mongoose [population documentation](http://mongoosejs.com/docs/populate.html) for more information.
+| Name | Description |
+| ---- | ----------- |
+| conditions | Set the Mongoose query's `find` or `remove` arguments |
+| skip | Don't send the first *n* matched documents in the response |
+| limit | Limit the response document count to *n* |
+| select | Set which fields should be selected for response documents |
+| sort | Sort response documents by the given criteria.  `sort: 'foo -bar'`' sorts the collection by `foo` in ascending order, then by `bar` in descending order. |
+| populate | Set which fields should be populated for response documents.  See the Mongoose [population documentation](http://mongoosejs.com/docs/populate.html) for more information. |
 
 It is not permitted to use the `select` query option or the `select` option of `populate` with a `+path`.  This is to allow a mechanism for hiding fields from client software.
 
