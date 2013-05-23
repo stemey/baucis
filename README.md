@@ -1,5 +1,5 @@
-baucis v0.4.6
-=============
+baucis v0.4.6-1
+===============
 
 Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.
 
@@ -57,18 +57,18 @@ Later, make requests:
 
  * GET /api/v1/vegetables &mdash; get all or a subset of documents
  * GET /api/v1/vegetables/:id &mdash; get the addressed document
- * POST /api/v1/vegetables &mdash; creates new document(s) and sends it/them back
+ * POST /api/v1/vegetables &mdash; creates new documents and sends them back.  You may post a single document or an array of documents.
  * PUT /api/v1/vegetables/:id &mdash; update the addressed document
  * DEL /api/v1/vegetables &mdash; delete all or a subset of documents
  * DEL /api/v1/vegetables/:id &mdash; delete the addressed object
 
 
-RESTful Headers
----------------
+HTTP Headers
+------------
 
- * `ETag` is supported natively by Express
+ * `ETag` is supported out-of-the-box by Express
  * `Last-Modified` can be set by passing `lastModified: 'foo'` to `baucis.rest` in order to set the header field to the value of that path on all requests.
- GET requests to the collection return the latest date out of all documents returned by the query.
+ GET requests to the collection set the field to the latest date out of all documents returned by the query. (*Cool huh?*)
  * `Accept: application/json` is set for all responses.
  * The `Allow` header is set automatically, correctly removing HTTP verbs when
    those verbs have been disabled with e.g. `put: false`.
@@ -79,104 +79,22 @@ RESTful Headers
 Examples
 --------
 
-Examples with jQuery:
+ * [Examples with jQuery](examples/jQuery.js)
+ * [Examples with Backbone](examples/Backbone.js)
 
-    $.getJSON('/api/v1/vegetables/4f4028e6e5139bf4e472cca1', function (data) {
-      console.log(data);
-    });
+Query Options
+-------------
 
-    $.ajax({
-      type: 'POST',
-      dataType: 'json',
-      url: '/api/v1/vegetables',
-      data: {
-        name: 'carrot',
-        color: 'orange'
-      }
-    }).done(function (vegetable) {
-      // The new document that was just created
-      console.dir(vegetable);
-    });
+ * `conditions` — Set the Mongoose query's `find` or `remove` arguments when using verbs `HEAD`, `GET`, `DELETE` with collection endpoints.
+ * `skip` — Don't send the first *n* documents in the response.
+ * `limit` – Limit the response document count to *n*
+ * `select` — Set which fields should be selected for response documents
+ * `sort` — Sort response documents by the given criteria.  `sort: 'foo -bar'`' sorts the collection by `foo` in ascending order, then by `bar` in descending order.
+ * `populate` — Set which fields should be populated for response documents.  See the Mongoose [population documentation](http://mongoosejs.com/docs/populate.html) for more information.
 
-Requests to the collection (not its members) take standard MongoDB query parameters to filter the documents based on custom criteria.
+It is not permitted to use the `select` query option or the `select` option of `populate` with a `+path`.  This is to allow a mechanism for hiding fields from client software.
 
-    $.ajax({
-      type: 'GET',
-      dataType: 'json',
-      url: '/api/v1/vegetables',
-      data: {
-        conditions: JSON.stringify({
-          color: 'red',
-          'nutrition.sodium': { $lte: 10 }
-        })
-      }
-    }).done(function (vegetables) {
-      console.dir(vegetables);
-    });
-
-Examples with Backbone:
-
-    var Vegetables = Backbone.Collection.extend({
-      url: '/vegetables',
-      baucis: function (options) {
-        if (!options) return this.fetch();
-
-        var data = {};
-
-        Object.keys(options).forEach(function (key) {
-          data[key] = JSON.stringify(options[key]);
-        });
-
-        return this.fetch({ data: data });
-      }
-    });
-
-    var Vegetable = Backbone.Model.extend({
-      urlRoot: '/vegetables'
-    });
-
-    var vegetables = new Vegetables();
-    vegetables.baucis({ conditions: { color: 'red' } }).then( ... );
-
-Besides, the `conditions` option, `populate` is also currently
-supported, to allow population of references to other documents.
-
-    vegetables.baucis({
-      conditions: { color: red },
-      populate: 'child'
-    });
-
-    // or
-
-    populate: ['child1', 'child2' ]
-
-    // or
-
-    populate: [{
-      path: 'child1',
-      select: ['fieldA', 'fieldB'],
-      match: {
-        'foo': { $gte: 7 }
-      },
-      options: { limit: 1 }
-    }, ... ]
-
-It is not permitted to use the `select` option of `populate` with a `+path`.  This allows you to deselect paths at the schema level using `select: false` in the path definition.  The client will not be able to select paths deselected in this way, but your server middleware may select these fields as usual using `query.select`.
-
-See the Mongoose [population documentation](http://mongoosejs.com/docs/populate.html) for more information.
-
-`skip` and `limit` are available as well, typically used for paging:
-
-    vegetables.baucis({
-      skip: 20,
-      limit: 10
-    });
-
-Also, `sort`:
-
-    vegetables.baucis({
-      sort: 'foo -bar'
-    });
+You can deselect paths in the schema definition using `select: false` or in the controller options using `select: '-foo'` and your server middleware will able to select these fields as usual using `query.select`, while preventing the client from selecting the field.
 
 `bacuis.rest`
 -------------
@@ -212,6 +130,7 @@ Controllers
       publish: false, // don't add API routes automatically
       select: 'foo +bar -password', // select fields for all queries
       findBy: 'baz', // use this field instead of `_id` for queries
+      lastModified: 'lastUpdatedField', // Set the `Last-Modified` HTTP header using this field
       restrict: function (query, request) {
         // Only retrieve bars that are children of the given foo
         query.where('parent', request.params.fooId);
