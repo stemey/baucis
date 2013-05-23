@@ -13,10 +13,24 @@ var middleware = module.exports = {
     next();
   },
   count: function (request, response, next) {
-    request.baucis.query.count(function (error, count) {
-      if (error) return next(error);
-      request.baucis.count = count;
-      next();
-    });
+    var lastModifiedPath = request.app.get('lastModified');
+
+    request.baucis.count = true;
+
+    if (lastModifiedPath) {
+      request.baucis.query.select('-_id ' + lastModifiedPath);
+      request.baucis.query.exec(function (error, documents) {
+        if (error) return next(error);
+        request.baucis.documents = documents;
+        next();
+      });
+    }
+    else {
+      request.baucis.query.count(function (error, count) {
+        if (error) return next(error);
+        request.baucis.documents = count;
+        next();
+      });
+    }
   }
 };

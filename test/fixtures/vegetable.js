@@ -12,10 +12,16 @@ var fixture = module.exports = {
     mongoose.connect('mongodb://localhost/xXxBaUcIsTeStXxX');
 
     var Vegetable = new Schema({
-      name: { type: String, required: true }
+      name: { type: String, required: true },
+      lastModified: { type: Date, required: true, default: Date.now }
     });
 
     fixture.preCount = 0;
+
+    Vegetable.pre('save', function (next) {
+      this.set('lastModified', new Date());
+      next();
+    });
 
     Vegetable.pre('save', function (next) {
       fixture.preCount += 1;
@@ -26,6 +32,7 @@ var fixture = module.exports = {
 
     baucis.rest({
       singular: 'vegetable',
+      lastModified: 'lastModified',
       all: function (request, response, next) {
         if (request.query.block === "true") return response.send(401);
         next();

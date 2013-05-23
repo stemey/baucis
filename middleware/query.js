@@ -12,12 +12,14 @@ var middleware = module.exports = {
   // Retrieve header for the addressed document
   head: function (request, response, next) {
     var Model = request.app.get('model');
+    request.baucis.noBody = true;
     request.baucis.query = Model.findOne(getFindCondition(request));
     next();
   },
   // Retrieve documents matching conditions
   headCollection: function (request, response, next) {
     var Model = request.app.get('model');
+    request.baucis.noBody = true;
     request.baucis.query = Model.find(request.baucis.conditions);
     next();
   },

@@ -1,4 +1,4 @@
-baucis v0.4.5
+baucis v0.4.6
 =============
 
 Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.
@@ -66,6 +66,9 @@ Later, make requests:
 RESTful Headers
 ---------------
 
+ * `ETag` is supported natively by Express
+ * `Last-Modified` can be set by passing `lastModified: 'foo'` to `baucis.rest` in order to set the header field to the value of that path on all requests.
+ GET requests to the collection return the latest date out of all documents returned by the query.
  * `Accept: application/json` is set for all responses.
  * The `Allow` header is set automatically, correctly removing HTTP verbs when
    those verbs have been disabled with e.g. `put: false`.
