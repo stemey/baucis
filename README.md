@@ -1,4 +1,4 @@
-baucis v0.4.6-3
+baucis v0.4.6-4
 ===============
 
 Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.
@@ -65,14 +65,16 @@ Later, make requests:
 HTTP Headers
 ------------
 
- * `ETag` is supported out-of-the-box by Express
- * `Last-Modified` can be set by passing `lastModified: 'foo'` to `baucis.rest` in order to set the header field to the value of that path on all requests.
- GET requests to the collection set the field to the latest date out of all documents returned by the query.
- * `Accept: application/json` is set for all responses.
- * The `Allow` header is set automatically, correctly removing HTTP verbs when
-   those verbs have been disabled with e.g. `put: false`.
- * The `Location` HTTP header is set for PUT and POST responses.
- * If `relations: true` is passed to `baucis.rest`, the HTTP `Link` header will be set with various links for all responses.
+| Header Field |     |
+| ------------ | --- |
+
+
+| ETag | Supported out-of-the-box by Express. |
+| Last-Modified | Can be set automatically by Baucis.  Pass `lastModified: 'foo'` to `baucis.rest` in order to set the path to be used (currently it must be a `Date`). GET requests to the collection set this to the latest date out of all documents returned by the query.
+| Accept | Set to `application/json`  for all responses. |
+| Allow | Set automatically, correctly removing HTTP verbs when those verbs have been disabled by e.g. passing `put: false` to `baucis.rest`. |
+| Location | Set for PUT and POST responses. |
+| Link | If `relations: true` is passed to `baucis.rest`, this header will be set with various related links for all responses. |
 
 
 Examples
