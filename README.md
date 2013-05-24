@@ -1,4 +1,4 @@
-baucis v0.4.6-5
+baucis v0.4.6-6
 ===============
 
 Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.
@@ -120,18 +120,47 @@ Or, set some middleware for specific HTTP verbs or disable verbs completely:
       put: false
     });
 
-Controllers
------------
-
 `baucis.rest` returns an instance of the controller created to handle the schema's API routes.
+
+    var controller = baucis.rest({ ... });
+
+Controllers are Express apps; they may be used as such.
+
+    var controller = baucis.rest({
+      singular: 'robot',
+      configure: function (controller) {
+        // Add middleware before all other rotues in the controller
+        controller.use(express.cookieParser());
+      }
+    });
+
+    // Add middleware after default controller routes
+    controller.use(function () { ... });
+    controller.set('some option name', 'value');
+    controller.listen(3000);
+
+Controller Options
+------------------
+
+| Name | Description |
+| ---- | ----------- |
+| singular | The name of the schema, as registered with `mongoose.model`. |
+| plural | This will be set automatically using the `lingo` module, but may be overridden by passing it into `baucis.rest`.
+| basePath | Defaults to `/`.  Used for embedding a controller in another conroller. |
+| publish | Set to `false` to not publish the controller's endpoints when `baucis()` is called. |
+| select | Select or deselect fields for all queries |
+| findBy | Use another field besides `_id` for entity queries. |
+| lastModified | Set the `Last-Modified` HTTP header useing the given field.  Currently this field must be a `Date`. |
+| restrict | Alter the query based on request parameters. |
+| configure | Add middleware to the controller before generated paths. |
 
     var subcontroller = baucis.rest({
       singular: 'bar',
       basePath: '/:fooId/bars',
-      publish: false, // don't add API routes automatically
-      select: 'foo +bar -password', // select fields for all queries
-      findBy: 'baz', // use this field instead of `_id` for queries
-      lastModified: 'lastUpdatedField', // Set the `Last-Modified` HTTP header using this field
+      publish: false,
+      select: 'foo +bar -password',
+      findBy: 'baz',
+      lastModified: 'modifiedDate',
       restrict: function (query, request) {
         // Only retrieve bars that are children of the given foo
         query.where('parent', request.params.fooId);
@@ -152,25 +181,8 @@ Controllers
       }
     });
 
-Controllers are Express apps, so do whatever you want with them.
-
-    var controller = baucis.rest({
-      singular: 'robot',
-      configure: function (controller) {
-        // Add middleware before all other rotues in the controller
-        controller.use(express.cookieParser());
-      }
-    });
-
-    // Add middleware after default controller routes
-    controller.use(function () { ... });
-    controller.set('some option name', 'value');
-    controller.listen(3000);
-
-Baucis uses the power of Express, without getting in its way.  It's meant to be a way to organize your REST API's Express middleware.
-
-Contact Info
-------------
+Contact
+-------
 
  * http://kun.io/
  * @wprl
