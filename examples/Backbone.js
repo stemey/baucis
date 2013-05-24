@@ -32,10 +32,10 @@
     baucis: baucisFetch
   });
 
-  // Instantiate a collection and a model
+  // Instantiate a collection and a couple models
   var vegetables = new Vegetables();
-  var tomato = new Vegetable({ _id: 'abcdabcdabcdabcd '});
-  var potato = new Vegetable({ name: 'Potato '});
+  var tomato = new Vegetable({ _id: 'abcdabcdabcdabcd' });
+  var potato = new Vegetable({ name: 'Potato' });
 
   // Make some requests and print out the results
 
