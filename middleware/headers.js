@@ -1,4 +1,4 @@
-var path = require('path');
+var url = require('url');
 
 var middleware = module.exports = {
   // Add "Link" header field, with some basic defaults
@@ -6,9 +6,9 @@ var middleware = module.exports = {
     response.links({
       collection: request.app.get('basePath'),
       search: request.app.get('basePath'),
-      edit: path.join(request.app.get('basePath'), request.params.id),
-      self: path.join(request.app.get('basePath'), request.params.id),
-      'latest-version': path.join(request.app.get('basePath'), request.params.id)
+      edit: url.resolve(request.app.get('basePath'), request.params.id),
+      self: url.resolve(request.app.get('basePath'), request.params.id),
+      'latest-version': url.resolve(request.app.get('basePath'), request.params.id)
     });
     next();
   },

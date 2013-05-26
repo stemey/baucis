@@ -1,4 +1,4 @@
-var path = require('path');
+var url = require('url');
 
 var middleware = module.exports = {
   lastModified: function (request, response, next) {
@@ -52,7 +52,7 @@ var middleware = module.exports = {
     // Otherwise, set the location and send JSON document(s)
     if (!Array.isArray(documents)
       || documents.length === 1) {
-      request.baucis.location = path.join(request.app.get('basePath'), documents.id);
+      request.baucis.location = url.resolve(request.app.get('basePath'), documents.id);
     }
     else {
       ids = documents.map(function (doc) { return doc.id });
