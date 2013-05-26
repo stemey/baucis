@@ -1,5 +1,3 @@
-var path = require('path');
-
 var middleware = module.exports = {
   stream: function (request, response, next) {
     var firstWasProcessed = false;

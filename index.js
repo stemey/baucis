@@ -3,7 +3,7 @@
 var express = require('express');
 var mongoose = require('mongoose');
 var lingo = require('lingo');
-var path = require('path');
+var url = require('url');
 
 var exec = require('./middleware/exec');
 var headers = require('./middleware/headers');
@@ -32,9 +32,9 @@ baucis.rest = function (options) {
   if (!options.singular) throw new Error('Must provide the Mongoose schema name');
 
   var controller = express();
-  var basePath = path.join('/', options.basePath || '/');
-  var basePathWithId = path.join(basePath, ':id');
-  var basePathWithOptionalId = path.join(basePath, ':id?');
+  var basePath = url.resolve('/', options.basePath ? options.basePath.replace(/\/?$/, '/') : '/');
+  var basePathWithId = url.resolve(basePath, ':id');
+  var basePathWithOptionalId = url.resolve(basePath, ':id?');
 
   controller.set('model', mongoose.model(options.singular));
   controller.set('plural', options.plural || lingo.en.pluralize(options.singular));
@@ -100,7 +100,7 @@ baucis.rest = function (options) {
   if (options.del  !== false) controller.del(basePath, configure.conditions, query.delCollection, configure.controller, configure.query, exec.exec, documents.lastModified, documents.send);
 
   // Publish unless told not to
-  if (options.publish !== false) app.use(path.join('/', controller.get('plural')), controller);
+  if (options.publish !== false) app.use(url.resolve('/', controller.get('plural')), controller);
 
   return controller;
 };
