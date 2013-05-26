@@ -50,9 +50,11 @@ var middleware = module.exports = {
     }
 
     // Otherwise, set the location and send JSON document(s)
-    if (!Array.isArray(documents)
-      || documents.length === 1) {
+    if (!Array.isArray(documents)) {
       request.baucis.location = url.resolve(request.app.get('basePath'), documents.id);
+    }
+    else if (documents.length === 1) {
+      request.baucis.location = url.resolve(request.app.get('basePath'), documents[0].id);
     }
     else {
       ids = documents.map(function (doc) { return doc.id });
