@@ -32,7 +32,8 @@ baucis.rest = function (options) {
   if (!options.singular) throw new Error('Must provide the Mongoose schema name');
 
   var controller = express();
-  var basePath = url.resolve('/', options.basePath ? options.basePath.replace(/\/?$/, '/') : '/');
+  var basePathOption = options.basePath ? options.basePath.replace(/\/?$/, '/') : '/';
+  var basePath = url.resolve('/', basePathOption);
   var basePathWithId = url.resolve(basePath, ':id');
   var basePathWithOptionalId = url.resolve(basePath, ':id?');
 
