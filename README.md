@@ -162,14 +162,6 @@ To apply middleware to all API routes, just pass the function or array:
       if (ok) next();
     });
 
-To disable verbs completely:
-
-    baucis.rest({
-      singular: 'vegetable',
-      del: false,
-      put: false
-    });
-
 Controller Options
 ------------------
 
@@ -182,6 +174,7 @@ Controller Options
 | select | Select or deselect fields for all queries e.g. `'foo +bar -password'` |
 | findBy | Use another field besides `_id` for entity queries. |
 | lastModified | Set the `Last-Modified` HTTP header useing the given field.  Currently this field must be a `Date`. |
+| head, get, post, put, del | May be set to false to disable those HTTP verbs completely for the controller |
 
 An example of embedding a controller within another controller
 
