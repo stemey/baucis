@@ -44,6 +44,7 @@ Examples with jQuery:
       console.log(data);
     });
 
+<<<<<<< Updated upstream
     $.ajax({
       type: 'POST',
       dataType: 'json',
@@ -51,6 +52,28 @@ Examples with jQuery:
       data: { name: 'Potato' }
     }).done(function( id ) {
       console.log(id);
+=======
+Baucis adds middleware registration functions for three stages of the request cycle:
+
+| Name | Description |
+| ---- | ----------- |
+| request | This stage of middleware will be called after baucis applies defaults based on the request, but before the Mongoose query is generated |
+| query | This stage of middleware will be called after baucis applies defaults to the Mongoose query object, but before the documents or count is retrieved from the database.  The query can be accessed in your custom middleware via `request.baucis.query`.   |
+| documents | This stage of middleware will be called after baucis executes the query, but before the documents or count are sent in the response.  The documents/count can be accessed in your custom middleware via `request.baucis.documents`.  |
+
+Each of these functions has three forms:
+
+The first form is the most specific.  The first argument lets you specify whether the middleware applies to document instances (paths like `/foos/:id`) or to collection requests (paths like `/foos`).  The second argument is a space-delimted list of HTTP verbs that the middleware should be applied to.  The third argument is the middleware function to add or an array of middleware functions.
+
+    controller.request('instance', 'head get del', middleware);
+    controller.request('collection', 'post', middleware);
+
+To add middleware that applies to both document instances and collections, the first argument is omitted:
+
+    controller.query('post put', function (request, response, next) {
+      // do something with request.baucis.query
+      next();
+>>>>>>> Stashed changes
     });
 
 
