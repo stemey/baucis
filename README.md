@@ -1,58 +1,125 @@
-baucis
-=====================
+baucis v0.5.0
+===============
 
-This is a bit of a work in progress, but should be mostly stable, if not well documented at the moment.
+Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.
+
+Like Baucis and Philemon of old, this library provides REST to the weary traveler.  The goal is to create a JSON REST API for Mongoose & Express that matches as closely as possible the richness and versatility of the [HTTP 1.1 protocol](http://www.w3.org/Protocols/rfc2616/rfc2616.html).
+
+Baucis uses [semver](http://semver.org).
 
 ![David Rjckaert III - Philemon and Baucis Giving Hospitality to Jupiter and Mercury](http://github.com/wprl/baucis/raw/master/david_rijckaert_iii-philemon_and_baucis.jpg "Hermes is like: 'Hey Baucis, don't kill that goose.  And thanks for the REST.'")
 
 *David Rijckaert - Philemon and Baucis Giving Hospitality to Jupiter and Mercury*
 
-Like Baucis and Philemon of old, this library provides REST to the weary traveler.  Automatically creates REST services from Mongoose schemata:
+Usage
+-----
 
-    var Vegetable = new Schema({
+To install:
+
+    npm install baucis
+
+An example of creating a REST API from a couple Mongoose schemata:
+
+    var Vegetable = new mongoose.Schema({
       name: String
     });
 
-    Vegetable.metadata({
-      singular: 'vegetable'
+    var Fruit = new mongoose.Schema({
+      name: String
     });
 
-    var app = express.createServer();
-    app.configure(function(){
-      app.use(express.bodyParser());
+    // Note that Mongoose middleware will be executed as usual
+    Vegetable.pre('save', function () { ... });
+
+    // Register the schemata
+    mongoose.model('vegetable', Vegetable);
+    mongoose.model('fruit', Fruit);
+
+    // Create the API routes
+    baucis.rest({
+      singular: 'vegetable',
     });
 
-    // create RESTful routes
-    app.rest(Vegetable);
+    baucis.rest({
+      singular: 'fruit'
+    });
 
+    // Create the app and listen for API requests
+    var app = express();
+    app.use('/api/v1', baucis());
     app.listen(80);
 
-Later make requests:
+Later, make requests:
 
- * GET /vegetable/:id &mdash; get the addressed document
- * PUT /vegetable/:id &mdash; create or update the addressed document
- * DEL /vegetable/:id &mdash; delete the addressed object
+| HTTP Verb     | /vegetables   | /vegetables/:id |
+| ------------- | ------------- | --------------- |
+| GET           | Get all or a subset of documents | Get the addressed document |
+| POST          | Creates new documents and sends them back.  You may post a single document or an array of documents.      | n/a |
+| PUT           | n/a | Update the addressed document |
+| DELETE        | Delete all or a subset of documents | Delete the addressed object |
 
- * GET /vegetables/ &mdash; get all documents (in the future will accept query args to pass to the mongo server)
- * POST /vegetables/ &mdash; creates a new document and sends back its ID
- * PUT /vegetables/ &mdash; replace all documents with given new documents
- * DEL /vegetables/ &mdash; delete all documents (also will accept query args in future)
+HTTP Headers
+------------
 
-Examples with jQuery:
+| Header Field | Notes |
+| ------------ | ----- |
+| ETag | Supported out-of-the-box by Express. |
+| Last-Modified | Can be set automatically by Baucis.  Pass `lastModified: 'foo'` to `baucis.rest` in order to set the path to be used (currently it must be a `Date`). GET requests to the collection set this to the latest date out of all documents returned by the query.
+| Accept | Set to `application/json`  for all responses. |
+| Allow | Set automatically, correctly removing HTTP verbs when those verbs have been disabled by e.g. passing `put: false` to `baucis.rest`. |
+| Location | Set for PUT and POST responses. |
+| Link | If `relations: true` is passed to `baucis.rest`, this header will be set with various related links for all responses. |
 
-    $.getJSON('/vegetable/4f4028e6e5139bf4e472cca1', function (data) {
-      console.log(data);
+
+Examples
+--------
+
+ * [Examples with Backbone](examples/Backbone.js)
+ * [Examples with jQuery](examples/jQuery.js)
+
+Query Options
+-------------
+
+| Name | Description |
+| ---- | ----------- |
+| conditions | Set the Mongoose query's `find` or `remove` arguments |
+| skip | Don't send the first *n* matched documents in the response |
+| limit | Limit the response document count to *n* |
+| select | Set which fields should be selected for response documents |
+| sort | Sort response documents by the given criteria.  `sort: 'foo -bar'`' sorts the collection by `foo` in ascending order, then by `bar` in descending order. |
+| populate | Set which fields should be populated for response documents.  See the Mongoose [population documentation](http://mongoosejs.com/docs/populate.html) for more information. |
+
+It is not permitted to use the `select` query option or the `select` option of `populate` with a `+path`.  This is to allow a mechanism for hiding fields from client software.
+
+You can deselect paths in the schema definition using `select: false` or in the controller options using `select: '-foo'` and your server middleware will able to select these fields as usual using `query.select`, while preventing the client from selecting the field.
+
+`bacuis.rest`
+-------------
+
+`baucis.rest` returns an instance of the controller created to handle the schema's API routes.
+
+    var controller = baucis.rest({ ... });
+
+Controllers are Express apps; they may be used as such.
+
+    var controller = baucis.rest({
+      singular: 'robot'
     });
 
-<<<<<<< Updated upstream
-    $.ajax({
-      type: 'POST',
-      dataType: 'json',
-      url: '/vegetables/',
-      data: { name: 'Potato' }
-    }).done(function( id ) {
-      console.log(id);
-=======
+    // Add middleware before API routes
+    controller.use(function () { ... });
+
+    // Do other stuff...
+    controller.set('some option name', 'value');
+    controller.listen(3000);
+
+Customize them with plain old Express/Connect middleware, including pre-existing modules like `passport`.  Middleware can be registered like so:
+
+    controller.request(function (request, response, next) {
+      if (request.isAuthenticated()) return next();
+      return response.send(401);
+    });
+
 Baucis adds middleware registration functions for three stages of the request cycle:
 
 | Name | Description |
@@ -73,28 +140,83 @@ To add middleware that applies to both document instances and collections, the f
     controller.query('post put', function (request, response, next) {
       // do something with request.baucis.query
       next();
->>>>>>> Stashed changes
     });
 
+To apply middleware to all API routes, just pass the function or array:
 
-app.rest will accept arrays, hashes, or single Schema objects.  An example with require-index:
+    controller.request(function (request, response, next) {
+      if (request.isAuthenticated()) return next();
+      return response.send(401);
+    });
 
-    var schemata = requireindex('./schemata');
-    app.rest(schemata);
+    controller.documents(function (request, response, next) {
+      var ok = true;
+      if (typeof request.baucis.documents === 'number') return next();
+      [].concat(request.baucis.documents).forEach(function (doc) {
+        if (!ok) return;
+        if (doc.owner !== request.user.id) {
+          ok = false;
+          next(new Error('User does not own this.'));
+        }
+      });
+      if (ok) next();
+    });
 
-Use middleware for security, etc.  Middleware is plain old Connect middleware, so it can be used with pre-existing modules like passport.  Set the middleware metadata to a function or array of functions.
+To disable verbs completely:
 
-    Vegetable.metadata({
+    baucis.rest({
       singular: 'vegetable',
-      middleware: function(request, response, next) {
-        if (request.isAuthenticated()) return next();
-        else return response.send(401);
-      }
+      del: false,
+      put: false
     });
 
-Contact Info
+Controller Options
+------------------
 
- * http://william.nodejitsu.com/
+| Name | Description |
+| ---- | ----------- |
+| singular | The name of the schema, as registered with `mongoose.model`. |
+| plural | This will be set automatically using the `lingo` module, but may be overridden by passing it into `baucis.rest`.
+| basePath | Defaults to `/`.  Used for embedding a controller in another conroller. |
+| publish | Set to `false` to not publish the controller's endpoints when `baucis()` is called. |
+| select | Select or deselect fields for all queries e.g. `'foo +bar -password'` |
+| findBy | Use another field besides `_id` for entity queries. |
+| lastModified | Set the `Last-Modified` HTTP header useing the given field.  Currently this field must be a `Date`. |
+
+An example of embedding a controller within another controller
+
+    var subcontroller = baucis.rest({
+      singular: 'bar',
+      basePath: '/:fooId/bars',
+      publish: false
+    });
+
+    subcontroller.query(function (request, response, next) {
+      // Only retrieve bars that are children of the given foo
+      request.baucis.query.where('parent', request.params.fooId);
+      next();
+    });
+
+    // Didn't publish, so have to manually initialize
+    subcontroller.initialize();
+
+    var controller = baucis.rest({
+      singular: 'foo'
+    });
+
+    // Embed the subcontroller at /foos/:fooId/bars
+    controller.use(subcontroller);
+
+    // Embed arbitrary middleware at /foos/qux
+    controller.use('/qux', function (request, response, next) {
+      // Do something cool…
+      next();
+    });
+
+Contact
+-------
+
+ * http://kun.io/
  * @wprl
 
-&copy; 2012 William P. Riley-Land
+&copy; 2012-2013 William P. Riley-Land

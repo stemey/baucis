@@ -1,21 +1,23 @@
 {
   "name": "baucis",
-  "version": "0.0.2",
+  "version": "0.5.0",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --globals vegetables"
+    "test": "mocha --bail --globals vegetables"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/murmux/baucis.git"
+    "url": "https://github.com/wprl/baucis.git"
   },
-  "license": "GPLv3",
-  "description": "Module for automatically creating REST interfaces for mongoose schemata",
+  "license": "MIT",
+  "description": "Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.",
+  "keywords": [ "REST", "API", "express", "mongoose", "schema", "schemata", "mongo" ],
   "devDependencies": {
-    "mongoose": "~2.7.1",
-    "express": "~2.5.11"
+    "mocha": "~1.8.2"
   },
   "dependencies": {
-    "lingo": "0.0.5"
+    "lingo": "0.0.5",
+    "express": "~3.1.0",
+    "mongoose": "~3.6.2"
   }
 }

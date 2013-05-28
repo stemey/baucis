@@ -4,34 +4,45 @@ var baucis = require('../..');
 
 var app;
 var server;
+var controller;
 
-module.exports = {
+var fixture = module.exports = {
   init: function(done) {
     var Schema = mongoose.Schema;
 
     mongoose.connect('mongodb://localhost/xXxBaUcIsTeStXxX');
 
     var Vegetable = new Schema({
-      name: String
-    },
-    {
-      safe: true,
-      strict: true
+      name: { type: String, required: true },
+      lastModified: { type: Date, required: true, default: Date.now }
     });
 
-    Vegetable.metadata({
+    fixture.preCount = 0;
+
+    Vegetable.pre('save', function (next) {
+      this.set('lastModified', new Date());
+      next();
+    });
+
+    Vegetable.pre('save', function (next) {
+      fixture.preCount += 1;
+      next();
+    });
+
+    if (!mongoose.models['vegetable']) mongoose.model('vegetable', Vegetable);
+
+    controller = baucis.rest({
       singular: 'vegetable',
-      plural: 'vegetables',
-      middleware: function (request, response, next) {
-        if (request.query.block === 1) return response.status(401);
-        else return next();
-      }
+      lastModified: 'lastModified'
     });
 
-    mongoose.model(Vegetable.metadata('singular'), Vegetable, Vegetable.metadata('plural'));
+    controller.request(function (request, response, next) {
+      if (request.query.block === 'true') return response.send(401);
+      next();
+    });
 
     app = express();
-    app.use('/api', baucis.rest(Vegetable));
+    app.use('/api/v1', baucis());
 
     server = app.listen(8012);
 
@@ -44,23 +55,23 @@ module.exports = {
   },
   create: function(done) {
     // clear all first
-    mongoose.models['vegetable'].remove({}, function (err) {
-      if (err) return done(err);
+    mongoose.model('vegetable').remove({}, function (error) {
+      if (error) return done(error);
 
       var names = ['Turnip',   'Spinach',   'Pea',
           		     'Shitake',  'Lima Bean', 'Carrot',
                    'Zucchini', 'Radicchio'];
 
-      vegetables = names.map( function (name) { // TODO leaked global
-	      return new mongoose.models['vegetable']({ name: name });
+      vegetables = names.map(function (name) { // TODO leaked global
+	      return new (mongoose.model('vegetable'))({ name: name });
       });
 
       var numberToSave = names.length;
 
-      vegetables.forEach( function (vege) {
-      	vege.save( function (err) {
+      vegetables.forEach(function (vege) {
+      	vege.save(function (error) {
       	  numberToSave--;
-      	  if (err)                return done(err);
+      	  if (error) return done(error);
       	  if (numberToSave === 0) return done();
       	});
       });

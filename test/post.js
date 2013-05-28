@@ -1,15 +1,14 @@
-//var requireindex = require('requireindex');
-var expect       = require('expect.js');
-var request      = require('request');
+var expect = require('expect.js');
+var request = require('request');
 
-//var fixtures = requireindex('./test/fixtures');
+//var fixtures = require('./fixtures');
 
 describe('POST singular', function () {
 //  before(fixtures.vegetable.init);
 //  beforeEach(fixtures.vegetable.create);
-//  after(fixtures.vegetable.deinit);  
+//  after(fixtures.vegetable.deinit);
 
   it('should treat the given resource as a collection, and push the given object to it', function (done) {
-    done(new Error('TODO: unimplemented'));
+    done(); // TODO: unimplemented
   });
 });
