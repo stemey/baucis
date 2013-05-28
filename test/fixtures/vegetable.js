@@ -4,6 +4,7 @@ var baucis = require('../..');
 
 var app;
 var server;
+var controller;
 
 var fixture = module.exports = {
   init: function(done) {
@@ -30,13 +31,14 @@ var fixture = module.exports = {
 
     if (!mongoose.models['vegetable']) mongoose.model('vegetable', Vegetable);
 
-    baucis.rest({
+    controller = baucis.rest({
       singular: 'vegetable',
-      lastModified: 'lastModified',
-      all: function (request, response, next) {
-        if (request.query.block === "true") return response.send(401);
-        next();
-      }
+      lastModified: 'lastModified'
+    });
+
+    controller.request(function (request, response, next) {
+      if (request.query.block === 'true') return response.send(401);
+      next();
     });
 
     app = express();

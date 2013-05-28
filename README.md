@@ -1,15 +1,11 @@
-baucis v0.4.7
+baucis v0.5.0
 ===============
 
 Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.
 
 Like Baucis and Philemon of old, this library provides REST to the weary traveler.  The goal is to create a JSON REST API for Mongoose & Express that matches as closely as possible the richness and versatility of the [HTTP 1.1 protocol](http://www.w3.org/Protocols/rfc2616/rfc2616.html).
 
-Those versions published to npm represent release versions.  Those versions not published to npm are development releases.
-
-Relase versions of baucis can be considered stable.  Baucis uses [semver](http://semver.org).
-
-Please report issues on GitHub if bugs are encountered.
+Baucis uses [semver](http://semver.org).
 
 ![David Rjckaert III - Philemon and Baucis Giving Hospitality to Jupiter and Mercury](http://github.com/wprl/baucis/raw/master/david_rijckaert_iii-philemon_and_baucis.jpg "Hermes is like: 'Hey Baucis, don't kill that goose.  And thanks for the REST.'")
 
@@ -100,26 +96,6 @@ You can deselect paths in the schema definition using `select: false` or in the 
 `bacuis.rest`
 -------------
 
-Use plain old Connect/Express middleware, including pre-existing modules like `passport`.  For example, set the `all` option to add middleware to be called before all the model's API routes.
-
-    baucis.rest({
-      singular: 'vegetable',
-      all: function (request, response, next) {
-        if (request.isAuthenticated()) return next();
-        return response.send(401);
-      }
-    });
-
-Or, set some middleware for specific HTTP verbs or disable verbs completely:
-
-    baucis.rest({
-      singular: 'vegetable',
-      get: [middleware1, middleware2],
-      post: middleware3,
-      del: false,
-      put: false
-    });
-
 `baucis.rest` returns an instance of the controller created to handle the schema's API routes.
 
     var controller = baucis.rest({ ... });
@@ -127,17 +103,72 @@ Or, set some middleware for specific HTTP verbs or disable verbs completely:
 Controllers are Express apps; they may be used as such.
 
     var controller = baucis.rest({
-      singular: 'robot',
-      configure: function (controller) {
-        // Add middleware before all other rotues in the controller
-        controller.use(express.cookieParser());
-      }
+      singular: 'robot'
     });
 
-    // Add middleware after default controller routes
+    // Add middleware before API routes
     controller.use(function () { ... });
+
+    // Do other stuff...
     controller.set('some option name', 'value');
     controller.listen(3000);
+
+Customize them with plain old Express/Connect middleware, including pre-existing modules like `passport`.  Middleware can be registered like so:
+
+    controller.request(function (request, response, next) {
+      if (request.isAuthenticated()) return next();
+      return response.send(401);
+    });
+
+Baucis adds middleware registration functions for three stages of the request cycle:
+
+| Name | Description |
+| ---- | ----------- |
+| request | This stage of middleware will be called after baucis applies defaults based on the request, but before the Mongoose query is generated |
+| query | This stage of middleware will be called after baucis applies defaults to the Mongoose query object, but before the documents or count is retrieved from the databased.  The query can be accessed in your custom middleware via `request.baucis.query`.   |
+| documents | This stage of middleware will be called after baucis executes the query, but before the documents or count are sent in the response.  The documents/count can be accessed in your custom middleware via `request.baucis.documents`.  |
+
+Each of these functions has three forms:
+
+The first form is the most specific.  The first argument lets you specify whether the middleware applies to document instances (paths like `/foos/:id`) or to collection requests (paths like `/foos`).  The second argument is a space-delimted list of HTTP verbs that the middleware should be applied to.  The third argument is the middleware function to add or an array of middleware functions.
+
+    controller.request('instance', 'head get del', middleware);
+    controller.request('collection', 'post', middleware);
+
+To add middleware that applies to both document instances and collections, the first argument is omitted:
+
+    controller.query('post put', function (request, response, next) {
+      // do something with request.baucis.query
+      next();
+    });
+
+To apply middleware to all API routes, just pass the function or array:
+
+    controller.request(function (request, response, next) {
+      if (request.isAuthenticated()) return next();
+      return response.send(401);
+    });
+
+    controller.documents(function (request, response, next) {
+      var ok = true;
+      if (typeof request.baucis.documents === 'number') return next();
+      [].concat(request.baucis.documents).forEach(function (doc) {
+        if (!ok) return;
+        if (doc.owner !== request.user.id) {
+          ok = false;
+          next(new Error('User does not own this.'));
+        }
+      });
+      if (ok) next();
+    });
+
+To disable verbs completely:
+
+    baucis.rest({
+      singular: 'vegetable',
+      del: false,
+      put: false
+    });
 
 Controller Options
 ------------------
@@ -148,37 +179,38 @@ Controller Options
 | plural | This will be set automatically using the `lingo` module, but may be overridden by passing it into `baucis.rest`.
 | basePath | Defaults to `/`.  Used for embedding a controller in another conroller. |
 | publish | Set to `false` to not publish the controller's endpoints when `baucis()` is called. |
-| select | Select or deselect fields for all queries |
+| select | Select or deselect fields for all queries e.g. `'foo +bar -password'` |
 | findBy | Use another field besides `_id` for entity queries. |
 | lastModified | Set the `Last-Modified` HTTP header useing the given field.  Currently this field must be a `Date`. |
-| restrict | Alter the query based on request parameters. |
-| configure | Add middleware to the controller before generated paths. |
+
+An example of embedding a controller within another controller
 
     var subcontroller = baucis.rest({
       singular: 'bar',
       basePath: '/:fooId/bars',
-      publish: false,
-      select: 'foo +bar -password',
-      findBy: 'baz',
-      lastModified: 'modifiedDate',
-      restrict: function (query, request) {
-        // Only retrieve bars that are children of the given foo
-        query.where('parent', request.params.fooId);
-      }
+      publish: false
     });
 
-    var controller = baucis.rest({
-      singular: 'foo',
-      configure: function (controller) {
-        // Embed the subcontroller at /foos/:fooId/bars
-        controller.use(subcontroller);
+    subcontroller.query(function (request, response, next) {
+      // Only retrieve bars that are children of the given foo
+      request.baucis.query.where('parent', request.params.fooId);
+      next();
+    });
 
-        // Embed arbitrary middleware at /foos/qux
-        controller.use('/qux', function (request, response, next) {
-          // Do something cool…
-          next();
-        });
-      }
+    // Didn't publish, so have to manually initialize
+    subcontroller.initialize();
+
+    var controller = baucis.rest({
+      singular: 'foo'
+    });
+
+    // Embed the subcontroller at /foos/:fooId/bars
+    controller.use(subcontroller);
+
+    // Embed arbitrary middleware at /foos/qux
+    controller.use('/qux', function (request, response, next) {
+      // Do something cool…
+      next();
     });
 
 Contact
