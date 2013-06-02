@@ -23,7 +23,7 @@ var middleware = module.exports = {
       if (request.query.select.indexOf('+') !== -1) {
         return next(new Error('Including fields excluded at schema level (using +) is not permitted'));
       }
-      query.select(request.select);
+      query.select(request.query.select);
     }
     if (request.query.populate) {
       populate = JSON.parse(request.query.populate);
