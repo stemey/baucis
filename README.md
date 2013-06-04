@@ -1,4 +1,4 @@
-baucis v0.5.1
+baucis v0.5.2
 =============
 
 Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.
@@ -107,7 +107,16 @@ Controllers are Express apps; they may be used as such.
     });
 
     // Add middleware before API routes
-    controller.use(function () { ... });
+    controller.use('/qux', function (request, response, next) {
+      // Do something cool…
+      next();
+    });
+
+    controller.get('/readme', function (request, response, next) {
+      // Send a readme document about the resource (for example)
+      next();
+    });
+
 
     // Do other stuff...
     controller.set('some option name', 'value');
@@ -125,7 +134,7 @@ Baucis adds middleware registration functions for three stages of the request cy
 | Name | Description |
 | ---- | ----------- |
 | request | This stage of middleware will be called after baucis applies defaults based on the request, but before the Mongoose query is generated |
-| query | This stage of middleware will be called after baucis applies defaults to the Mongoose query object, but before the documents or count is retrieved from the database.  The query can be accessed in your custom middleware via `request.baucis.query`.   |
+| query | This stage of middleware will be called after baucis applies defaults to the Mongoose query object, but before the documents or count are retrieved from the database.  The query can be accessed in your custom middleware via `request.baucis.query`.   |
 | documents | This stage of middleware will be called after baucis executes the query, but before the documents or count are sent in the response.  The documents/count can be accessed in your custom middleware via `request.baucis.documents`.  |
 
 Each of these functions has three forms:
@@ -199,12 +208,6 @@ An example of embedding a controller within another controller
 
     // Embed the subcontroller at /foos/:fooId/bars
     controller.use(subcontroller);
-
-    // Embed arbitrary middleware at /foos/qux
-    controller.use('/qux', function (request, response, next) {
-      // Do something cool…
-      next();
-    });
 
 Contact
 -------

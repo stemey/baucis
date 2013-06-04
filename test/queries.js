@@ -77,4 +77,32 @@ describe('Queries', function () {
     });
   });
 
+  it('should disallow using +fields with select', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables?select=%2Bfoo',
+      json: true
+    };
+    request.get(options, function (err, response, body) {
+      if (err) return done(err);
+      expect(response).to.have.property('statusCode', 500);
+      done();
+    });
+  });
+
+  it('should allow selecting fields', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables?select=-_id lastModified',
+      json: true
+    };
+    request.get(options, function (err, response, body) {
+      if (err) return done(err);
+      expect(response).to.have.property('statusCode', 200);
+      expect(body[0]).to.have.property('lastModified');
+      expect(body[0]).not.to.have.property('_id');
+      expect(body[0]).not.to.have.property('name');
+      console.log(body)
+      done();
+    });
+  });
+
 });
