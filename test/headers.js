@@ -28,7 +28,7 @@ describe('Headers', function () {
     });
   });
 
-  it('should set Last-Modified on save', function (done) {
+  it('should save new lastModified date', function (done) {
     var vege = vegetables[0];
     var originalModified = vege.get('lastModified');
 
