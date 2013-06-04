@@ -93,7 +93,7 @@ It is not permitted to use the `select` query option or the `select` option of `
 
 You can deselect paths in the schema definition using `select: false` or in the controller options using `select: '-foo'` and your server middleware will able to select these fields as usual using `query.select`, while preventing the client from selecting the field.
 
-`bacuis.rest`
+`baucis.rest`
 -------------
 
 `baucis.rest` returns an instance of the controller created to handle the schema's API routes.
