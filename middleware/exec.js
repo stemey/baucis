@@ -1,5 +1,6 @@
 var middleware = module.exports = {
   exec: function (request, response, next) {
+    console.dir(request.baucis);
     request.baucis.query.exec(function (error, documents) {
       if (error) return next(error);
       request.baucis.documents = documents;
