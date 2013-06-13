@@ -15,7 +15,7 @@ var middleware = {
   send: require('./middleware/send')
 };
 
-// Private Static Methods
+// Private Static Members
 // ----------------------
 function createEmptyMiddlewareHash () {
   var o = {};
@@ -57,8 +57,8 @@ function cascadeArguments (stage, howMany, verbs, middleware) {
 var Controller = module.exports = function (options) {
   if (!options.singular) throw new Error('Must provide the Mongoose schema name');
 
-  // Private Variables
-  // -----------------
+  // Private Instance Members
+  // --------------------------
   var controller = express();
   var initialized = false;
   var userMiddlewareFor = createEmptyMiddlewareHash();
@@ -67,8 +67,6 @@ var Controller = module.exports = function (options) {
   var basePathWithId = url.resolve(basePath, ':id');
   var basePathWithOptionalId = url.resolve(basePath, ':id?');
 
-  // Private Methods
-  // ---------------
   function traverseMiddleware (options, f, g) {
     if (!options.stage) throw new Error('Must suppy stage.');
     if (!options.middleware) throw new Error('Must suppy middleware.');
@@ -78,6 +76,7 @@ var Controller = module.exports = function (options) {
     if (!Array.isArray(options.middleware) && typeof options.middleware !== 'function') {
       Object.keys(options.middleware).forEach(function (howManyKey) {
         Object.keys(options.middleware[howManyKey]).forEach(function (verb) {
+          console.log(options.stage + ':' + howManyKey + ':' + verb)
           f({
             stage: options.stage,
             howMany: howManyKey,
@@ -142,6 +141,8 @@ var Controller = module.exports = function (options) {
   };
 
   controller.initialize = function () {
+    var that = this;
+
     if (initialized) return;
 
     // Middleware for parsing JSON requests
@@ -188,7 +189,7 @@ var Controller = module.exports = function (options) {
       middleware: middleware.query
     });
 
-    // Queries have been created
+    // Query has been created
     activateMiddleware({
       stage: 'query',
       middleware: [ middleware.configure.controller, middleware.configure.query ]

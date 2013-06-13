@@ -5,6 +5,7 @@ var baucis = require('../..');
 var app;
 var server;
 var controller;
+var subcontroller;
 
 var fixture = module.exports = {
   init: function(done) {
