@@ -19,7 +19,6 @@ var middleware = module.exports = {
     },
     // Retrive the addressed document
     get: function (request, response, next) {
-      console.log('meEEEEEEEEEEEE')
       var Model = request.app.get('model');
       request.baucis.query = Model.findOne(getFindCondition(request));
       next();
@@ -72,7 +71,6 @@ var middleware = module.exports = {
     },
     // Retrieve documents matching conditions
     get: function (request, response, next) {
-      console.log('mEEEEEEEE TOOOOOoooooooo')
       var Model = request.app.get('model');
       request.baucis.query = Model.find(request.baucis.conditions);
       next();
