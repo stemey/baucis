@@ -146,18 +146,15 @@ var Controller = module.exports = function (options) {
   };
 
   controller.initialize = function () {
-    var that = this;
-
     if (initialized) return;
 
-    // Middleware for parsing JSON requests
-    this.use(express.json());
-
-    // Initialize baucis state
-    this.use(function (request, response, next) {
-      request.baucis = {};
-      next();
-    });
+    // activateMiddleware({
+    //   stage: 'request',
+    //   middleware: function (request, response, next) {
+    //     if (console.log('Route: %s', request.route.path);
+    //     next();
+    //   }
+    // })
 
     // Allow/Accept headers
     activateMiddleware({
@@ -257,6 +254,16 @@ var Controller = module.exports = function (options) {
   controller.set('basePath', basePath);
   controller.set('basePathWithId', basePathWithId);
   controller.set('basePathWithOptionalId', basePathWithOptionalId);
+
+  // Basic middleware
+  // Middleware for parsing JSON requests
+  controller.use(express.json());
+
+  // Initialize baucis state
+  controller.use(function (request, response, next) {
+    request.baucis = {};
+    next();
+  });
 
   return controller;
 };
