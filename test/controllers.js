@@ -20,18 +20,10 @@ describe('Controllers', function () {
     };
     request.get(options, function (err, response, body) {
       if (err) return done(err);
-      expect(response).to.have.property('statusCode', 200);
-      expect(response).to.have.property('body', 'OK!');
+      expect(response.statusCode).to.be(200);
+      expect(response.body).to.be('OK!');
       done();
     });
-  });
-
-  it('should disallow adding handlers after initialization', function (done) {
-    var f = function () {
-      controller.request('get', function () { });
-    };
-    expect(f).to.throwException();
-    done();
   });
 
   it('should allow mounting of subcontrollers', function (done) {
@@ -41,9 +33,42 @@ describe('Controllers', function () {
     };
     request.get(options, function (err, response, body) {
       if (err) return done(err);
-      expect(response).to.have.property('statusCode', 200);
+      expect(response.statusCode).to.be(200);
       done();
     });
+  });
+
+  it('should allow using middleware' /*, function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/stores',
+      json: true
+    };
+    request.get(options, function (err, response, body) {
+      if (err) return done(err);
+      expect(response).to.have.property('statusCode', 200);
+      expect(response).to.have.property('body', 'Poncho!');
+      done();
+    });
+  }*/);
+
+
+  it('should allow using middleware mounted at a path'/*,  function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/stores/binfo',
+      json: true
+    };
+    request.get(options, function (err, response, body) {
+      if (err) return done(err);
+      expect(response.statusCode).to.be(200);
+      expect(response.body).to.be('OK!');
+      done();
+    });
+  } */);
+
+  it('should disallow adding handlers after initialization', function (done) {
+    var f = function () { controller.request('get', function () {}) };
+    expect(f).to.throwException();
+    done();
   });
 
 });
