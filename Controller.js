@@ -52,20 +52,26 @@ function cascadeArguments (stage, howMany, verbs, middleware) {
   return { stage: stage, howMany: howMany, verbs: verbs, middleware: middleware };
 }
 
-// Constructor
-// -----------
+// Module Definition
+// -----------------
 var Controller = module.exports = function (options) {
+  // Validation
+  // ----------
   if (!options.singular) throw new Error('Must provide the Mongoose schema name');
+  if (options.basePath && options.basePath !== '/') {
+    if (options.basePath.indexOf('/') !== 0) throw new Error('basePath must start with a "/"');
+    if (options.basePath.lastIndexOf('/') === options.basePath.length - 1) throw new Error('basePath must not end with a "/"');
+  }
 
   // Private Instance Members
   // --------------------------
   var controller = express();
   var initialized = false;
   var userMiddlewareFor = createEmptyMiddlewareHash();
-  var basePathOption = options.basePath ? options.basePath.replace(/\/?$/, '/') : '/';
-  var basePath = url.resolve('/', basePathOption);
-  var basePathWithId = url.resolve(basePath, ':id');
-  var basePathWithOptionalId = url.resolve(basePath, ':id?');
+  var basePath = options.basePath ? options.basePath : '/';
+  var separator = (basePath === '/' ? '' : '/');
+  var basePathWithId = basePath + separator + ':id';
+  var basePathWithOptionalId = basePath + separator + ':id?';
 
   function traverseMiddleware (options, f, g) {
     if (!options.stage) throw new Error('Must suppy stage.');
@@ -76,7 +82,6 @@ var Controller = module.exports = function (options) {
     if (!Array.isArray(options.middleware) && typeof options.middleware !== 'function') {
       Object.keys(options.middleware).forEach(function (howManyKey) {
         Object.keys(options.middleware[howManyKey]).forEach(function (verb) {
-          console.log(options.stage + ':' + howManyKey + ':' + verb)
           f({
             stage: options.stage,
             howMany: howManyKey,
