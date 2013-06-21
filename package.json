@@ -1,6 +1,8 @@
 {
   "name": "baucis",
-  "version": "0.5.2",
+  "author": "William Riley-Land <william@kun.io>",
+  "homepage": "https://github.com/wprl/baucis",
+  "version": "0.5.3",
   "main": "index.js",
   "scripts": {
     "test": "mocha --bail --globals vegetables"
@@ -8,6 +10,10 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/wprl/baucis.git"
+  },
+  "bugs": {
+    "url":"https://github.com/wprl/baucis/issues/new",
+    "email": "william@kun.io"
   },
   "license": "MIT",
   "description": "Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.",

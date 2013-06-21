@@ -111,6 +111,4 @@ var middleware = module.exports = {
       next();
     }
   }
-
-
 };

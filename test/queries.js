@@ -100,7 +100,6 @@ describe('Queries', function () {
       expect(body[0]).to.have.property('lastModified');
       expect(body[0]).not.to.have.property('_id');
       expect(body[0]).not.to.have.property('name');
-      console.log(body)
       done();
     });
   });

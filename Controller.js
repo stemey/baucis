@@ -15,7 +15,7 @@ var middleware = {
   send: require('./middleware/send')
 };
 
-// Private Static Methods
+// Private Static Members
 // ----------------------
 function createEmptyMiddlewareHash () {
   var o = {};
@@ -52,23 +52,27 @@ function cascadeArguments (stage, howMany, verbs, middleware) {
   return { stage: stage, howMany: howMany, verbs: verbs, middleware: middleware };
 }
 
-// Constructor
-// -----------
+// Module Definition
+// -----------------
 var Controller = module.exports = function (options) {
+  // Validation
+  // ----------
   if (!options.singular) throw new Error('Must provide the Mongoose schema name');
+  if (options.basePath && options.basePath !== '/') {
+    if (options.basePath.indexOf('/') !== 0) throw new Error('basePath must start with a "/"');
+    if (options.basePath.lastIndexOf('/') === options.basePath.length - 1) throw new Error('basePath must not end with a "/"');
+  }
 
-  // Private Variables
-  // -----------------
+  // Private Instance Members
+  // --------------------------
   var controller = express();
   var initialized = false;
   var userMiddlewareFor = createEmptyMiddlewareHash();
-  var basePathOption = options.basePath ? options.basePath.replace(/\/?$/, '/') : '/';
-  var basePath = url.resolve('/', basePathOption);
-  var basePathWithId = url.resolve(basePath, ':id');
-  var basePathWithOptionalId = url.resolve(basePath, ':id?');
+  var basePath = options.basePath ? options.basePath : '/';
+  var separator = (basePath === '/' ? '' : '/');
+  var basePathWithId = basePath + separator + ':id';
+  var basePathWithOptionalId = basePath + separator + ':id?';
 
-  // Private Methods
-  // ---------------
   function traverseMiddleware (options, f, g) {
     if (!options.stage) throw new Error('Must suppy stage.');
     if (!options.middleware) throw new Error('Must suppy middleware.');
@@ -144,14 +148,13 @@ var Controller = module.exports = function (options) {
   controller.initialize = function () {
     if (initialized) return;
 
-    // Middleware for parsing JSON requests
-    this.use(express.json());
-
-    // Initialize baucis state
-    this.use(function (request, response, next) {
-      request.baucis = {};
-      next();
-    });
+    // activateMiddleware({
+    //   stage: 'request',
+    //   middleware: function (request, response, next) {
+    //     if (console.log('Route: %s', request.route.path);
+    //     next();
+    //   }
+    // })
 
     // Allow/Accept headers
     activateMiddleware({
@@ -188,7 +191,7 @@ var Controller = module.exports = function (options) {
       middleware: middleware.query
     });
 
-    // Queries have been created
+    // Query has been created
     activateMiddleware({
       stage: 'query',
       middleware: [ middleware.configure.controller, middleware.configure.query ]
@@ -251,6 +254,16 @@ var Controller = module.exports = function (options) {
   controller.set('basePath', basePath);
   controller.set('basePathWithId', basePathWithId);
   controller.set('basePathWithOptionalId', basePathWithOptionalId);
+
+  // Basic middleware
+  // Middleware for parsing JSON requests
+  controller.use(express.json());
+
+  // Initialize baucis state
+  controller.use(function (request, response, next) {
+    request.baucis = {};
+    next();
+  });
 
   return controller;
 };
