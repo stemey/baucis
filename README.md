@@ -163,9 +163,15 @@ To apply middleware to all API routes, just pass the function or array:
       if (typeof request.baucis.documents === 'number') return next();
       [].concat(request.baucis.documents).forEach(function (doc) {
         if (!ok) return;
+        if (!doc.iSelected('owner') {
+          ok = false;
+          next(new Error('Must select owner'));
+          return;
+        }
         if (doc.owner !== request.user.id) {
           ok = false;
           next(new Error('User does not own this.'));
+          return;
         }
       });
       if (ok) next();
