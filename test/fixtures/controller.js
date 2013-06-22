@@ -47,6 +47,10 @@ var fixture = module.exports = {
       response.json('OK!');
     });
 
+    controller.get('/:id/foos', function (request, response, next) {
+      response.json(request.params.id);
+    });
+
     controller.use(subcontroller);
 
     cheesy = baucis.rest({

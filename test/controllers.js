@@ -42,6 +42,33 @@ describe('Controllers', function () {
     });
   });
 
+  it('should allow adding arbitrary routes with params', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/stores/XYZ/foos',
+      json: true
+    };
+    request.get(options, function (err, response, body) {
+      if (err) return done(err);
+      expect(response.statusCode).to.be(200);
+      expect(body).to.be('XYZ');
+      done();
+    });
+  });
+
+  it('should still allow using baucis routes when adding arbitrary routes', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/stores',
+      qs: { select: 'name -_id' },
+      json: true
+    };
+    request.get(options, function (err, response, body) {
+      if (err) return done(err);
+      expect(response.statusCode).to.be(200);
+      expect(body).to.eql([ { name: 'Westlake' }, { name: 'Corner' } ]);
+      done();
+    });
+  });
+
   it('should allow mounting of subcontrollers', function (done) {
     var options = {
       url: 'http://localhost:8012/api/v1/stores/123/tools',
