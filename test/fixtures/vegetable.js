@@ -42,6 +42,12 @@ var fixture = module.exports = {
       next();
     });
 
+    controller.query(function (request, response, next) {
+      if (request.query.testQuery !== 'true') return next();
+      request.baucis.query.select('_id lastModified');
+      next();
+    });
+
     app = express();
     app.use('/api/v1', baucis());
 
