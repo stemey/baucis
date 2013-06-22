@@ -13,6 +13,22 @@ describe('Controllers', function () {
   beforeEach(fixtures.controller.create);
   after(fixtures.controller.deinit);
 
+  it('should support select options', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/cheeses',
+      json: true
+    };
+    request.get(options, function (err, response, body) {
+      if (err) return done(err);
+      expect(response.statusCode).to.be(200);
+      expect(body).to.have.property('length', 2);
+      expect(body[0]).to.have.property('color', 'Yellow');
+      expect(body[0]).not.to.have.property('name');
+      expect(body[0]).not.to.have.property('_id');
+      done();
+    });
+  });
+
   it('should allow adding arbitrary routes', function (done) {
     var options = {
       url: 'http://localhost:8012/api/v1/stores/info',
@@ -21,7 +37,7 @@ describe('Controllers', function () {
     request.get(options, function (err, response, body) {
       if (err) return done(err);
       expect(response.statusCode).to.be(200);
-      expect(response.body).to.be('OK!');
+      expect(body).to.be('OK!');
       done();
     });
   });
@@ -46,7 +62,7 @@ describe('Controllers', function () {
     request.get(options, function (err, response, body) {
       if (err) return done(err);
       expect(response).to.have.property('statusCode', 200);
-      expect(response).to.have.property('body', 'Poncho!');
+      expect(body).to.be('Poncho!');
       done();
     });
   }*/);
@@ -60,7 +76,7 @@ describe('Controllers', function () {
     request.get(options, function (err, response, body) {
       if (err) return done(err);
       expect(response.statusCode).to.be(200);
-      expect(response.body).to.be('OK!');
+      expect(body).to.be('OK!');
       done();
     });
   } */);

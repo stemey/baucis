@@ -6,6 +6,7 @@ var app;
 var server;
 var controller;
 var subcontroller;
+var cheesy;
 
 var fixture = module.exports = {
   init: function(done) {
@@ -21,8 +22,14 @@ var fixture = module.exports = {
       name: { type: String, required: true }
     });
 
+    var Cheese = new Schema({
+      name: { type: String, required: true },
+      color: { type: String, required: true }
+    });
+
     if (!mongoose.models['store']) mongoose.model('store', Stores);
     if (!mongoose.models['tool']) mongoose.model('tool', Tools);
+    if (!mongoose.models['cheese']) mongoose.model('cheese', Cheese);
 
     subcontroller = baucis.rest({
       singular: 'tool',
@@ -41,6 +48,11 @@ var fixture = module.exports = {
     });
 
     controller.use(subcontroller);
+
+    cheesy = baucis.rest({
+      singular: 'cheese',
+      select: '-_id color'
+    })
 
     app = express();
     app.use('/api/v1', baucis());
@@ -62,18 +74,27 @@ var fixture = module.exports = {
       mongoose.model('tool').remove({}, function (error) {
         if (error) return done(error);
 
-        // create stores and tools
-        mongoose.model('store').create(
-          ['Westlake', 'Lowes'].map(function (name) { return { name: name } }),
-          function (error) {
-            if (error) return done(error);
+        mongoose.model('cheese').remove({}, function (error) {
 
-            mongoose.model('tool').create(
-              ['Hammer', 'Saw', 'Axe'].map(function (name) { return { name: name } }),
-              done
-            );
-          }
-        );
+          // create stores and tools
+          mongoose.model('store').create(
+            ['Westlake', 'Corner'].map(function (name) { return { name: name } }),
+            function (error) {
+              if (error) return done(error);
+
+              var cheeses = [{ name: 'Cheddar', color: 'Yellow' }, { name: 'Hunstman', color: 'Yellow, Blue, White' }];
+
+              mongoose.model('cheese').create(cheeses, function (error) {
+                if (error) return done(error);
+
+                mongoose.model('tool').create(
+                  ['Hammer', 'Saw', 'Axe'].map(function (name) { return { name: name } }),
+                  done
+                );
+              });
+            }
+          );
+        });
       });
     });
   }
