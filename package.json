@@ -12,14 +12,23 @@
     "url": "https://github.com/wprl/baucis.git"
   },
   "bugs": {
-    "url":"https://github.com/wprl/baucis/issues/new",
+    "url": "https://github.com/wprl/baucis/issues/new",
     "email": "william@kun.io"
   },
   "license": "MIT",
   "description": "Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.",
-  "keywords": [ "REST", "API", "express", "mongoose", "schema", "schemata", "mongo" ],
+  "keywords": [
+    "REST",
+    "API",
+    "express",
+    "mongoose",
+    "schema",
+    "schemata",
+    "mongo"
+  ],
   "devDependencies": {
-    "mocha": "~1.8.2"
+    "mocha": "~1.8.2",
+    "expect.js": "~0.2.0"
   },
   "dependencies": {
     "lingo": "0.0.5",
