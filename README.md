@@ -163,9 +163,15 @@ To apply middleware to all API routes, just pass the function or array:
       if (typeof request.baucis.documents === 'number') return next();
       [].concat(request.baucis.documents).forEach(function (doc) {
         if (!ok) return;
+        if (!doc.iSelected('owner') {
+          ok = false;
+          next(new Error('Must select owner'));
+          return;
+        }
         if (doc.owner !== request.user.id) {
           ok = false;
           next(new Error('User does not own this.'));
+          return;
         }
       });
       if (ok) next();
@@ -178,11 +184,11 @@ Controller Options
 | ---- | ----------- |
 | singular | The name of the schema, as registered with `mongoose.model`. |
 | plural | This will be set automatically using the `lingo` module, but may be overridden by passing it into `baucis.rest`.
-| basePath | Defaults to `/`.  Used for embedding a controller in another conroller. |
+| basePath | Defaults to `/`.  Used for embedding a controller in another controller. |
 | publish | Set to `false` to not publish the controller's endpoints when `baucis()` is called. |
 | select | Select or deselect fields for all queries e.g. `'foo +bar -password'` |
 | findBy | Use another field besides `_id` for entity queries. |
-| lastModified | Set the `Last-Modified` HTTP header useing the given field.  Currently this field must be a `Date`. |
+| lastModified | Set the `Last-Modified` HTTP header using the given field.  Currently this field must be a `Date`. |
 | head, get, post, put, del | May be set to false to disable those HTTP verbs completely for the controller |
 
 An example of embedding a controller within another controller
