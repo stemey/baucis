@@ -1,4 +1,6 @@
-var url = require('url');
+var url = require('url'),
+    util = require('util'),
+    querystring = require('querystring');
 
 var middleware = module.exports = {
   // Add "Link" header field, with some basic defaults
@@ -20,6 +22,31 @@ var middleware = module.exports = {
       'latest-version': request.app.get('basePath')
     });
     next();
+  },
+  // Add paging links to the Link header (for collection routes)
+  linkPaging: function (request, response, next) {
+    if(request.query.limit) {
+      request.baucis.query.count(function (error, count) {
+        if (error) return next(error);
+        var links = {}, query = util._extend({}, request.query);
+        links.first = '?' + querystring.stringify(util._extend(query, { skip: 0 }));
+        links.last = '?' + querystring.stringify(util._extend(query, { skip: ((Math.ceil(count / parseInt(request.query.limit)) - 1) * parseInt(request.query.limit)) }));
+        if (parseInt(request.query.skip || 0) + parseInt(request.query.limit) < count) {
+          links.next = '?' + querystring.stringify(util._extend(query, { skip: parseInt(request.query.skip || 0) + parseInt(request.query.limit) }));
+        }
+        if (parseInt(request.query.skip || 0) > 0) {
+          links.previous = '?' + querystring.stringify(util._extend(query, { skip: parseInt(request.query.skip) - parseInt(request.query.limit) }));
+        }
+        // Duplicated from linkCollection() could be factored out
+        links.search = request.app.get('basePath'),
+        links.self = request.app.get('basePath'),
+        links['latest-version'] = request.app.get('basePath')
+        response.links(links);
+        next();
+      });
+    } else {
+      next();
+    }
   },
   // Build the "Allow" response header
   allow: function (request, response, next) {
