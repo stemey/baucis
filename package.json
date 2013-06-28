@@ -28,7 +28,12 @@
   ],
   "devDependencies": {
     "mocha": "~1.8.2",
-    "expect.js": "~0.2.0"
+    "expect.js": "~0.2.0",
+    "passport": "~0.1.17",
+    "passport-local": "~0.1.6",
+    "request": "~2.21.0",
+    "requireindex": "~1.0.1",
+    "parse-links": "0.0.1"
   },
   "dependencies": {
     "lingo": "0.0.5",
