@@ -222,6 +222,14 @@ var Controller = module.exports = function (options) {
       verbs: 'put',
       middleware: middleware.exec.exec
     });
+    if (this.get('paging')) {
+        activateMiddleware({
+            stage: 'query',
+            verbs: 'get',
+            howMany: 'collection',
+            middleware: middleware.headers.linkPaging
+        });
+    }
 
     // Documents/count have/has been created
     activateMiddleware({
