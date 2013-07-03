@@ -34,11 +34,25 @@ var fixture = module.exports = {
 
     controller = baucis.rest({
       singular: 'vegetable',
-      lastModified: 'lastModified'
+      lastModified: 'lastModified',
+      relations: true
     });
 
     controller.request(function (request, response, next) {
       if (request.query.block === 'true') return response.send(401);
+      next();
+    });
+
+    controller.query(function (request, response, next) {
+      if (request.query.testQuery !== 'true') return next();
+      request.baucis.query.select('_id lastModified');
+      next();
+    });
+
+    controller.documents(function (request, response, next) {
+      if (request.query.testDocuments !== 'true') return next();
+      var transformation = JSON.stringify(request.baucis.documents).substring(0, 6).split('');
+      request.baucis.documents = transformation;
       next();
     });
 

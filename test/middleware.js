@@ -43,4 +43,34 @@ describe('Middleware', function () {
     });
   });
 
+  it('should allow query middleware to alter query', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables/' + vegetables[0]._id,
+      qs: { testQuery: true },
+      json: true
+    };
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response.statusCode).to.be(200);
+      expect(body).to.have.property('_id');
+      expect(body).to.have.property('lastModified');
+      expect(body).not.to.have.property('name');
+      done();
+    });
+  });
+
+  it('should allow documents middleware to alter documents', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables/' + vegetables[0]._id,
+      qs: { testDocuments: true },
+      json: true
+    };
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response.statusCode).to.be(200);
+      expect(body).to.eql([ '{', '"', 'n', 'a', 'm', 'e' ]);
+      done();
+    });
+  });
+
 });

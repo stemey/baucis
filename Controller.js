@@ -74,8 +74,8 @@ var Controller = module.exports = function (options) {
   var basePathWithOptionalId = basePath + separator + ':id?';
 
   function traverseMiddleware (options, f, g) {
-    if (!options.stage) throw new Error('Must suppy stage.');
-    if (!options.middleware) throw new Error('Must suppy middleware.');
+    if (!options.stage) throw new Error('Must supply stage.');
+    if (!options.middleware) throw new Error('Must supply middleware.');
 
     var verbs = options.verbs || 'head get post put del';
 
@@ -162,20 +162,6 @@ var Controller = module.exports = function (options) {
       middleware: [ middleware.headers.allow, middleware.headers.accept ]
     });
 
-    // Set Link header if desired
-    if (this.get('relations') === true) {
-      activateMiddleware({
-        stage: 'request',
-        howMany: 'instance',
-        middleware: middleware.headers.link
-      });
-      activateMiddleware({
-        stage: 'request',
-        howMany: 'collection',
-        middleware: middleware.headers.linkCollection
-      });
-    }
-
     activateMiddleware({
       stage: 'request',
       howMany: 'collection',
@@ -222,6 +208,20 @@ var Controller = module.exports = function (options) {
       verbs: 'put',
       middleware: middleware.exec.exec
     });
+
+    // Set Link header if desired (must come after exec or else query gets count)
+    if (this.get('relations') === true) {
+      activateMiddleware({
+        stage: 'query',
+        howMany: 'instance',
+        middleware: middleware.headers.link
+      });
+      activateMiddleware({
+        stage: 'query',
+        howMany: 'collection',
+        middleware: middleware.headers.linkCollection
+      });
+    }
 
     // Documents/count have/has been created
     activateMiddleware({
