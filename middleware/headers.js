@@ -9,54 +9,49 @@ var qs = require('querystring');
 var middleware = module.exports = {
   // Add "Link" header field, with some basic defaults
   link: function (request, response, next) {
+    var originalPath = request.originalUrl.split('?')[0];
+    var originalPathParts = originalPath.split('/');
+    var linkBase;
+
+    originalPathParts.pop();
+    linkBase = originalPathParts.join('/');
+
     response.links({
-      collection: request.app.get('basePath'),
-      search: request.app.get('basePath'),
-      edit: url.resolve(request.app.get('basePath'), request.params.id),
-      self: url.resolve(request.app.get('basePath'), request.params.id),
-      'latest-version': url.resolve(request.app.get('basePath'), request.params.id)
+      collection: linkBase,
+      search: linkBase,
+      edit: url.resolve(linkBase, request.params.id),
+      self: originalPath
     });
+
     next();
   },
   // Add "Link" header field, with some basic defaults (for collection routes)
   linkCollection: function (request, response, next) {
-    response.links({
-      search: request.app.get('basePath'), // TODO use request.originalUrl or request.path, relative, strip query
-      self: request.app.get('basePath'),
-      'latest-version': request.app.get('basePath')
-    });
-    next();
-  },
-  // Add paging links to the Link header (for collection routes)
-  linkPaging: function (request, response, next) {
-    if (!request.query.limit) return next();
+    var makeLink = function (query) {
+      var newQuery = extend(request.query, query || {});
+      var originalPath = request.originalUrl.split('?')[0];
+      return originalPath + '?' + qs.stringify(newQuery);
+    };
+    var done = function () { response.links(links), next() };
+    var links = { search: makeLink(), self: makeLink() };
+
+    // Add paging links if these conditions are not met
+    if (request.method !== 'GET') return done();
+    if (!request.query.limit) return done();
 
     request.baucis.query.count(function (error, count) {
       if (error) return next(error);
 
       var limit = Number(request.query.limit);
       var skip = Number(request.query.skip || 0);
-      var makeLink = function (query) {
-        var extended = extend(request.query, query || {});
-        var originalPath = request.originalUrl.split('?')[0];
-        return originalPath + '?' + qs.stringify(extended); // TODO r.p works with mounting?
-      };
-      var links = {
-        first: makeLink({ skip: 0 }),
-        last: makeLink({ skip: Math.max(0, count - limit) })
-        // TODO Duplicated from linkCollection() should be factored out
-        // TODO check overwrite vs append
-        // search: request.path, // TODO works with mounted?
-        // self: makeLink(), // or originalUrl TODO
-        // 'latest-version': makeLink() // or originalUrl TODO
-      };
+
+      links.first = makeLink({ skip: 0 });
+      links.last = makeLink({ skip: Math.max(0, count - limit) });
 
       if (skip) links.previous = makeLink({ skip: Math.max(0, skip - limit) });
-      if (limit + skip < count) links.next =  makeLink({ skip: limit + skip });
+      if (limit + skip < count) links.next = makeLink({ skip: limit + skip });
 
-      response.links(links);
-
-      next();
+      done();
     });
   },
   // Build the "Allow" response header

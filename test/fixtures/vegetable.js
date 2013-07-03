@@ -35,7 +35,7 @@ var fixture = module.exports = {
     controller = baucis.rest({
       singular: 'vegetable',
       lastModified: 'lastModified',
-      paging: true
+      relations: true
     });
 
     controller.request(function (request, response, next) {

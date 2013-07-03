@@ -126,7 +126,10 @@ describe('Queries', function () {
     request.get(options, function (err, response, body) {
       if (err) return done(err);
       expect(response).to.have.property('statusCode', 200);
-      expect(response.headers).not.to.have.property('link');
+      expect(response.headers.link).to.not.contain('rel="first"');
+      expect(response.headers.link).to.not.contain('rel="last"');
+      expect(response.headers.link).to.not.contain('rel="next"');
+      expect(response.headers.link).to.not.contain('rel="previous"');
       done();
     });
   });
