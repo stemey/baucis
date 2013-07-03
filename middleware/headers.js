@@ -1,7 +1,11 @@
-var url = require('url'),
-    util = require('util'),
-    querystring = require('querystring');
+// Dependencies
+// ------------
+var url = require('url');
+var extend = require('util')._extend;
+var qs = require('querystring');
 
+// Module Definition
+// -----------------
 var middleware = module.exports = {
   // Add "Link" header field, with some basic defaults
   link: function (request, response, next) {
@@ -17,7 +21,7 @@ var middleware = module.exports = {
   // Add "Link" header field, with some basic defaults (for collection routes)
   linkCollection: function (request, response, next) {
     response.links({
-      search: request.app.get('basePath'),
+      search: request.app.get('basePath'), // TODO use request.originalUrl or request.path, relative, strip query
       self: request.app.get('basePath'),
       'latest-version': request.app.get('basePath')
     });
@@ -25,28 +29,35 @@ var middleware = module.exports = {
   },
   // Add paging links to the Link header (for collection routes)
   linkPaging: function (request, response, next) {
-    if(request.query.limit) {
-      request.baucis.query.count(function (error, count) {
-        if (error) return next(error);
-        var links = {}, query = util._extend({}, request.query);
-        links.first = '?' + querystring.stringify(util._extend(query, { skip: 0 }));
-        links.last = '?' + querystring.stringify(util._extend(query, { skip: ((Math.ceil(count / parseInt(request.query.limit)) - 1) * parseInt(request.query.limit)) }));
-        if (parseInt(request.query.skip || 0) + parseInt(request.query.limit) < count) {
-          links.next = '?' + querystring.stringify(util._extend(query, { skip: parseInt(request.query.skip || 0) + parseInt(request.query.limit) }));
-        }
-        if (parseInt(request.query.skip || 0) > 0) {
-          links.previous = '?' + querystring.stringify(util._extend(query, { skip: parseInt(request.query.skip) - parseInt(request.query.limit) }));
-        }
-        // Duplicated from linkCollection() could be factored out
-        links.search = request.app.get('basePath'),
-        links.self = request.app.get('basePath'),
-        links['latest-version'] = request.app.get('basePath')
-        response.links(links);
-        next();
-      });
-    } else {
+    if (!request.query.limit) return next();
+
+    request.baucis.query.count(function (error, count) {
+      if (error) return next(error);
+
+      var limit = Number(request.query.limit);
+      var skip = Number(request.query.skip || 0);
+      var makeLink = function (query) {
+        var extended = extend(request.query, query || {});
+        var originalPath = request.originalUrl.split('?')[0];
+        return originalPath + '?' + qs.stringify(extended); // TODO r.p works with mounting?
+      };
+      var links = {
+        first: makeLink({ skip: 0 }),
+        last: makeLink({ skip: Math.max(0, count - limit) })
+        // TODO Duplicated from linkCollection() should be factored out
+        // TODO check overwrite vs append
+        // search: request.path, // TODO works with mounted?
+        // self: makeLink(), // or originalUrl TODO
+        // 'latest-version': makeLink() // or originalUrl TODO
+      };
+
+      if (skip) links.previous = makeLink({ skip: Math.max(0, skip - limit) });
+      if (limit + skip < count) links.next =  makeLink({ skip: limit + skip });
+
+      response.links(links);
+
       next();
-    }
+    });
   },
   // Build the "Allow" response header
   allow: function (request, response, next) {

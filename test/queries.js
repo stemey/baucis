@@ -117,7 +117,7 @@ describe('Queries', function () {
       done();
     });
   });
-  
+
   it('should not return paging links if limit not set', function(done) {
     var options = {
       url: 'http://localhost:8012/api/v1/vegetables?sort=name',
@@ -130,7 +130,7 @@ describe('Queries', function () {
       done();
     });
   });
-    
+
   it('should return next for first page', function(done) {
     var options = {
       url: 'http://localhost:8012/api/v1/vegetables?limit=2&sort=name',
@@ -144,7 +144,7 @@ describe('Queries', function () {
       done();
     });
   });
-  
+
   it('should return previous for second page', function(done) {
     var options = {
       url: 'http://localhost:8012/api/v1/vegetables?limit=2&sort=name&skip=2',
@@ -158,7 +158,7 @@ describe('Queries', function () {
       done();
     });
   });
-  
+
   it('should not return paging links previous for first page', function(done) {
     var options = {
       url: 'http://localhost:8012/api/v1/vegetables?limit=2&sort=name',
@@ -172,7 +172,7 @@ describe('Queries', function () {
       done();
     });
   });
-  
+
   it('should not return paging links next for last page', function(done) {
     var options = {
       url: 'http://localhost:8012/api/v1/vegetables?limit=2&sort=name&skip=6',
@@ -186,13 +186,9 @@ describe('Queries', function () {
       done();
     });
   });
-  
+
   it('should preserve query in paging links', function(done) {
-    var conditions = JSON.stringify({
-        name: { 
-          $regex: /.*i.*/
-          }
-      })
+    var conditions = JSON.stringify({ name: { $regex: /.*i.*/ } });
     var options = {
       url: 'http://localhost:8012/api/v1/vegetables?limit=2&sort=name&skip=0&conditions=' + conditions,
       json: true
@@ -204,12 +200,12 @@ describe('Queries', function () {
       expect(response.headers.link).to.contain('rel="next"');
       var links = parselinks(response.headers.link);
       console.log(links);
-      expect(links.next).to.contain('conditions=');
+      expect(links.next).to.contain('conditions=' + encodeURIComponent(conditions));
       done();
     });
   });
-  
-  it('should allow retriving paging links next', function(done) {
+
+  it('should allow retrieving paging links next', function(done) {
     var options = {
       url: 'http://localhost:8012/api/v1/vegetables?limit=2&sort=name&skip=0',
       json: true
@@ -223,7 +219,7 @@ describe('Queries', function () {
       var links = parselinks(response.headers.link);
       expect(links).to.have.property('next');
       var options = {
-        url: 'http://localhost:8012/api/v1/vegetables' + links.next,
+        url: 'http://localhost:8012' + links.next,
         json: true
       };
       request.get(options, function (err, response, body) {
@@ -234,8 +230,8 @@ describe('Queries', function () {
       })
     });
   });
-  
-  it('should allow retriving paging links previous', function(done) {
+
+  it('should allow retrieving paging links previous', function(done) {
     var options = {
       url: 'http://localhost:8012/api/v1/vegetables?limit=2&sort=name&skip=2',
       json: true
@@ -249,7 +245,7 @@ describe('Queries', function () {
       var links = parselinks(response.headers.link);
       expect(links).to.have.property('previous');
       var options = {
-        url: 'http://localhost:8012/api/v1/vegetables' + links.previous,
+        url: 'http://localhost:8012' + links.previous,
         json: true
       };
       request.get(options, function (err, response, body) {
@@ -260,8 +256,8 @@ describe('Queries', function () {
       })
     });
   });
-  
-  it('should allow retriving paging links last', function(done) {
+
+  it('should allow retrieving paging links last', function(done) {
     var options = {
       url: 'http://localhost:8012/api/v1/vegetables?limit=2&sort=name&skip=6',
       json: true
@@ -275,7 +271,7 @@ describe('Queries', function () {
       var links = parselinks(response.headers.link);
       expect(links).to.have.property('first');
       var options = {
-        url: 'http://localhost:8012/api/v1/vegetables' + links.first,
+        url: 'http://localhost:8012' + links.first,
         json: true
       };
       request.get(options, function (err, response, body) {
@@ -286,8 +282,8 @@ describe('Queries', function () {
       })
     });
   });
-  
-  it('should allow retriving paging links first', function(done) {
+
+  it('should allow retrieving paging links first', function(done) {
     var options = {
       url: 'http://localhost:8012/api/v1/vegetables?limit=2&sort=name&skip=0',
       json: true
@@ -301,7 +297,7 @@ describe('Queries', function () {
       var links = parselinks(response.headers.link);
       expect(links).to.have.property('last');
       var options = {
-        url: 'http://localhost:8012/api/v1/vegetables' + links.last,
+        url: 'http://localhost:8012' + links.last,
         json: true
       };
       request.get(options, function (err, response, body) {
