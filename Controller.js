@@ -133,20 +133,23 @@ var Controller = module.exports = function (options) {
   controller.request = function (howMany, verbs, middleware) {
     var cascaded = cascadeArguments('request', howMany, verbs, middleware);
     registerMiddleware(cascaded);
+    return controller;
   };
 
   controller.query = function (howMany, verbs, middleware) {
     var cascaded = cascadeArguments('query', howMany, verbs, middleware);
     registerMiddleware(cascaded);
+    return controller;
   };
 
   controller.documents = function (howMany, verbs, middleware) {
     var cascaded = cascadeArguments('documents', howMany, verbs, middleware);
     registerMiddleware(cascaded);
+    return controller;
   };
 
   controller.initialize = function () {
-    if (initialized) return;
+    if (initialized) return controller;
 
     // activateMiddleware({
     //   stage: 'request',
@@ -239,6 +242,8 @@ var Controller = module.exports = function (options) {
 
     delete userMiddlewareFor;
     initialized = true;
+
+    return controller;
   };
 
   // Configuration
