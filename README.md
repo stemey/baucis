@@ -1,4 +1,4 @@
-baucis v0.5.4
+baucis v0.5.5
 =============
 
 Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.
@@ -63,8 +63,8 @@ HTTP Headers
 
 | Header Field | Notes |
 | ------------ | ----- |
-| ETag | Supported out-of-the-box by Express.  Used for HTTP caching based on response body. |
-| Last-Modified | Can be set automatically by Baucis.  Used for HTTP caching.  Pass `lastModified: 'foo'` to `baucis.rest` in order to set the path to be used (currently it must be a `Date`). GET requests to the collection set this to the latest date out of all documents returned by the query.
+| ETag | Used for HTTP caching based on response body.  Supported out-of-the-box by Express. |
+| Last-Modified | Used for HTTP caching.  Can be set automatically by Baucis.  Pass `lastModified: 'foo'` to `baucis.rest` in order to set the path to be used (currently it must be a `Date`). GET requests to the collection set this to the latest date out of all documents returned by the query.
 | Accept | Set to `application/json`  for all responses. |
 | Allow | Set automatically, correctly removing HTTP verbs when those verbs have been disabled by e.g. passing `put: false` to `baucis.rest`.  Example: `Allow: HEAD, GET, POST`. |
 | Location | Set to the URL of the created/edited entity for PUT and POST responses. |
