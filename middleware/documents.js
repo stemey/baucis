@@ -1,9 +1,14 @@
+// Dependencies
+// ------------
 var url = require('url');
 
+// Module Definition
+// -----------------
 var middleware = module.exports = {
   lastModified: function (request, response, next) {
     var lastModifiedPath = request.app.get('lastModified');
     var documents = request.baucis.documents;
+
     if (!lastModifiedPath) return next();
     if (typeof documents === 'number') return next();
     if (!documents) return next();

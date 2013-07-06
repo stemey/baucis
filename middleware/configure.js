@@ -8,7 +8,7 @@ var middleware = module.exports = {
   // Apply various options based on controller parameters
   controller: function (request, response, next) {
     if (request.app.get('select')) request.baucis.query.select(request.app.get('select'));
-    if (request.app.get('restrict')) request.app.get('restrict')(request.baucis.query, request);
+    if (request.app.get('restrict')) return next(new Error('Use query middleware instead'));
     next();
   },
   // Apply various options based on request query parameters

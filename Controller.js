@@ -11,8 +11,7 @@ var middleware = {
   documents: require('./middleware/documents'),
   exec: require('./middleware/exec'),
   headers: require('./middleware/headers'),
-  query: require('./middleware/query'),
-  send: require('./middleware/send')
+  query: require('./middleware/query')
 };
 
 // Private Static Members
@@ -151,20 +150,13 @@ var Controller = module.exports = function (options) {
   controller.initialize = function () {
     if (initialized) return controller;
 
-    // activateMiddleware({
-    //   stage: 'request',
-    //   middleware: function (request, response, next) {
-    //     if (console.log('Route: %s', request.route.path);
-    //     next();
-    //   }
-    // })
-
     // Allow/Accept headers
     activateMiddleware({
       stage: 'request',
       middleware: [ middleware.headers.allow, middleware.headers.accept ]
     });
 
+    // Process the request before building the query.
     activateMiddleware({
       stage: 'request',
       howMany: 'collection',
@@ -180,14 +172,14 @@ var Controller = module.exports = function (options) {
       middleware: middleware.query
     });
 
-    // Query has been created
+    // Query has been created (except for POST)
     activateMiddleware({
       stage: 'query',
       middleware: [ middleware.configure.controller, middleware.configure.query ]
     });
     activateMiddleware({
       stage: 'query',
-      middleware: userMiddlewareFor['query']
+      middleware: userMiddlewareFor['query'] // TODO post doesn't have query
     });
     activateMiddleware({
       stage: 'query',
@@ -201,15 +193,15 @@ var Controller = module.exports = function (options) {
     });
     activateMiddleware({
       stage: 'query',
-      howMany: 'instance',
+      howMany: 'collection',
       verbs: 'post',
-      middleware: middleware.exec.exec
+      middleware: middleware.exec.create
     });
     activateMiddleware({
       stage: 'query',
-      howMany: 'collection',
+      howMany: 'instance',
       verbs: 'put',
-      middleware: middleware.exec.exec
+      middleware: middleware.exec.update
     });
 
     // Set Link header if desired (must come after exec or else query gets count)
