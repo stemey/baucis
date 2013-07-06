@@ -28,31 +28,16 @@ var middleware = module.exports = {
     post: function (request, response, next) {
       response.send(405); // method not allowed (as of yet unimplemented)
     },
-     // Replace the addressed document, or create it if it doesn't exist
+    // Update the addressed document
     put: function (request, response, next) {
       var Model = request.app.get('model');
-      var id = request.params.id;
+      var bodyId = request.body[request.app.get('findBy')];
 
-      if (request.body._id && id !== request.body._id) {
-        return next(new Error('ID mismatch'));
-      }
+      if (bodyId && request.params.id !== bodyId) return next(new Error('ID mismatch'));
 
-      // Can't send id for update, even if unchanged
-      delete request.body._id;
-
-      Model.findOne(getFindCondition(request), function (error, doc) {
-        if (error) return next(error);
-        if (!doc) return next(new Error('No document with that ID was found'));
-
-        doc.set(request.body);
-
-        doc.save(function (error, savedDoc) {
-          if (error) return next(error);
-
-          request.baucis.documents = savedDoc;
-          next();
-        });
-      });
+      request.baucis.updateWithBody = true;
+      request.baucis.query = Model.findOne(getFindCondition(request));
+      next();
     },
     // Delete the addressed object
     del: function (request, response, next) {
@@ -75,32 +60,7 @@ var middleware = module.exports = {
       request.baucis.query = Model.find(request.baucis.conditions);
       next();
     },
-    // Create a new document and return its ID
-    post: function (request, response, next) {
-      var body = request.body;
-      var Model = request.app.get('model');
-
-      // Must be an object or array
-      if (!body || typeof body !== 'object') {
-        return next(new Error('Must supply a document or array to POST'));
-      }
-
-      // Make it an array if it wasn't already
-      if (!Array.isArray(body)) body = [ body ];
-
-      // No empty arrays
-      if (body.length === 0) return next(new Error('Array was empty.'));
-
-      response.status(201);
-
-      Model.create(body, function (error) {
-        if (error) return next(error);
-        var documents = Array.prototype.slice.apply(arguments).slice(1);
-        request.baucis.documents = documents.length === 1 ? documents[0] : documents;
-        next();
-      });
-    },
-    // Replace all docs with given docs ...
+    // Update all given docs ...
     put: function (request, response, next) {
       response.send(405); // method not allowed (as of yet unimplemented)
     },
