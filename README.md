@@ -1,4 +1,4 @@
-baucis v0.5.6
+baucis v0.5.7
 =============
 
 Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.
@@ -36,13 +36,8 @@ An example of creating a REST API from a couple Mongoose schemata:
     mongoose.model('fruit', Fruit);
 
     // Create the API routes
-    baucis.rest({
-      singular: 'vegetable',
-    });
-
-    baucis.rest({
-      singular: 'fruit'
-    });
+    baucis.rest('vegetable');
+    baucis.rest('fruit');
 
     // Create the app and listen for API requests
     var app = express();
@@ -102,9 +97,7 @@ You can deselect paths in the schema definition using `select: false` or in the 
 
 Controllers are Express apps; they may be used as such.
 
-    var controller = baucis.rest({
-      singular: 'robot'
-    });
+    var controller = baucis.rest({ singular: 'robot' });
 
     // Add middleware before API routes
     controller.use('/qux', function (request, response, next) {
@@ -134,7 +127,7 @@ Baucis adds middleware registration functions for three stages of the request cy
 | Name | Description |
 | ---- | ----------- |
 | request | This stage of middleware will be called after baucis applies defaults based on the request, but before the Mongoose query is generated |
-| query | This stage of middleware will be called after baucis applies defaults to the Mongoose query object, but before the documents or count are retrieved from the database.  The query can be accessed in your custom middleware via `request.baucis.query`.   |
+| query | This stage of middleware will be called after baucis applies defaults to the Mongoose query object, but before the documents or count are retrieved from the database.  The query can be accessed in your custom middleware via `request.baucis.query`.  Query middleware cannot be added explicitly for POST and will be ignored when added for POST implicitly.  |
 | documents | This stage of middleware will be called after baucis executes the query, but before the documents or count are sent in the response.  The documents/count can be accessed in your custom middleware via `request.baucis.documents`.  |
 
 Each of these functions has three forms:
@@ -146,7 +139,7 @@ The first form is the most specific.  The first argument lets you specify whethe
 
 To add middleware that applies to both document instances and collections, the first argument is omitted:
 
-    controller.query('post put', function (request, response, next) {
+    controller.query('get put', function (request, response, next) {
       // do something with request.baucis.query
       next();
     });
