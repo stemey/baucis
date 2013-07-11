@@ -16,6 +16,8 @@ var middleware = {
 
 // Private Static Members
 // ----------------------
+
+// Create a data structure to store user-defined middleware
 function createEmptyMiddlewareHash () {
   var o = {};
 
@@ -32,6 +34,7 @@ function createEmptyMiddlewareHash () {
   return o;
 }
 
+// Cascade optional paramaters into a single hash
 function cascadeArguments (stage, howMany, verbs, middleware) {
   if (!stage) throw new Error('Must supply stage.');
   if (!middleware && !verbs && !howMany) throw new Error('Too few arguments.');
@@ -48,22 +51,24 @@ function cascadeArguments (stage, howMany, verbs, middleware) {
     howMany = undefined;
   }
 
+  if (middleware.verbs) middleware.verbs = middleware.verbs.toLowerCase();
+
   return { stage: stage, howMany: howMany, verbs: verbs, middleware: middleware };
 }
 
 // Module Definition
-// -----------------
 var Controller = module.exports = function (options) {
+  // Marshal string into a hash
+  if (typeof options === 'string') options = { singular: options };
+
   // Validation
-  // ----------
   if (!options.singular) throw new Error('Must provide the Mongoose schema name');
-  if (options.basePath && options.basePath !== '/') {
+  if (options.basePath) {
     if (options.basePath.indexOf('/') !== 0) throw new Error('basePath must start with a "/"');
     if (options.basePath.lastIndexOf('/') === options.basePath.length - 1) throw new Error('basePath must not end with a "/"');
   }
 
   // Private Instance Members
-  // --------------------------
   var controller = express();
   var initialized = false;
   var userMiddlewareFor = createEmptyMiddlewareHash();
@@ -72,6 +77,8 @@ var Controller = module.exports = function (options) {
   var basePathWithId = basePath + separator + ':id';
   var basePathWithOptionalId = basePath + separator + ':id?';
 
+  // Parse the options hash and recurse `f` with parsed paramaters.  Execute `g`
+  // for each verb.
   function traverseMiddleware (options, f, g) {
     if (!options.stage) throw new Error('Must supply stage.');
     if (!options.middleware) throw new Error('Must supply middleware.');
@@ -95,8 +102,15 @@ var Controller = module.exports = function (options) {
     verbs.split(' ').forEach(g);
   }
 
+  // Register user middleware to be activated later
   function registerMiddleware (options) {
-    if (initialized) throw new Error("Can't add middleware after the controller has been initialized.");
+    if (initialized) {
+      throw new Error("Can't add middleware after the controller has been initialized.");
+    }
+
+    if (options.verbs && options.verbs.indexOf('post') !== -1) {
+      throw new Error('Query stage not executed for POST.');
+    }
 
     traverseMiddleware(options, registerMiddleware, function (verb) {
       if (controller.get(verb) === false) return;
@@ -110,6 +124,7 @@ var Controller = module.exports = function (options) {
     });
   }
 
+  // Activate user middleware that was registered previously
   function activateMiddleware (options) {
     if (initialized) throw new Error("Can't activate middleware after the controller has been initialized.");
 
@@ -137,6 +152,11 @@ var Controller = module.exports = function (options) {
 
   controller.query = function (howMany, verbs, middleware) {
     var cascaded = cascadeArguments('query', howMany, verbs, middleware);
+    // Prevent explicitly setting query:post middleware.  Implicitly adding
+    // query:post middleware is ignored.
+    if (cascaded.verbs && cascaded.verbs.indexOf('post') !== -1) {
+      throw new Error('POST cannot have query middleware');
+    }
     registerMiddleware(cascaded);
     return controller;
   };
@@ -177,9 +197,15 @@ var Controller = module.exports = function (options) {
       stage: 'query',
       middleware: [ middleware.configure.controller, middleware.configure.query ]
     });
+
+    // Delete any POST-stage query middleware that was added implicitly
+    delete userMiddlewareFor['query']['instance']['post'];
+    delete userMiddlewareFor['query']['collection']['post'];
+
     activateMiddleware({
       stage: 'query',
-      middleware: userMiddlewareFor['query'] // TODO post doesn't have query
+      verbs: 'head get put del',
+      middleware: userMiddlewareFor['query']
     });
     activateMiddleware({
       stage: 'query',
@@ -232,6 +258,8 @@ var Controller = module.exports = function (options) {
       middleware: middleware.documents.send
     });
 
+    // The controller is initialized and we don't need the intermiediate data
+    // structure any more.
     delete userMiddlewareFor;
     initialized = true;
 

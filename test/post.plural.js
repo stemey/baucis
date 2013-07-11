@@ -1,5 +1,6 @@
 var expect = require('expect.js');
 var request = require('request');
+var baucis = require('..');
 
 var fixtures = require('./fixtures');
 
@@ -59,6 +60,20 @@ describe('POST plural', function () {
 
       done();
     });
+  });
+
+  it('should not allow query middleware to be explicitly registered', function (done) {
+    var badController = baucis.rest('vegetable');
+    var registerQueryMiddleware = function () { badController.query('post', function () {}) };
+    expect(registerQueryMiddleware).to.throwException();
+    done();
+  });
+
+  it('should allow ignore implicitly registered query middleware', function (done) {
+    var controller = baucis.rest('vegetable');
+    var registerQueryMiddleware = function () { controller.query(function () {}) };
+    expect(registerQueryMiddleware).not.to.throwException();
+    done();
   });
 
 });
