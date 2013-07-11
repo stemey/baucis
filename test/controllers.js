@@ -13,6 +13,12 @@ describe('Controllers', function () {
   beforeEach(fixtures.controller.create);
   after(fixtures.controller.deinit);
 
+  it('should allow passing string name only to create', function (done) {
+    var makeController = function () { baucis.rest('store') };
+    expect(makeController).to.not.throwException();
+    done();
+  });
+
   it('should support select options', function (done) {
     var options = {
       url: 'http://localhost:8012/api/v1/cheeses',
