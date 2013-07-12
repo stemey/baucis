@@ -20,13 +20,8 @@ To install:
 
 An example of creating a REST API from a couple Mongoose schemata:
 
-    var Vegetable = new mongoose.Schema({
-      name: String
-    });
-
-    var Fruit = new mongoose.Schema({
-      name: String
-    });
+    var Vegetable = new mongoose.Schema({ name: String });
+    var Fruit = new mongoose.Schema({ name: String });
 
     // Note that Mongoose middleware will be executed as usual
     Vegetable.pre('save', function () { ... });
@@ -69,6 +64,7 @@ HTTP Headers
 Examples
 --------
 
+ * [Example REST API server built with Node and Baucis](//github.com/wprl/baucis-example)
  * [Examples with Backbone](examples/Backbone.js)
  * [Examples with jQuery](examples/jQuery.js)
 
