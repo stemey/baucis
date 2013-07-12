@@ -95,9 +95,13 @@ You can deselect paths in the schema definition using `select: false` or in the 
 
     var controller = baucis.rest({ ... });
 
+For simple controllers, only the schema name need be passed.
+
+    var controller = baucis.rest('robot');
+
 Controllers are Express apps; they may be used as such.
 
-    var controller = baucis.rest({ singular: 'robot' });
+    var controller = baucis.rest('robot');
 
     // Add middleware before API routes
     controller.use('/qux', function (request, response, next) {
@@ -201,9 +205,7 @@ An example of embedding a controller within another controller
     // Didn't publish, so have to manually initialize
     subcontroller.initialize();
 
-    var controller = baucis.rest({
-      singular: 'foo'
-    });
+    var controller = baucis.rest('foo');
 
     // Embed the subcontroller at /foos/:fooId/bars
     controller.use(subcontroller);
