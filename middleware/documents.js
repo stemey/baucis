@@ -1,6 +1,7 @@
 // Dependencies
 // ------------
 var url = require('url');
+var mongoose = require('mongoose');
 
 // Module Definition
 // -----------------
@@ -34,6 +35,7 @@ var middleware = module.exports = {
   },
   send: function (request, response, next) {
     var ids;
+    var findBy = request.app.get('findBy');
     var documents = request.baucis.documents;
 
     // 404 if document(s) not found or 0 documents removed/counted
@@ -54,15 +56,18 @@ var middleware = module.exports = {
       else return response.json(1);
     }
 
-    // Otherwise, set the location and send JSON document(s)
-    if (!Array.isArray(documents)) {
-      request.baucis.location = url.resolve(request.app.get('basePath'), documents.id);
+    // Otherwise, set the location and send JSON document(s).  Don't set location if documents
+    // don't have IDs for whatever reason e.g. custom middleware.
+    if (!Array.isArray(documents) && documents instanceof mongoose.Document) {
+      if (documents.get) {
+        request.baucis.location = url.resolve(request.app.get('basePath'), documents.get(findBy));
+      }
     }
-    else if (documents.length === 1) {
-      request.baucis.location = url.resolve(request.app.get('basePath'), documents[0].id);
+    else if (documents.length === 1 && documents[0] instanceof mongoose.Document) {
+      request.baucis.location = url.resolve(request.app.get('basePath'), documents[0].get(findBy));
     }
-    else {
-      ids = documents.map(function (doc) { return doc.id });
+    else if (documents.every(function (doc) { return doc instanceof mongoose.Document })) {
+      ids = documents.map(function (doc) { return doc.get(findBy) });
       request.baucis.location = request.app.get('basePath') + '?conditions={ _id: { $in: [' + ids.join() + '] } }';
     }
 

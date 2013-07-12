@@ -27,12 +27,33 @@ describe('Controllers', function () {
     request.get(options, function (err, response, body) {
       if (err) return done(err);
       expect(response.statusCode).to.be(200);
-      expect(body).to.have.property('length', 2);
+      expect(body).to.have.property('length', 3);
       expect(body[0]).to.have.property('color', 'Yellow');
-      expect(body[0]).not.to.have.property('name');
+      expect(body[0]).to.have.property('name', 'Cheddar');
       expect(body[0]).not.to.have.property('_id');
       done();
     });
+  });
+
+  it('should support finding documents with custom findBy field', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/cheeses/Camembert',
+      json: true
+    };
+    request.get(options, function (err, response, body) {
+      if (err) return done(err);
+      expect(response.statusCode).to.be(200);
+      expect(body).to.have.property('color', 'White');
+      done();
+    });
+  });
+
+  it('should disallow adding a non-unique findBy field', function (done) {
+    var makeController = function () {
+      baucis.rest({ singular: 'cheese', findBy: 'color' });
+    };
+    expect(makeController).to.throwException();
+    done();
   });
 
   it('should allow adding arbitrary routes', function (done) {

@@ -61,22 +61,29 @@ var Controller = module.exports = function (options) {
   // Marshal string into a hash
   if (typeof options === 'string') options = { singular: options };
 
-  // Validation
+  // Validate singular & basePath
   if (!options.singular) throw new Error('Must provide the Mongoose schema name');
   if (options.basePath) {
     if (options.basePath.indexOf('/') !== 0) throw new Error('basePath must start with a "/"');
     if (options.basePath.lastIndexOf('/') === options.basePath.length - 1) throw new Error('basePath must not end with a "/"');
   }
 
-  // Private Instance Members
+  // *Private Instance Members*
   var controller = express();
   var initialized = false;
+  var model = mongoose.model(options.singular);
   var userMiddlewareFor = createEmptyMiddlewareHash();
   var basePath = options.basePath ? options.basePath : '/';
   var separator = (basePath === '/' ? '' : '/');
   var basePathWithId = basePath + separator + ':id';
   var basePathWithOptionalId = basePath + separator + ':id?';
 
+  // Validate findBy
+  if (options.findBy && !model.schema.path(options.findBy).options.unique) {
+    throw new Error('findBy path for ' + options.singular + ' not unique');
+  }
+
+  // *Private Instance Methods*
   // Parse the options hash and recurse `f` with parsed paramaters.  Execute `g`
   // for each verb.
   function traverseMiddleware (options, f, g) {
@@ -272,7 +279,7 @@ var Controller = module.exports = function (options) {
     controller.set(key, options[key]);
   });
 
-  controller.set('model', mongoose.model(options.singular));
+  controller.set('model', model);
   controller.set('plural', options.plural || lingo.en.pluralize(options.singular));
   controller.set('findBy', options.findBy || '_id');
 

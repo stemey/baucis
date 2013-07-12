@@ -17,7 +17,7 @@ var middleware = module.exports = {
       request.baucis.query = Model.findOne(getFindCondition(request));
       next();
     },
-    // Retrive the addressed document
+    // Retrieve the addressed document
     get: function (request, response, next) {
       var Model = request.app.get('model');
       request.baucis.query = Model.findOne(getFindCondition(request));
