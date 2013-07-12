@@ -110,7 +110,6 @@ Controllers are Express apps; they may be used as such.
       next();
     });
 
-
     // Do other stuff...
     controller.set('some option name', 'value');
     controller.listen(3000);
@@ -132,19 +131,7 @@ Baucis adds middleware registration functions for three stages of the request cy
 
 Each of these functions has three forms:
 
-The first form is the most specific.  The first argument lets you specify whether the middleware applies to document instances (paths like `/foos/:id`) or to collection requests (paths like `/foos`).  The second argument is a space-delimted list of HTTP verbs that the middleware should be applied to.  The third argument is the middleware function to add or an array of middleware functions.
-
-    controller.request('instance', 'head get del', middleware);
-    controller.request('collection', 'post', middleware);
-
-To add middleware that applies to both document instances and collections, the first argument is omitted:
-
-    controller.query('get put', function (request, response, next) {
-      // do something with request.baucis.query
-      next();
-    });
-
-To apply middleware to all API routes, just pass the function or array:
+To apply middleware to all API routes, just pass the function or array to the method for the appropriate stage:
 
     controller.request(function (request, response, next) {
       if (request.isAuthenticated()) return next();
@@ -152,23 +139,24 @@ To apply middleware to all API routes, just pass the function or array:
     });
 
     controller.documents(function (request, response, next) {
-      var ok = true;
       if (typeof request.baucis.documents === 'number') return next();
-      [].concat(request.baucis.documents).forEach(function (doc) {
-        if (!ok) return;
-        if (!doc.iSelected('owner') {
-          ok = false;
-          next(new Error('Must select owner'));
-          return;
-        }
-        if (doc.owner !== request.user.id) {
-          ok = false;
-          next(new Error('User does not own this.'));
-          return;
-        }
-      });
-      if (ok) next();
+      if (!Array.isArray(request.baucis.documents)) return next();
+
+      request.baucis.documents.pop();
+      next();
     });
+
+To add middleware that applies only to specific HTTP verbs, use the second form.  It adds a paramater that must contain a space-delimted list of HTTP verbs that the middleware should be applied to.
+
+    controller.query('head get put', function (request, response, next) {
+      request.baucis.query.sort('-created');
+      next();
+    });
+
+The final form is the most specific.  The first argument lets you specify whether the middleware applies to document instances (paths like `/foos/:id`) or to collection requests (paths like `/foos`).
+
+    controller.request('instance', 'head get del', middleware);
+    controller.request('collection', 'post', middleware);
 
 Controller Options
 ------------------
