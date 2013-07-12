@@ -23,8 +23,8 @@ var fixture = module.exports = {
     });
 
     var Cheese = new Schema({
-      name: { type: String, required: true },
-      color: { type: String, required: true }
+      name: { type: String, required: true, unique: true },
+      color: { type: String, required: true, select: false }
     });
 
     if (!mongoose.models['store']) mongoose.model('store', Stores);
@@ -39,9 +39,7 @@ var fixture = module.exports = {
 
     subcontroller.initialize();
 
-    controller = baucis.rest({
-      singular: 'store'
-    });
+    controller = baucis.rest('store');
 
     controller.get('/info', function (request, response, next) {
       response.json('OK!');
@@ -55,7 +53,8 @@ var fixture = module.exports = {
 
     cheesy = baucis.rest({
       singular: 'cheese',
-      select: '-_id color'
+      select: '-_id +color name',
+      findBy: 'name'
     })
 
     app = express();
@@ -86,7 +85,11 @@ var fixture = module.exports = {
             function (error) {
               if (error) return done(error);
 
-              var cheeses = [{ name: 'Cheddar', color: 'Yellow' }, { name: 'Hunstman', color: 'Yellow, Blue, White' }];
+              var cheeses = [
+                { name: 'Cheddar', color: 'Yellow' },
+                { name: 'Hunstman', color: 'Yellow, Blue, White' },
+                { name: 'Camembert', color: 'White' }
+              ];
 
               mongoose.model('cheese').create(cheeses, function (error) {
                 if (error) return done(error);
