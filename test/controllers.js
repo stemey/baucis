@@ -141,4 +141,36 @@ describe('Controllers', function () {
     done();
   });
 
+  it('should not allow query middleware to be explicitly registered for POST', function (done) {
+    var badController = baucis.rest('store');
+    var registerQueryMiddleware = function () { badController.query('get put head del post', function () {}) };
+    expect(registerQueryMiddleware).to.throwException();
+    done();
+  });
+
+  it('should ignore implicitly registered query middleware for POST', function (done) {
+    var controller = baucis.rest('store');
+    var registerQueryMiddleware = function () { controller.query(function () {}) };
+    expect(registerQueryMiddleware).not.to.throwException();
+    done();
+  });
+
+  it('should allow registering query middleware for other verbs', function (done) {
+    var controller = baucis.rest('store');
+    var registerQueryMiddleware = function () { controller.query('get put head del', function () {}) };
+    expect(registerQueryMiddleware).not.to.throwException();
+    done();
+  });
+
+  it('should allow registering POST middleware for other stages', function (done) {
+    var controller = baucis.rest('store');
+    var registerMiddleware = function () {
+      controller.request('post', function () {});
+      controller.documents('post', function () {});
+    };
+
+    expect(registerQueryMiddleware).not.to.throwException();
+    done();
+  });
+
 });
