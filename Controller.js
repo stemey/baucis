@@ -115,7 +115,7 @@ var Controller = module.exports = function (options) {
       throw new Error("Can't add middleware after the controller has been initialized.");
     }
 
-    if (options.verbs && options.verbs.indexOf('post') !== -1) {
+    if (options.stage === 'query' && options.verbs && options.verbs.indexOf('post') !== -1) {
       throw new Error('Query stage not executed for POST.');
     }
 
