@@ -15,7 +15,7 @@ var middleware = {
 
 // __Private Static Members__
 
-// Create a data structure to store user-defined middleware
+// A method that creates a data structure to store user-defined middleware.
 function createEmptyMiddlewareHash () {
   var middleware = {};
   var stages = ['request', 'query', 'documents'];
@@ -59,17 +59,24 @@ function cascadeArguments (stage, howMany, verbs, middleware) {
 
 // __Module Definition__
 var Controller = module.exports = function (options) {
+
+  // __Defaults__
+
   // Marshal string into a hash
   if (typeof options === 'string') options = { singular: options };
 
-  // Validate singular & basePath
+  // __Validation__
   if (!options.singular) throw new Error('Must provide the Mongoose schema name');
   if (options.basePath) {
     if (options.basePath.indexOf('/') !== 0) throw new Error('basePath must start with a "/"');
     if (options.basePath.lastIndexOf('/') === options.basePath.length - 1) throw new Error('basePath must not end with a "/"');
   }
+  if (options.findBy && !mongoose.model(options.singular).schema.path(options.findBy).options.unique) {
+    throw new Error('findBy path for ' + options.singular + ' not unique');
+  }
 
-  // __Private Instance Members__
+  // __Private Instance Variables__
+
   var controller = express();
   var initialized = false;
   var model = mongoose.model(options.singular);
@@ -78,11 +85,6 @@ var Controller = module.exports = function (options) {
   var separator = (basePath === '/' ? '' : '/');
   var basePathWithId = basePath + separator + ':id';
   var basePathWithOptionalId = basePath + separator + ':id?';
-
-  // Validate findBy
-  if (options.findBy && !model.schema.path(options.findBy).options.unique) {
-    throw new Error('findBy path for ' + options.singular + ' not unique');
-  }
 
   // __Private Instance Methods__
 
@@ -111,7 +113,7 @@ var Controller = module.exports = function (options) {
     verbs.split(' ').forEach(g);
   }
 
-  // Register user middleware to be activated later
+  // A method used to register user middleware to be activated during intialization.
   function registerMiddleware (options) {
     if (initialized) {
       throw new Error("Can't add middleware after the controller has been initialized.");
@@ -133,7 +135,7 @@ var Controller = module.exports = function (options) {
     });
   }
 
-  // Activate user middleware that was registered previously
+  // A method used to activate user middleware that was previously registered.
   function activateMiddleware (options) {
     if (initialized) throw new Error("Can't activate middleware after the controller has been initialized.");
 
@@ -153,16 +155,18 @@ var Controller = module.exports = function (options) {
 
   // __Public Methods__
 
+  // A method used to register request-stage middleware.
   controller.request = function (howMany, verbs, middleware) {
     var cascaded = cascadeArguments('request', howMany, verbs, middleware);
     registerMiddleware(cascaded);
     return controller;
   };
 
+  // A method used to register query-stage middleware.
   controller.query = function (howMany, verbs, middleware) {
     var cascaded = cascadeArguments('query', howMany, verbs, middleware);
-    // Prevent explicitly setting query:post middleware.  Implicitly adding
-    // query:post middleware is ignored.
+    // Prevent explicitly setting query-stage POST middleware.  Implicitly adding
+    // this middleware is ignored.
     if (cascaded.verbs && cascaded.verbs.indexOf('post') !== -1) {
       throw new Error('POST cannot have query middleware');
     }
@@ -170,58 +174,68 @@ var Controller = module.exports = function (options) {
     return controller;
   };
 
+  // A method used to register document-stage middleware.
   controller.documents = function (howMany, verbs, middleware) {
     var cascaded = cascadeArguments('documents', howMany, verbs, middleware);
     registerMiddleware(cascaded);
     return controller;
   };
 
+  // A method used to intialize the controller and activate user middleware.  It
+  // may be called multiple times, but will trigger intialization only once.
   controller.initialize = function () {
     if (initialized) return controller;
 
-    // Allow/Accept headers
+    // __Request-Stage Middleware__
+
+    // Activate middleware that sets the Allow & Accept headers
     activateMiddleware({
       stage: 'request',
       middleware: [ middleware.headers.allow, middleware.headers.accept ]
     });
 
-    // Process the request before building the query.
+    // Activate middleware to set request.baucis.conditions for find/remove
     activateMiddleware({
       stage: 'request',
       howMany: 'collection',
       verbs: 'head get del',
       middleware: middleware.configure.conditions
     });
-    // Next is request-stage user middleware.
+    // Next, activate the request-stage user middleware.
     activateMiddleware({
        stage: 'request',
        middleware: userMiddlewareFor['request']
     });
-    // Time to build the query.
+    // Activate middleware to build the query (except for POST requests).
     activateMiddleware({
       stage: 'request',
       middleware: middleware.query
     });
 
-    // Query has been created (except for POST, which doesn't use a find or remove query).
-    // Activate internal configuration middleware.
+    // __Query-Stage Middleware__
+    // The query will have been created (except for POST, which doesn't use a
+    // find or remove query).
+
+    // Activate middleware to handle controller and query options.
     activateMiddleware({
       stage: 'query',
       middleware: [ middleware.configure.controller, middleware.configure.query ]
     });
 
-    // Delete any POST-stage query middleware that was added implicitly
+    // Delete any query-stage POST middleware that was added implicitly.
     delete userMiddlewareFor['query']['instance']['post'];
     delete userMiddlewareFor['query']['collection']['post'];
 
-    // Activate user middleware for query-stage
+    // Activate user middleware for the query-stage
     activateMiddleware({
       stage: 'query',
       verbs: 'head get put del',
       middleware: userMiddlewareFor['query']
     });
-    // Finally, execute the query.
-    // Get the count for HEAD requests
+
+    // Activate middleware to execute the query:
+
+    // Get the count for HEAD requests.
     activateMiddleware({
       stage: 'query',
       verbs: 'head',
@@ -248,7 +262,9 @@ var Controller = module.exports = function (options) {
       middleware: middleware.exec.update
     });
 
-    // Set Link header if desired (must come after exec or else query gets count)
+    // Activate some middleware that will set the Link header when that feature
+    // is enabled.  (This must come after exec or else the count is
+    // returned for all subsequqent executions of the query.)
     if (this.get('relations') === true) {
       activateMiddleware({
         stage: 'query',
@@ -262,13 +278,14 @@ var Controller = module.exports = function (options) {
       });
     }
 
-    // Documents/count have/has been created.
+    // __Document-Stage Middleware__
+
     // Activate the middleware that sets the `Last-Modified` header when appropriate.
     activateMiddleware({
       stage: 'documents',
       middleware: middleware.documents.lastModified
     });
-    // Before sending, execute user document-stage middleware.
+    // Activate the the document-stage user middleware.
     activateMiddleware({
       stage: 'documents',
       middleware: userMiddlewareFor['documents']
@@ -278,6 +295,8 @@ var Controller = module.exports = function (options) {
       stage: 'documents',
       middleware: middleware.documents.send
     });
+
+    // __Finalize Initialization__
 
     // The controller is initialized and we don't need the intermiediate data
     // structure any more.

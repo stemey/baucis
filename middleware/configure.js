@@ -1,5 +1,6 @@
 // __Module Definition__
 var middleware = module.exports = {
+  // Set the conditions used for finding/removing documents
   conditions: function (request, response, next) {
     if (!request.query.conditions) return next();
 
