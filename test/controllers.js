@@ -71,7 +71,7 @@ describe('Controllers', function () {
 
   it('should allow adding arbitrary routes with params', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/stores/XYZ/foos',
+      url: 'http://localhost:8012/api/v1/stores/XYZ/arbitrary',
       json: true
     };
     request.get(options, function (err, response, body) {
@@ -108,32 +108,31 @@ describe('Controllers', function () {
     });
   });
 
-  it('should allow using middleware' /*, function (done) {
+  it('should allow using middleware', function (done) {
     var options = {
       url: 'http://localhost:8012/api/v1/stores',
       json: true
     };
-    request.get(options, function (err, response, body) {
+    request.del(options, function (err, response, body) {
+      if (err) return done(err);
+      expect(response).to.have.property('statusCode', 200);
+      expect(response.headers['x-poncho']).to.be('Poncho!');
+      done();
+    });
+  });
+
+  it('should allow using middleware mounted at a path', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/stores/binfo',
+      json: true
+    };
+    request.post(options, function (err, response, body) {
       if (err) return done(err);
       expect(response).to.have.property('statusCode', 200);
       expect(body).to.be('Poncho!');
       done();
     });
-  }*/);
-
-
-  it('should allow using middleware mounted at a path'/*,  function (done) {
-    var options = {
-      url: 'http://localhost:8012/api/v1/stores/binfo',
-      json: true
-    };
-    request.get(options, function (err, response, body) {
-      if (err) return done(err);
-      expect(response.statusCode).to.be(200);
-      expect(body).to.be('OK!');
-      done();
-    });
-  } */);
+  });
 
   it('should disallow adding handlers after initialization', function (done) {
     var f = function () { controller.request('get', function () {}) };

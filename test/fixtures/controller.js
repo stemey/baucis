@@ -41,11 +41,20 @@ var fixture = module.exports = {
 
     controller = baucis.rest('store');
 
+    controller.use('/binfo', function (request, response, next) {
+      response.json('Poncho!');
+    });
+
+    controller.use(function (request, response, next) {
+      response.set('X-Poncho', 'Poncho!');
+      next();
+    });
+
     controller.get('/info', function (request, response, next) {
       response.json('OK!');
     });
 
-    controller.get('/:id/foos', function (request, response, next) {
+    controller.get('/:id/arbitrary', function (request, response, next) {
       response.json(request.params.id);
     });
 
