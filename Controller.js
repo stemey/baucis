@@ -19,19 +19,22 @@ var middleware = {
 
 // Create a data structure to store user-defined middleware
 function createEmptyMiddlewareHash () {
-  var o = {};
+  var middleware = {};
+  var stages = ['request', 'query', 'documents'];
+  var howManys = ['instance', 'collection'];
+  var verbs = ['head', 'get', 'post', 'put', 'del'];
 
-  ['request', 'query', 'documents'].forEach(function (stage) {
-    o[stage] = {};
-    ['instance', 'collection'].forEach(function (howMany) {
-      o[stage][howMany] = {};
-      ['head', 'get', 'post', 'put', 'del'].forEach(function (verb) {
-        o[stage][howMany][verb] = [];
+  stages.forEach(function (stage) {
+    middleware[stage] = {};
+    howManys.forEach(function (howMany) {
+      middleware[stage][howMany] = {};
+      verbs.forEach(function (verb) {
+        middleware[stage][howMany][verb] = [];
       });
     });
   });
 
-  return o;
+  return middleware;
 }
 
 // Cascade optional paramaters into a single hash
