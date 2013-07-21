@@ -1,11 +1,10 @@
-// Dependencies
-// ------------
+// __Dependencies__
+
 var util = require('util');
 var express = require('express');
 var mongoose = require('mongoose');
 var lingo = require('lingo');
 var url = require('url');
-
 var middleware = {
   configure: require('./middleware/configure'),
   documents: require('./middleware/documents'),
@@ -14,8 +13,7 @@ var middleware = {
   query: require('./middleware/query')
 };
 
-// Private Static Members
-// ----------------------
+// __Private Static Members__
 
 // Create a data structure to store user-defined middleware
 function createEmptyMiddlewareHash () {
@@ -59,7 +57,7 @@ function cascadeArguments (stage, howMany, verbs, middleware) {
   return { stage: stage, howMany: howMany, verbs: verbs, middleware: middleware };
 }
 
-// Module Definition
+// __Module Definition__
 var Controller = module.exports = function (options) {
   // Marshal string into a hash
   if (typeof options === 'string') options = { singular: options };
@@ -71,7 +69,7 @@ var Controller = module.exports = function (options) {
     if (options.basePath.lastIndexOf('/') === options.basePath.length - 1) throw new Error('basePath must not end with a "/"');
   }
 
-  // *Private Instance Members*
+  // __Private Instance Members__
   var controller = express();
   var initialized = false;
   var model = mongoose.model(options.singular);
@@ -86,7 +84,8 @@ var Controller = module.exports = function (options) {
     throw new Error('findBy path for ' + options.singular + ' not unique');
   }
 
-  // *Private Instance Methods*
+  // __Private Instance Methods__
+
   // Parse the options hash and recurse `f` with parsed paramaters.  Execute `g`
   // for each verb.
   function traverseMiddleware (options, f, g) {
@@ -152,8 +151,8 @@ var Controller = module.exports = function (options) {
     });
   }
 
-  // Public Methods
-  // --------------
+  // __Public Methods__
+
   controller.request = function (howMany, verbs, middleware) {
     var cascaded = cascadeArguments('request', howMany, verbs, middleware);
     registerMiddleware(cascaded);
@@ -193,16 +192,19 @@ var Controller = module.exports = function (options) {
       verbs: 'head get del',
       middleware: middleware.configure.conditions
     });
+    // Next is request-stage user middleware.
     activateMiddleware({
        stage: 'request',
        middleware: userMiddlewareFor['request']
     });
+    // Time to build the query.
     activateMiddleware({
       stage: 'request',
       middleware: middleware.query
     });
 
-    // Query has been created (except for POST)
+    // Query has been created (except for POST, which doesn't use a find or remove query).
+    // Activate internal configuration middleware.
     activateMiddleware({
       stage: 'query',
       middleware: [ middleware.configure.controller, middleware.configure.query ]
@@ -212,27 +214,33 @@ var Controller = module.exports = function (options) {
     delete userMiddlewareFor['query']['instance']['post'];
     delete userMiddlewareFor['query']['collection']['post'];
 
+    // Activate user middleware for query-stage
     activateMiddleware({
       stage: 'query',
       verbs: 'head get put del',
       middleware: userMiddlewareFor['query']
     });
+    // Finally, execute the query.
+    // Get the count for HEAD requests
     activateMiddleware({
       stage: 'query',
       verbs: 'head',
       middleware: middleware.exec.count
     });
+    // Execute the find or remove query for GET and DELETE.
     activateMiddleware({
       stage: 'query',
       verbs: 'get del',
       middleware: middleware.exec.exec
     });
+    // Create the documents for a POST request.
     activateMiddleware({
       stage: 'query',
       howMany: 'collection',
       verbs: 'post',
       middleware: middleware.exec.create
     });
+    // Update the documents specified for a PUT request.
     activateMiddleware({
       stage: 'query',
       howMany: 'instance',
@@ -254,15 +262,18 @@ var Controller = module.exports = function (options) {
       });
     }
 
-    // Documents/count have/has been created
+    // Documents/count have/has been created.
+    // Activate the middleware that sets the `Last-Modified` header when appropriate.
     activateMiddleware({
       stage: 'documents',
       middleware: middleware.documents.lastModified
     });
+    // Before sending, execute user document-stage middleware.
     activateMiddleware({
       stage: 'documents',
       middleware: userMiddlewareFor['documents']
     });
+    // Activate the middleware that sends the resulting document(s) or count.
     activateMiddleware({
       stage: 'documents',
       middleware: middleware.documents.send
@@ -276,8 +287,8 @@ var Controller = module.exports = function (options) {
     return controller;
   };
 
-  // Configuration
-  // -------------
+  // __Configuration__
+
   Object.keys(options).forEach(function (key) {
     controller.set(key, options[key]);
   });
@@ -290,7 +301,8 @@ var Controller = module.exports = function (options) {
   controller.set('basePathWithId', basePathWithId);
   controller.set('basePathWithOptionalId', basePathWithOptionalId);
 
-  // Basic middleware
+  // __Initial Middleware__
+
   // Middleware for parsing JSON requests
   controller.use(express.json());
 

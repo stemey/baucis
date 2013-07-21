@@ -1,16 +1,13 @@
-// Dependencies
-// ------------
+// __Dependencies__
 var url = require('url');
 var express = require('express');
 var Controller = require('./Controller');
 
-// Private Members
-// ---------------
+// __Private Members__
 var controllers = [];
-
-// Module Definition
-// -----------------
 var app = express();
+
+// __Module Definition__
 var baucis = module.exports = function (options) {
   options || (options = {});
 
@@ -27,8 +24,7 @@ var baucis = module.exports = function (options) {
   return app;
 };
 
-// Public Methods
-// --------------
+// __Public Methods__
 baucis.rest = function (options) {
   var controller = Controller(options);
 

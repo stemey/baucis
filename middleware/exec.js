@@ -1,10 +1,8 @@
-// Dependencies
-// ------------
+// __Dependencies__
 var async = require('async');
 var extend = require('util')._extend;
 
-// Module Definition
-// -----------------
+// __Module Definition__
 var middleware = module.exports = {
   exec: function (request, response, next) {
     request.baucis.query.exec(function (error, documents) {

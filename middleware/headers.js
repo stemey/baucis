@@ -1,11 +1,9 @@
-// Dependencies
-// ------------
+// __Dependencies__
 var url = require('url');
 var extend = require('util')._extend;
 var qs = require('querystring');
 
-// Module Definition
-// -----------------
+// __Module Definition__
 var middleware = module.exports = {
   // Add "Link" header field, with some basic defaults
   link: function (request, response, next) {

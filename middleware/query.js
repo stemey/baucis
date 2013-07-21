@@ -1,13 +1,11 @@
-// Private Members
-// ---------------
+// __Private Members__
 function getFindCondition (request) {
   var conditions = {};
   conditions[request.app.get('findBy')] = request.params.id;
   return conditions;
 }
 
-// Module Definition
-// -----------------
+// __Module Definition__
 var middleware = module.exports = {
   instance: {
     // Retrieve header for the addressed document

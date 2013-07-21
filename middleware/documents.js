@@ -1,10 +1,8 @@
-// Dependencies
-// ------------
+// __Dependencies__
 var url = require('url');
 var mongoose = require('mongoose');
 
-// Module Definition
-// -----------------
+// __Module Definition__
 var middleware = module.exports = {
   lastModified: function (request, response, next) {
     var lastModifiedPath = request.app.get('lastModified');
