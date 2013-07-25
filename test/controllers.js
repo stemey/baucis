@@ -150,6 +150,7 @@ describe('Controllers', function () {
   it('should ignore implicitly registered query middleware for POST', function (done) {
     var controller = baucis.rest('store');
     var register = function () { controller.query(function () {}) };
+    register();
     expect(register).not.to.throwException();
     done();
   });

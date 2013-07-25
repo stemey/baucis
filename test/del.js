@@ -15,7 +15,6 @@ describe('DEL singular', function () {
       url: 'http://localhost:8012/api/v1/vegetables/' + shitake._id,
       json: true
     };
-
     request.del(options, function (error, response, body) {
       if (error) return done(error);
 

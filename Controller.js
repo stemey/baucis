@@ -5,6 +5,7 @@ var express = require('express');
 var mongoose = require('mongoose');
 var lingo = require('lingo');
 var url = require('url');
+var userMiddlewareSchema = require('./userMiddlewareSchema');
 var middleware = {
   configure: require('./middleware/configure'),
   documents: require('./middleware/documents'),
@@ -14,26 +15,6 @@ var middleware = {
 };
 
 // __Private Static Members__
-
-// A method that creates a data structure to store user-defined middleware.
-function createEmptyMiddlewareHash () {
-  var middleware = {};
-  var stages = ['request', 'query', 'documents'];
-  var howManys = ['instance', 'collection'];
-  var verbs = ['head', 'get', 'post', 'put', 'del'];
-
-  stages.forEach(function (stage) {
-    middleware[stage] = {};
-    howManys.forEach(function (howMany) {
-      middleware[stage][howMany] = {};
-      verbs.forEach(function (verb) {
-        middleware[stage][howMany][verb] = [];
-      });
-    });
-  });
-
-  return middleware;
-}
 
 // Cascade optional paramaters into a single hash
 function cascadeArguments (stage, howMany, verbs, middleware) {
@@ -80,7 +61,7 @@ var Controller = module.exports = function (options) {
   var controller = express();
   var initialized = false;
   var model = mongoose.model(options.singular);
-  var userMiddlewareFor = createEmptyMiddlewareHash();
+  var userMiddlewareFor = userMiddlewareSchema();
   var basePath = options.basePath ? options.basePath : '/';
   var separator = (basePath === '/' ? '' : '/');
   var basePathWithId = basePath + separator + ':id';
@@ -223,8 +204,8 @@ var Controller = module.exports = function (options) {
     });
 
     // Delete any query-stage POST middleware that was added implicitly.
-    delete userMiddlewareFor['query']['instance']['post'];
-    delete userMiddlewareFor['query']['collection']['post'];
+    userMiddlewareFor['query']['instance']['post'] = [];
+    userMiddlewareFor['query']['collection']['post'] = [];
 
     // Activate user middleware for the query-stage
     activateMiddleware({
