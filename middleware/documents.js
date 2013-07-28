@@ -60,14 +60,14 @@ var middleware = module.exports = {
     // don't have IDs for whatever reason e.g. custom middleware.
     if (!Array.isArray(documents) && documents instanceof mongoose.Document) {
       if (documents.get) {
-        request.baucis.location = url.resolve(request.app.get('basePath'), documents.get(findBy));
+        request.baucis.location = url.resolve(request.app.get('basePath'), documents.get(findBy).toString());
       }
     }
     else if (documents.length === 1 && documents[0] instanceof mongoose.Document) {
-      request.baucis.location = url.resolve(request.app.get('basePath'), documents[0].get(findBy));
+      request.baucis.location = url.resolve(request.app.get('basePath'), documents[0].get(findBy).toString());
     }
     else if (documents.every(function (doc) { return doc instanceof mongoose.Document })) {
-      ids = documents.map(function (doc) { return doc.get(findBy) });
+      ids = documents.map(function (doc) { return doc.get(findBy).toString() });
       request.baucis.location = request.app.get('basePath') + '?conditions={ _id: { $in: [' + ids.join() + '] } }';
     }
 
