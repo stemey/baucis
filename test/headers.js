@@ -58,9 +58,7 @@ describe('Headers', function () {
     request.get(options, function (err, response, body) {
       if (err) return done(err);
       expect(response).to.have.property('statusCode', 200);
-      // TODO make sure this is working properly
       expect(response.headers).to.have.property('etag');
-      console.log(response.headers)
       done();
     });
   });
