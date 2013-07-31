@@ -210,7 +210,6 @@ var Controller = module.exports = function (options) {
     // Activate user middleware for the query-stage
     activateMiddleware({
       stage: 'query',
-      verbs: 'head get put del',
       middleware: userMiddlewareFor['query']
     });
 

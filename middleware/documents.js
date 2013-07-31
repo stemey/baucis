@@ -39,19 +39,17 @@ var middleware = module.exports = {
     // 404 if document(s) not found or 0 documents removed/counted
     if (!documents) return response.send(404);
 
-    if (request.baucis.noBody) {
-      return response.send();
-    }
+    if (request.baucis.noBody) return response.send();
 
-    // If it's a document count (e.g. the result of a DELETE), send it back and short-circuit
-    if (typeof documents === 'number') {
-      return response.json(documents);
-    }
+    // If it's a document count (e.g. the result of a DELETE), send it back and
+    // short-circuit.
+    if (typeof documents === 'number') return response.json(documents);
 
     // If count mode is set, send the length, or send 1 for single document
     if (request.baucis.count) {
-      if (Array.isArray(documents)) return response.send(documents.length);
-      else return response.json(1);
+      if (Array.isArray(documents)) response.send(documents.length);
+      else response.json(1);
+      return;
     }
 
     // Otherwise, set the location and send JSON document(s).  Don't set location if documents

@@ -9,7 +9,6 @@ describe('DEL singular', function () {
   after(fixtures.vegetable.deinit);
 
   it('should delete the addressed document', function (done) {
-    // make sure it's there
     var shitake = vegetables[3];
     var options = {
       url: 'http://localhost:8012/api/v1/vegetables/' + shitake._id,
