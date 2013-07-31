@@ -19,10 +19,10 @@ describe('POST plural', function () {
 
       expect(response.statusCode).to.equal(201);
       expect(body._id).not.to.be.empty();
-      console.log(response.headers)
+      expect(response.headers.location).to.equal('/api/v1/vegetables/' + body._id);
 
       var options = {
-      	url: 'http://localhost:8012/api/v1/vegetables/' + body._id,
+      	url: 'http://localhost:8012' + response.headers.location,
       	json: true
       };
       request.get(options, function (error, response, body) {
@@ -33,6 +33,8 @@ describe('POST plural', function () {
       });
     });
   });
+
+  it('should allow posting multiple documents at once');
 
   it('should fire pre save Mongoose middleware', function (done) {
     fixtures.vegetable.preCount = 0;
