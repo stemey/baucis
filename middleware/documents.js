@@ -35,7 +35,7 @@ var middleware = module.exports = {
     var ids;
     var location;
     var findBy = request.app.get('findBy');
-    var basePath = request.app.get('basePath');
+    var basePath = request.originalUrl;
     var documents = request.baucis.documents;
 
     // 404 if document(s) not found or 0 documents removed/counted
