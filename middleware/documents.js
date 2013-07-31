@@ -66,7 +66,7 @@ var middleware = module.exports = {
     }
     else if (documents.every(function (doc) { return doc instanceof mongoose.Document })) {
       ids = documents.map(function (doc) { return doc.get(findBy).toString() });
-      location = basePath + '?conditions={ _id: { $in: [' + ids.join() + '] } }';
+      location = basePath + '?conditions={ "' + findBy + '": { $in: [' + ids.join() + '] } }';
     }
 
     if (location) response.set('Location', location);
