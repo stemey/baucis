@@ -4,11 +4,7 @@ var request = require('request');
 var fixtures = require('./fixtures');
 
 describe('PUT plural', function () {
-  before(fixtures.vegetable.init);
-  beforeEach(fixtures.vegetable.create);
-  after(fixtures.vegetable.deinit);
-
-  it('should replace entire collection with given new collection'); /*, function (done) {
+  it('should replace entire collection with given new collection... maybe'); /*, function (done) {
     return done(); // TODO unimplemented
 
     var poke = { name: 'Poke' };
