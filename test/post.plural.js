@@ -18,7 +18,8 @@ describe('POST plural', function () {
       if (error) return done(error);
 
       expect(response.statusCode).to.equal(201);
-      expect(body._id).not.to.be.empty(); // TODO check it's an ObjectID
+      expect(body._id).not.to.be.empty();
+      console.log(response.headers)
 
       var options = {
       	url: 'http://localhost:8012/api/v1/vegetables/' + body._id,

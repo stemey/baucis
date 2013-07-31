@@ -33,7 +33,9 @@ var middleware = module.exports = {
   },
   send: function (request, response, next) {
     var ids;
+    var location;
     var findBy = request.app.get('findBy');
+    var basePath = request.app.get('basePath');
     var documents = request.baucis.documents;
 
     // 404 if document(s) not found or 0 documents removed/counted
@@ -56,16 +58,18 @@ var middleware = module.exports = {
     // don't have IDs for whatever reason e.g. custom middleware.
     if (!Array.isArray(documents) && documents instanceof mongoose.Document) {
       if (documents.get) {
-        request.baucis.location = url.resolve(request.app.get('basePath'), documents.get(findBy));
+        location = url.resolve(basePath, documents.get(findBy));
       }
     }
     else if (documents.length === 1 && documents[0] instanceof mongoose.Document) {
-      request.baucis.location = url.resolve(request.app.get('basePath'), documents[0].get(findBy));
+      location = url.resolve(basePath, documents[0].get(findBy));
     }
     else if (documents.every(function (doc) { return doc instanceof mongoose.Document })) {
       ids = documents.map(function (doc) { return doc.get(findBy) });
-      request.baucis.location = request.app.get('basePath') + '?conditions={ _id: { $in: [' + ids.join() + '] } }';
+      location = basePath + '?conditions={ _id: { $in: [' + ids.join() + '] } }';
     }
+
+    if (location) response.set('Location', location);
 
     response.json(documents);
   }

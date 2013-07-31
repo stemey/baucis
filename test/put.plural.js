@@ -8,7 +8,7 @@ describe('PUT plural', function () {
   beforeEach(fixtures.vegetable.create);
   after(fixtures.vegetable.deinit);
 
-  it('should replace entire collection with given new collection', function (done) {
+  it('should replace entire collection with given new collection'); /*, function (done) {
     return done(); // TODO unimplemented
 
     var poke = { name: 'Poke' };
@@ -25,6 +25,6 @@ describe('PUT plural', function () {
       expect(body).to.have.property('length', 3); // TODO more...
       done();
     });
-  });
+  }); */
 });
 
