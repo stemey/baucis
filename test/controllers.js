@@ -135,14 +135,16 @@ describe('Controllers', function () {
   });
 
   it('should disallow adding handlers after initialization', function (done) {
-    var f = function () { controller.request('get', function () {}) };
-    expect(f).to.throwException();
+    var controller = baucis.rest('store');
+    controller.initialize();
+    var register = function () { controller.request('get', function () {}) };
+    expect(register).to.throwException();
     done();
   });
 
   it('should not allow query middleware to be explicitly registered for POST', function (done) {
-    var badController = baucis.rest('store');
-    var register = function () { badController.query('get put head del post', function () {}) };
+    var controller = baucis.rest('store');
+    var register = function () { controller.query('get put head del post', function () {}) };
     expect(register).to.throwException();
     done();
   });
