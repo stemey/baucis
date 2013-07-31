@@ -4,15 +4,8 @@ var util = require('util');
 var express = require('express');
 var mongoose = require('mongoose');
 var lingo = require('lingo');
-var url = require('url');
 var userMiddlewareSchema = require('./userMiddlewareSchema');
-var middleware = {
-  configure: require('./middleware/configure'),
-  documents: require('./middleware/documents'),
-  exec: require('./middleware/exec'),
-  headers: require('./middleware/headers'),
-  query: require('./middleware/query')
-};
+var middleware = require('./middleware');
 
 // __Private Static Members__
 
