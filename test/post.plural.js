@@ -34,7 +34,32 @@ describe('POST plural', function () {
     });
   });
 
-  it('should allow posting multiple documents at once');
+  it('should allow posting multiple documents at once', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables/',
+      json: [{ name: 'Catnip' }, { name: 'Cattail'}]
+    };
+    request.post(options, function (error, response, body) {
+      if (error) return done(error);
+
+      expect(response.statusCode).to.equal(201);
+      expect(body[0]._id).not.to.be.empty();
+      expect(body[1]._id).not.to.be.empty();
+
+      var options = {
+        url: 'http://localhost:8012' + response.headers.location,
+        json: true
+      };
+      request.get(options, function (error, response, body) {
+        if (error) return done(error);
+        expect(response).to.have.property('statusCode', 200);
+        expect(body).to.have.property('length', 2);
+        expect(body[0]).to.have.property('name', 'Catnip');
+        expect(body[1]).to.have.property('name', 'Cattail');
+        done();
+      });
+    });
+  });
 
   it('should fire pre save Mongoose middleware', function (done) {
     fixtures.vegetable.preCount = 0;
