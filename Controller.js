@@ -16,14 +16,14 @@ function cascadeArguments (stage, howMany, verbs, middleware) {
 
   if (!middleware && !verbs) {
     middleware = howMany;
-    verbs = undefined;
-    howMany = undefined;
+    delete verbs;
+    delete howMany;
   }
 
   if (!middleware) {
     middleware = verbs;
     verbs = howMany;
-    howMany = undefined;
+    delete howMany;
   }
 
   if (middleware.verbs) middleware.verbs = middleware.verbs.toLowerCase();
