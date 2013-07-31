@@ -204,8 +204,8 @@ var Controller = module.exports = function (options) {
     });
 
     // Delete any query-stage POST middleware that was added implicitly.
-    userMiddlewareFor['query']['instance']['post'] = [];
-    userMiddlewareFor['query']['collection']['post'] = [];
+    userMiddlewareFor.query.instance.post = [];
+    userMiddlewareFor.query.collection.post = [];
 
     // Activate user middleware for the query-stage
     activateMiddleware({
