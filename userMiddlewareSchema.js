@@ -1,6 +1,7 @@
 // __Module Definition__
 
-// A function that returns a hash with an HTTP verb entry for each stage and "howMany"
+// A function that returns a hash with an HTTP verb entry for each
+// stage and "howMany".
 module.exports = function () {
   var schema = {
     "request":
