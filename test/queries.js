@@ -202,7 +202,6 @@ describe('Queries', function () {
       expect(response.headers).to.have.property('link');
       expect(response.headers.link).to.contain('rel="next"');
       var links = parselinks(response.headers.link);
-      console.log(links);
       expect(links.next).to.contain('conditions=' + encodeURIComponent(conditions));
       done();
     });

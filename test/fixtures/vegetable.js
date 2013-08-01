@@ -15,7 +15,8 @@ var fixture = module.exports = {
 
     var Vegetable = new Schema({
       name: { type: String, required: true },
-      lastModified: { type: Date, required: true, default: Date.now }
+      lastModified: { type: Date, required: true, default: Date.now },
+      diseases: { type: [ String ], select: false }
     });
 
     fixture.preCount = 0;
@@ -57,7 +58,7 @@ var fixture = module.exports = {
     });
 
     app = express();
-    app.use('/api/v1', baucis());
+    app.use('/api/v1', baucis({ swagger: true }));
 
     server = app.listen(8012);
 

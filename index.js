@@ -1,35 +1,38 @@
 // __Dependencies__
 var url = require('url');
 var express = require('express');
+var mongoose = require('mongoose');
 var Controller = require('./Controller');
 
 // __Private Members__
 var controllers = [];
-var app = express();
-var swaggerTypeFor = {
-  'String': 'string',
-  'Number': 'double',
-  'Date': 'Date',
-  'Buffer': 'TODO',
-  'Boolean': 'boolean',
-  'Mixed': 'TODO',
-  'Objectid': 'string',
-  'Array': 'Array'
+
+function swaggerTypeFor (type) {
+  if (type === String) return 'string';
+  if (type === Number) return 'double';
+  if (type === Date) return 'Date';
+  if (type === mongoose.Schema.Types.Buffer) throw new Error('Not implemented');
+  if (type === Boolean) return 'boolean';
+  if (type === mongoose.Schema.Types.Mixed) throw new Error('Not implemented');
+  if (type === mongoose.Schema.Types.ObjectId) return 'string';
+  if (type === mongoose.Schema.Types.Oid) return 'string';
+  if (type === mongoose.Schema.Types.Array) return 'Array';
+  throw new Error('Unrecognized type:' + type);
 };
 
 // A method for capitalizing the first letter of a string
-function captialize (s) {
+function capitalize (s) {
   if (!s) return s;
   if (s.length === 1) return s.toUpperCase();
   return s[0].toUpperCase() + s.substring(1);
 }
 
 // A method for generating a Swagger resource listing
-function generateResourceListing () {
+function generateResourceListing (controllers) {
   var listing = {
-    apiVersion: '0.0', // TODO
+    apiVersion: '0.0.1', // TODO
     swaggerVersion: '1.1',
-    basePath: 'http://127.0.0.1/api', // TODO
+    basePath: 'http://127.0.0.1/api/v1', // TODO
     apis: [],
     models: {}
   };
@@ -47,7 +50,7 @@ function generateResourceListing () {
 // A method used to generate a Swagger model definition for a controller
 function generateModelDefinition (controller) {
   var definition = {};
-  var schema = mongoose.model(controller.get('singular')).schema;
+  var schema = controller.get('schema');
 
   definition.id = capitalize(controller.get('singular'));
   definition.properties = {};
@@ -56,11 +59,14 @@ function generateModelDefinition (controller) {
     var property = {};
     var path = schema.paths[name];
 
-    property.type = swaggerTypeFor[path.instance];
-    property.required = path.options.required ? true : false;
+    if (path.selected === false) return;
+    // TODO also check controller options
+
+    property.type = swaggerTypeFor(path.options.type);
+    property.required = path.options.required || (name === '_id');
 
     // Set enum values if applicable
-    if (path.enumValues.length > 0) {
+    if (path.enumValues && path.enumValues.length > 0) {
       property.allowableValues = { valueType: 'LIST', values: path.enumValues };
     }
 
@@ -85,53 +91,58 @@ function generateModelDefinition (controller) {
 
 // A method used to generate a Swagger API definition for a controller
 function generateApiDefinition (controller, plural) {
-    var definition = {};
+  var definition = {};
 
-    definition.path = '/' + controller.get('plural');
-    if (plural) definition.path += '/{id}';
+  definition.path = '/' + controller.get('plural');
+  if (plural) definition.path += '/{id}';
 
-    if (plural) definition.description = 'Operations about a given ' + controller.get('singular');
-    else definition.description = 'Operations about ' + controller.get('plural');
+  if (plural) definition.description = 'Operations about a given ' + controller.get('singular');
+  else definition.description = 'Operations about ' + controller.get('plural');
 
-    definition.operations = [];
+  definition.operations = [];
 
-    controller.activatedVerbs().forEach(function (verb) {
-      var operation = {};
-      var titlePlural = capitalize(controller.get('plural'));
-      var titleSingular = capitalize(controller.get('singular'));
+  controller.activeVerbs().forEach(function (verb) {
+    var operation = {};
+    var titlePlural = capitalize(controller.get('plural'));
+    var titleSingular = capitalize(controller.get('singular'));
 
-      // TODO don't do post/put for single/plural
+    // Don't do post/put for single/plural
+    if (verb === 'post' && !plural) return;
+    if (verb === 'put' && plural) return;
 
-      operation.httpMethod = verb.toUpperCase();
+    operation.httpMethod = verb.toUpperCase();
 
-      if (plural) operation.nickname = verb + titlePlural;
-      else operation.nickname = verb + titleSingular + 'ById';
+    if (plural) operation.nickname = verb + titlePlural;
+    else operation.nickname = verb + titleSingular + 'ById';
 
-      if (plural) operation.responseClass = [ titleSingular ];
-      else operation.responseClass = titleSingular;
+    if (plural) operation.responseClass = [ titleSingular ];
+    else operation.responseClass = titleSingular;
 
-      operation.parameters = []; // TODO
+    operation.parameters = []; // TODO
 
-      if (plural) operation.summary = 'Find some ' + controller.get('plural');
-      else operation.summary = 'Find a ' + controller.get('singular') + ' by its unique ID';
+    if (plural) operation.summary = capitalize(verb) + ' some ' + controller.get('plural');
+    else operation.summary = capitalize(verb) + ' a ' + controller.get('singular') + ' by its unique ID';
 
-      operation.errorResponses = []; // TODO 404
+    operation.errorResponses = []; // TODO 404
 
-      definition.operations.push(operation);
-    });
+    definition.operations.push(operation);
+  });
 
-    return definition;
-  };
+  return definition;
 }
 
 // __Module Definition__
 var baucis = module.exports = function (options) {
   options || (options = {});
 
+  var app = express();
+
   // Set options on the app
   Object.keys(options).forEach(function (key) {
     app.set(key, options[key]);
   });
+
+  app.set('controllers', controllers);
 
   // Mount all published controllers to the baucis app
   controllers.forEach(function (controller) {
@@ -139,6 +150,15 @@ var baucis = module.exports = function (options) {
     controller.initialize();
     app.use(route, controller);
   });
+
+  // Activate Swagger resource listing if the option is enabled
+  if (app.get('swagger') === true) {
+    app.get('/api-docs.json', function (request, response, next) {
+      response.json(generateResourceListing(app.get('controllers')));
+    });
+  }
+
+  controllers = [];
 
   return app;
 };
@@ -152,8 +172,3 @@ baucis.rest = function (options) {
 
   return controller;
 };
-
-// __Routes__
-app.get('/api-docs.json', function (request, response, next) {
-  response.json(generateResourceListing());
-});

@@ -155,6 +155,12 @@ var Controller = module.exports = function (options) {
     return controller;
   };
 
+  controller.activeVerbs = function () {
+    return [ 'head', 'get', 'post', 'put', 'del' ].filter(function (verb) {
+      return controller.get(verb) !== false;
+    });
+  }
+
   // A method used to intialize the controller and activate user middleware.  It
   // may be called multiple times, but will trigger intialization only once.
   controller.initialize = function () {
@@ -280,6 +286,7 @@ var Controller = module.exports = function (options) {
   });
 
   controller.set('model', model);
+  controller.set('schema', model.schema);
   controller.set('plural', options.plural || lingo.en.pluralize(options.singular));
   controller.set('findBy', options.findBy || '_id');
 
