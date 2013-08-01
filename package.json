@@ -5,7 +5,7 @@
   "version": "0.6.0",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --bail --globals vegetables"
+    "test": "mocha --bail --timeout 5000 --globals vegetables"
   },
   "repository": {
     "type": "git",

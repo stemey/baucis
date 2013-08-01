@@ -54,13 +54,9 @@ var middleware = module.exports = {
   },
   // Build the "Allow" response header
   allow: function (request, response, next) {
-    var allowed = [];
-
-    if (request.app.get('head') !== false) allowed.push('HEAD');
-    if (request.app.get('get')  !== false) allowed.push('GET');
-    if (request.app.get('post') !== false) allowed.push('POST');
-    if (request.app.get('put')  !== false) allowed.push('PUT');
-    if (request.app.get('del')  !== false) allowed.push('DELETE');
+    var allowed = request.app.activeVerbs().map(function (verb) {
+      return verb.toUpperCase();
+    });
 
     response.set('Allow', allowed.join());
     next();
