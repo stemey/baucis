@@ -269,13 +269,7 @@ var Controller = module.exports = function (options) {
       middleware: middleware.documents.send
     });
 
-    // __Finalize Initialization__
-
-    // The controller is initialized and we don't need the intermiediate data
-    // structure any more.
-    delete userMiddlewareFor;
     initialized = true;
-
     return controller;
   };
 
