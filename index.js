@@ -32,7 +32,7 @@ function generateResourceListing (controllers) {
   var listing = {
     apiVersion: '0.0.1', // TODO
     swaggerVersion: '1.1',
-    basePath: 'http://127.0.0.1/api/v1', // TODO
+    basePath: 'http://127.0.0.1:8012/api/v1', // TODO
     apis: [],
     models: {}
   };
@@ -94,10 +94,10 @@ function generateApiDefinition (controller, plural) {
   var definition = {};
 
   definition.path = '/' + controller.get('plural');
-  if (plural) definition.path += '/{id}';
+  // if (!plural) definition.path += '/{id}'; // TODO why is this breaking swagger-ui?
 
-  if (plural) definition.description = 'Operations about a given ' + controller.get('singular');
-  else definition.description = 'Operations about ' + controller.get('plural');
+  if (plural) definition.description = 'Operations about ' + controller.get('plural');
+  else definition.description = 'Operations about a given ' + controller.get('singular');
 
   definition.operations = [];
 
