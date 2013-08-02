@@ -41,7 +41,7 @@ function generateResourceListing (controllers) {
     var modelName = capitalize(controller.get('singular'));
     listing.models[modelName] = generateModelDefinition(controller);
     listing.apis.push(generateApiDefinition(controller, true));
-    listing.apis.push(generateApiDefinition(controller, false));
+    //listing.apis.push(generateApiDefinition(controller, false));
   });
 
   return listing;
@@ -94,7 +94,7 @@ function generateApiDefinition (controller, plural) {
   var definition = {};
 
   definition.path = '/' + controller.get('plural');
-  // if (!plural) definition.path += '/{id}'; // TODO why is this breaking swagger-ui?
+  if (!plural) definition.path += '/{id}'; // TODO why is this breaking swagger-ui?
 
   if (plural) definition.description = 'Operations about ' + controller.get('plural');
   else definition.description = 'Operations about a given ' + controller.get('singular');
@@ -118,7 +118,16 @@ function generateApiDefinition (controller, plural) {
     if (plural) operation.responseClass = [ titleSingular ];
     else operation.responseClass = titleSingular;
 
-    operation.parameters = []; // TODO
+    operation.parameters = [];
+
+    operation.parameters.push({ // TODO
+      paramType: 'query',
+      name: 'skip',
+      description: 'How many documents to skip.',
+      dataType: 'int',
+      required: false,
+      allowMultiple: false
+    });
 
     if (plural) operation.summary = capitalize(verb) + ' some ' + controller.get('plural');
     else operation.summary = capitalize(verb) + ' a ' + controller.get('singular') + ' by its unique ID';
