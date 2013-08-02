@@ -110,6 +110,9 @@ function generateApiDefinition (controller, plural) {
     if (verb === 'post' && !plural) return;
     if (verb === 'put' && plural) return;
 
+    // Use the full word
+    if (verb === 'del') verb = 'delete';
+
     operation.httpMethod = verb.toUpperCase();
 
     if (plural) operation.nickname = verb + titlePlural;
