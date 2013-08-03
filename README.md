@@ -25,6 +25,8 @@ Point it at your API.  Something like:
 
 Now you have documentation and a test client for free!
 
+-----------------------------
+
 ![David Rjckaert III - Philemon and Baucis Giving Hospitality to Jupiter and Mercury](http://github.com/wprl/baucis/raw/master/david_rijckaert_iii-philemon_and_baucis.jpg "Hermes is like: 'Hey Baucis, don't kill that goose.  And thanks for the REST.'")
 
 *David Rijckaert - Philemon and Baucis Giving Hospitality to Jupiter and Mercury*
