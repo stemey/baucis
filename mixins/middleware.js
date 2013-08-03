@@ -5,6 +5,28 @@ var middleware = require('../middleware');
 
 // __Private Module Members__
 
+// Cascade optional paramaters into a single hash
+function cascadeArguments (stage, howMany, verbs, middleware) {
+  if (!stage) throw new Error('Must supply stage.');
+  if (!middleware && !verbs && !howMany) throw new Error('Too few arguments.');
+
+  if (!middleware && !verbs) {
+    middleware = howMany;
+    delete verbs;
+    delete howMany;
+  }
+
+  if (!middleware) {
+    middleware = verbs;
+    verbs = howMany;
+    delete howMany;
+  }
+
+  if (middleware.verbs) middleware.verbs = middleware.verbs.toLowerCase();
+
+  return { stage: stage, howMany: howMany, verbs: verbs, middleware: middleware };
+}
+
 // Parse hashes of middleware into arrays of middleware
 function factor (options) {
   if (!options.stage) throw new Error('Must supply stage.');
