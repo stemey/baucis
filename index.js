@@ -28,21 +28,18 @@ function capitalize (s) {
 }
 
 // A method for generating a Swagger resource listing
-function generateResourceListing (controllers) {
+function generateResourceListing () {
+  var plurals = this.get('controllers').map(function (controller) {
+    return controller.get('plural');
+  });
   var listing = {
     apiVersion: '0.0.1', // TODO
     swaggerVersion: '1.1',
-    basePath: 'http://127.0.0.1/api/v1', // TODO
-    apis: [],
-    models: {}
+    basePath: 'http://127.0.0.1:8012/api/v1', // TODO
+    apis: plurals.map(function (plural) {
+      return { path: '/api-docs/' + plural, description: 'Operations about ' + plural + '.' };
+    })
   };
-
-  controllers.forEach(function (controller) {
-    var modelName = capitalize(controller.get('singular'));
-    listing.models[modelName] = generateModelDefinition(controller);
-    listing.apis.push(generateApiDefinition(controller, true));
-    listing.apis.push(generateApiDefinition(controller, false));
-  });
 
   return listing;
 }
@@ -137,27 +134,37 @@ var baucis = module.exports = function (options) {
 
   var app = express();
 
+  // __App Public Members__
+  app.generateResourceListing = generateResourceListing.bind(app);
+  app.set('controllers', controllers);
+
   // Set options on the app
   Object.keys(options).forEach(function (key) {
     app.set(key, options[key]);
   });
 
-  app.set('controllers', controllers);
+  // Activate Swagger resource listing if the option is enabled
+  if (app.get('swagger') === true) {
+    app.get('/api-docs', function (request, response, next) {
+      response.json(app.generateResourceListing());
+    });
+  }
 
   // Mount all published controllers to the baucis app
   controllers.forEach(function (controller) {
     var route = url.resolve('/', controller.get('plural'));
+
     controller.initialize();
     app.use(route, controller);
+
+    if (app.get('swagger') !== true) return;
+
+    app.get('/api-docs' + route, function (request, response, next) {
+      response.json(controller.generateApiDefinition());
+    });
   });
 
-  // Activate Swagger resource listing if the option is enabled
-  if (app.get('swagger') === true) {
-    app.get('/api-docs.json', function (request, response, next) {
-      response.json(generateResourceListing(app.get('controllers')));
-    });
-  }
-
+  // Empty the controllers array to prepare for creating more APIs
   controllers = [];
 
   return app;
