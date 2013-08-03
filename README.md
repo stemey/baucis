@@ -7,6 +7,24 @@ Like Baucis and Philemon of old, this library provides REST to the weary travele
 
 Baucis uses [semver](http://semver.org).
 
+New in v0.6.1
+-------------
+
+[Swagger](https://developers.helloreverb.com/swagger/) support is being added.  Most basic functionality is tested and seems to be working well!  Want to check it out?  Create your API with the swagger option enabled:
+
+    app.use('/api/v1', baucis({ swagger: true }));
+
+Next, download the [swagger-ui](https://github.com/wordnik/swagger-ui) client.
+
+    git clone git@github.com:wordnik/swagger-ui.git
+    open swagger-ui/dist/index.html
+
+Point it at your API.  Something like:
+
+    http://localhost:8012/api/v1/api-docs
+
+Now you have documentation and a test client for free!
+
 ![David Rjckaert III - Philemon and Baucis Giving Hospitality to Jupiter and Mercury](http://github.com/wprl/baucis/raw/master/david_rijckaert_iii-philemon_and_baucis.jpg "Hermes is like: 'Hey Baucis, don't kill that goose.  And thanks for the REST.'")
 
 *David Rijckaert - Philemon and Baucis Giving Hospitality to Jupiter and Mercury*
