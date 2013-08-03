@@ -3,7 +3,7 @@ var url = require('url');
 var express = require('express');
 var Controller = require('./Controller');
 
-// __Private Members__
+// __Private Module Members__
 var controllers = [];
 
 // A method for generating a Swagger resource listing
@@ -29,7 +29,7 @@ var baucis = module.exports = function (options) {
 
   var app = express();
 
-  // __App Public Members__
+  // __Public App Members__
   app.generateResourceListing = generateResourceListing.bind(app);
   app.set('controllers', controllers);
 
@@ -49,14 +49,16 @@ var baucis = module.exports = function (options) {
   controllers.forEach(function (controller) {
     var route = url.resolve('/', controller.get('plural'));
 
+    // Add a route for the controller's Swagger API definition
+    if (app.get('swagger') {
+      app.get('/api-docs' + route, function (request, response, next) {
+        response.json(controller.generateApiDefinition());
+      });
+    }
+
+    // Initialize and mount the controller
     controller.initialize();
     app.use(route, controller);
-
-    if (app.get('swagger') !== true) return;
-
-    app.get('/api-docs' + route, function (request, response, next) {
-      response.json(controller.generateApiDefinition());
-    });
   });
 
   // Empty the controllers array to prepare for creating more APIs
