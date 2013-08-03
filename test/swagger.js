@@ -34,7 +34,7 @@ describe('Swagger Resource Listing', function () {
       expect(response).to.have.property('statusCode', 200);
       expect(body).to.have.property('apiVersion', '0.0.1');
       expect(body).to.have.property('swaggerVersion', '1.1');
-      expect(body).to.have.property('basePath', 'http://127.0.0.1/api/v1');
+      expect(body).to.have.property('basePath', 'http://127.0.0.1:8012/api/v1');
       expect(body).to.have.property('models');
 
       // Check the model
@@ -57,8 +57,8 @@ describe('Swagger Resource Listing', function () {
 
       // Check the API listing
       expect(body.apis).to.be.an(Array);
-      expect(body.apis[0].path).to.be('/vegetables/{id}');
-      expect(body.apis[1].path).to.be('/vegetables');
+      expect(body.apis[0].path).to.be('/vegetables');
+      expect(body.apis[1].path).to.be('/vegetables/{id}');
       expect(body.apis[0].operations).to.be.an(Array);
       expect(body.apis[1].operations).to.be.an(Array);
       expect(body.apis[0].operations).to.have.property('length', 4);

@@ -1,7 +1,6 @@
 // __Dependencies__
 var url = require('url');
 var express = require('express');
-var mongoose = require('mongoose');
 var Controller = require('./Controller');
 var generateResourceListing = require('./swagger')
 

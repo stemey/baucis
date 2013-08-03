@@ -1,3 +1,8 @@
+// __Dependencies__
+var mongoose = require('mongoose');
+
+// __Private Members__
+
 function swaggerTypeFor (type) {
   if (type === String) return 'string';
   if (type === Number) return 'double';
@@ -16,26 +21,6 @@ function capitalize (s) {
   if (!s) return s;
   if (s.length === 1) return s.toUpperCase();
   return s[0].toUpperCase() + s.substring(1);
-}
-
-// A method for generating a Swagger resource listing
-module.exports = function generateResourceListing (controllers) {
-  var listing = {
-    apiVersion: '0.0.1', // TODO
-    swaggerVersion: '1.1',
-    basePath: 'http://127.0.0.1:8012/api/v1', // TODO
-    apis: [],
-    models: {}
-  };
-
-  controllers.forEach(function (controller) {
-    var modelName = capitalize(controller.get('singular'));
-    listing.models[modelName] = generateModelDefinition(controller);
-    listing.apis.push(generateApiDefinition(controller, true));
-    //listing.apis.push(generateApiDefinition(controller, false));
-  });
-
-  return listing;
 }
 
 // A method used to generate a Swagger model definition for a controller
@@ -82,12 +67,12 @@ function generateModelDefinition (controller) {
   return definition;
 }
 
-function generateParameter (controller, plural) {
+function generateParameters (controller, plural) {
   var parameters = [];
 
   // Parameters available for singular routes
   if (!plural) {
-    operation.parameters.push({
+    parameters.push({
       paramType: 'path',
       name: 'id',
       description: 'The ID of a ' + controller.get('singular'),
@@ -99,7 +84,7 @@ function generateParameter (controller, plural) {
 
   // Parameters available for plural routes
   if (plural) {
-    operation.parameters.push({
+    parameters.push({
       paramType: 'query',
       name: 'skip',
       description: 'How many documents to skip.',
@@ -108,7 +93,7 @@ function generateParameter (controller, plural) {
       allowMultiple: false
     });
 
-    operation.parameters.push({
+    parameters.push({
       paramType: 'query',
       name: 'limit',
       description: 'The maximum number of documents to send.',
@@ -119,7 +104,7 @@ function generateParameter (controller, plural) {
   }
 
   // Parameters available for singular and plural routes
-  operation.parameters.push({
+  parameters.push({
     paramType: 'query',
     name: 'select',
     description: 'Select which fields will be returned by the query.',
@@ -128,7 +113,7 @@ function generateParameter (controller, plural) {
     allowMultiple: false
   });
 
-  operation.parameters.push({
+  parameters.push({
     paramType: 'query',
     name: 'populate',
     description: 'Population options.',
@@ -210,7 +195,29 @@ function generateApiDefinition (controller, plural) {
   if (plural) definition.description = 'Operations about ' + controller.get('plural');
   else definition.description = 'Operations about a given ' + controller.get('singular');
 
-  definition.operations = generateOperations(controller, plural));
+  definition.operations = generateOperations(controller, plural);
 
   return definition;
+}
+
+// __Module Definition__
+
+// A method for generating a Swagger resource listing
+module.exports = function generateResourceListing (controllers) {
+  var listing = {
+    apiVersion: '0.0.1', // TODO
+    swaggerVersion: '1.1',
+    basePath: 'http://127.0.0.1:8012/api/v1', // TODO
+    apis: [],
+    models: {}
+  };
+
+  controllers.forEach(function (controller) {
+    var modelName = capitalize(controller.get('singular'));
+    listing.models[modelName] = generateModelDefinition(controller);
+    listing.apis.push(generateApiDefinition(controller, true));
+    listing.apis.push(generateApiDefinition(controller, false));
+  });
+
+  return listing;
 }
