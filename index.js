@@ -58,9 +58,11 @@ function generateModelDefinition (controller) {
   Object.keys(schema.paths).forEach(function (name) {
     var property = {};
     var path = schema.paths[name];
+    var select = controller.get('select');
 
+    // Keep deselected paths private
     if (path.selected === false) return;
-    // TODO also check controller options
+    if (select && select.match('-' + name)) return;
 
     property.type = swaggerTypeFor(path.options.type);
     property.required = path.options.required || (name === '_id');
