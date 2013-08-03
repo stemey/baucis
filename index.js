@@ -91,17 +91,91 @@ function generateModelDefinition (controller) {
   return definition;
 }
 
-// A method used to generate a Swagger API definition for a controller
-function generateApiDefinition (controller, plural) {
-  var definition = {};
+function generateParameter (controller, plural) {
+  var parameters = [];
 
-  definition.path = '/' + controller.get('plural');
-  if (!plural) definition.path += '/{id}'; // TODO why is this breaking swagger-ui?
+  // Parameters available for singular routes
+  if (!plural) {
+    operation.parameters.push({
+      paramType: 'path',
+      name: 'id',
+      description: 'The ID of a ' + controller.get('singular'),
+      dataType: 'string',
+      required: true,
+      allowMultiple: false
+    });
+  }
 
-  if (plural) definition.description = 'Operations about ' + controller.get('plural');
-  else definition.description = 'Operations about a given ' + controller.get('singular');
+  // Parameters available for plural routes
+  if (plural) {
+    operation.parameters.push({
+      paramType: 'query',
+      name: 'skip',
+      description: 'How many documents to skip.',
+      dataType: 'int',
+      required: false,
+      allowMultiple: false
+    });
 
-  definition.operations = [];
+    operation.parameters.push({
+      paramType: 'query',
+      name: 'limit',
+      description: 'The maximum number of documents to send.',
+      dataType: 'int',
+      required: false,
+      allowMultiple: false
+    });
+  }
+
+  // Parameters available for singular and plural routes
+  operation.parameters.push({
+    paramType: 'query',
+    name: 'select',
+    description: 'Select which fields will be returned by the query.',
+    dataType: 'string',
+    required: false,
+    allowMultiple: false
+  });
+
+  operation.parameters.push({
+    paramType: 'query',
+    name: 'populate',
+    description: 'Population options.',
+    dataType: 'string',
+    required: false,
+    allowMultiple: false
+  });
+
+  return parameters;
+}
+
+function generateErrorResponses (controller, plural) {
+  var errorResponses = [];
+
+  // Error rosponses for singular operations
+  if (!plural) {
+    errorResponses.push({
+      code: 404,
+      reason: 'No ' + controller.get('singular') + ' was found with that ID.' }
+    });
+  }
+
+  // Error rosponses for plural operations
+  if (plural) {
+    errorResponses.push({
+      code: 404,
+      reason: 'No ' + controller.get('plural') + ' matched that query.'
+    });
+  }
+
+  // Error rosponses for both singular and plural operations
+  // None.
+
+  return errorResponses;
+}
+
+function generateOperations (controller, plural) {
+  var operations = [];
 
   controller.activeVerbs().forEach(function (verb) {
     var operation = {};
@@ -123,24 +197,29 @@ function generateApiDefinition (controller, plural) {
     if (plural) operation.responseClass = [ titleSingular ];
     else operation.responseClass = titleSingular;
 
-    operation.parameters = [];
-
-    operation.parameters.push({ // TODO
-      paramType: 'query',
-      name: 'skip',
-      description: 'How many documents to skip.',
-      dataType: 'int',
-      required: false,
-      allowMultiple: false
-    });
-
     if (plural) operation.summary = capitalize(verb) + ' some ' + controller.get('plural');
     else operation.summary = capitalize(verb) + ' a ' + controller.get('singular') + ' by its unique ID';
 
-    operation.errorResponses = []; // TODO 404
+    operation.parameters = generateParameters(controller, plural);
+    operation.errorResponses = generateErrorResponses(controller, plural);
 
-    definition.operations.push(operation);
+    operations.push(operation);
   });
+
+  return operations;
+}
+
+// A method used to generate a Swagger API definition for a controller
+function generateApiDefinition (controller, plural) {
+  var definition = {};
+
+  definition.path = '/' + controller.get('plural');
+  if (!plural) definition.path += '/{id}'; // TODO why is this breaking swagger-ui?
+
+  if (plural) definition.description = 'Operations about ' + controller.get('plural');
+  else definition.description = 'Operations about a given ' + controller.get('singular');
+
+  definition.operations = generateOperations(controller, plural));
 
   return definition;
 }
