@@ -50,7 +50,7 @@ var baucis = module.exports = function (options) {
     var route = url.resolve('/', controller.get('plural'));
 
     // Add a route for the controller's Swagger API definition
-    if (app.get('swagger') {
+    if (app.get('swagger')) {
       app.get('/api-docs' + route, function (request, response, next) {
         response.json(controller.generateApiDefinition());
       });

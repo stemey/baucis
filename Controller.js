@@ -3,7 +3,6 @@ var util = require('util');
 var express = require('express');
 var mongoose = require('mongoose');
 var lingo = require('lingo');
-var userMiddlewareSchema = require('./userMiddlewareSchema');
 var middleware = require('./middleware');
 var mixins = require('./mixins');
 

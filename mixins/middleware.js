@@ -1,50 +1,33 @@
 // This is a Controller mixin for adding methods to manage middleware creation.
 
+// __Dependencies__
+var middleware = require('../middleware');
+
 // __Private Module Members__
 
-// Parse the options hash and recurse `f` with parsed paramaters.  Execute `g`
-// for each verb.
-function traverseMiddleware (options, f, g) {
+// Parse hashes of middleware into arrays of middleware
+function factor (options) {
   if (!options.stage) throw new Error('Must supply stage.');
   if (!options.middleware) throw new Error('Must supply middleware.');
 
-  var verbs = options.verbs || 'head get post put del';
-
-  if (!Array.isArray(options.middleware) && typeof options.middleware !== 'function') {
-    Object.keys(options.middleware).forEach(function (howManyKey) {
-      Object.keys(options.middleware[howManyKey]).forEach(function (verb) {
-        f({
-          stage: options.stage,
-          howMany: howManyKey,
-          verbs: verb,
-          middleware: options.middleware[howManyKey][verb]
-        });
-      });
-    });
-    return;
+  if (Array.isArray(options.middleware) || typeof options.middleware === 'function') {
+    return options.middleware;
   }
 
-  verbs.split(' ').forEach(g);
-}
+  var factored = [];
 
-// A method used to activate user middleware that was previously registered.
-function activate (options) {
-  if (activated) throw new Error("Can't activate middleware after the controller has been activated.");
-
-  var that = this;
-
-  traverseMiddleware(options, activate, function (verb) {
-    if (that.get(verb) === false) return;
-
-    var path;
-
-    if (!options.howMany) path = that.get('basePathWithOptionalId');
-    else if (options.howMany === 'instance') path = that.get('basePathWithId');
-    else if (options.howMany === 'collection') path = that.get('basePath');
-    else throw new Error('Unrecognized howMany.');
-
-    that[verb](path, options.middleware);
+  Object.keys(options.middleware).forEach(function (howManyKey) {
+    Object.keys(options.middleware[howManyKey]).forEach(function (verb) {
+      factored.push({
+        stage: options.stage,
+        howMany: howManyKey,
+        verbs: verb,
+        middleware: options.middleware[howManyKey][verb]
+      });
+    });
   });
+
+  return factored;
 }
 
 // __Module Definition__
@@ -80,15 +63,40 @@ var mixin = module.exports = function () {
       throw new Error('Query stage not executed for POST.');
     }
 
-    traverseMiddleware(options, register, function (verb) {
-      if (controller.get(verb) === false) return;
+    factor(options).forEach(function (definition) {
+      var verbs = definition.verbs || 'head get post put del';
+      verbs.split(' ').forEach(function (verb) {
+        if (controller.get(verb) === false) return;
 
-      if (options.howMany !== 'collection') {
-        custom[options.stage]['instance'][verb] = custom[options.stage]['instance'][verb].concat(options.middleware);
-      }
-      if (options.howMany !== 'instance') {
-        custom[options.stage]['collection'][verb] = custom[options.stage]['collection'][verb].concat(options.middleware);
-      }
+        if (definition.howMany !== 'collection') {
+          custom[definition.stage]['instance'][verb] = custom[definition.stage]['instance'][verb].concat(definition.middleware);
+        }
+        if (definition.howMany !== 'instance') {
+          custom[definition.stage]['collection'][verb] = custom[definition.stage]['collection'][verb].concat(definition.middleware);
+        }
+      });
+    });
+  }
+
+  // A method used to activate user middleware that was previously registered.
+  function activate (controller, options) {
+    if (activated) throw new Error("Can't activate middleware after the controller has been activated.");
+
+    factor(options).forEach(function (definition) {
+      var verbs = definition.verbs || 'head get post put del';
+
+      verbs.split(' ').forEach(function (verb) {
+        if (controller.get(verb) === false) return;
+
+        var path;
+
+        if (!definition.howMany) path = controller.get('basePathWithOptionalId');
+        else if (definition.howMany === 'instance') path = controller.get('basePathWithId');
+        else if (definition.howMany === 'collection') path = controller.get('basePath');
+        else throw new Error('Unrecognized howMany.');
+
+        controller[verb](path, definition.middleware);
+      });
     });
   }
 
@@ -125,30 +133,28 @@ var mixin = module.exports = function () {
   this.activate = function () {
     if (activated) return this;
 
-    var add = activate.bind(this);
-
     // __Request-Stage Middleware__
 
     // Activate middleware that sets the Allow & Accept headers
-    add({
+    activate(this, {
       stage: 'request',
       middleware: [ middleware.headers.allow, middleware.headers.accept ]
     });
 
     // Activate middleware to set request.baucis.conditions for find/remove
-    add({
+    activate(this, {
       stage: 'request',
       howMany: 'collection',
       verbs: 'head get del',
       middleware: middleware.configure.conditions
     });
     // Next, activate the request-stage user middleware.
-    add({
+    activate(this, {
        stage: 'request',
        middleware: custom['request']
     });
     // Activate middleware to build the query (except for POST requests).
-    add({
+    activate(this, {
       stage: 'request',
       middleware: middleware.query
     });
@@ -158,7 +164,7 @@ var mixin = module.exports = function () {
     // find or remove query).
 
     // Activate middleware to handle controller and query options.
-    add({
+    activate(this, {
       stage: 'query',
       middleware: [ middleware.configure.controller, middleware.configure.query ]
     });
@@ -168,7 +174,7 @@ var mixin = module.exports = function () {
     middleware.query.collection.post = [];
 
     // Activate user middleware for the query-stage
-    add({
+    activate(this, {
       stage: 'query',
       middleware: custom['query']
     });
@@ -176,26 +182,26 @@ var mixin = module.exports = function () {
     // Activate middleware to execute the query:
 
     // Get the count for HEAD requests.
-    add({
+    activate(this, {
       stage: 'query',
       verbs: 'head',
       middleware: middleware.exec.count
     });
     // Execute the find or remove query for GET and DELETE.
-    add({
+    activate(this, {
       stage: 'query',
       verbs: 'get del',
       middleware: middleware.exec.exec
     });
     // Create the documents for a POST request.
-    add({
+    activate(this, {
       stage: 'query',
       howMany: 'collection',
       verbs: 'post',
       middleware: middleware.exec.create
     });
     // Update the documents specified for a PUT request.
-    add({
+    activate(this, {
       stage: 'query',
       howMany: 'instance',
       verbs: 'put',
@@ -206,12 +212,12 @@ var mixin = module.exports = function () {
     // is enabled.  (This must come after exec or else the count is
     // returned for all subsequqent executions of the query.)
     if (this.get('relations') === true) {
-      add({
+      activate(this, {
         stage: 'query',
         howMany: 'instance',
         middleware: middleware.headers.link
       });
-      add({
+      activate(this, {
         stage: 'query',
         howMany: 'collection',
         middleware: middleware.headers.linkCollection
@@ -221,17 +227,17 @@ var mixin = module.exports = function () {
     // __Document-Stage Middleware__
 
     // Activate the middleware that sets the `Last-Modified` header when appropriate.
-    add({
+    activate(this, {
       stage: 'documents',
       middleware: middleware.documents.lastModified
     });
     // Activate the the document-stage user middleware.
-    add({
+    activate(this, {
       stage: 'documents',
       middleware: custom['documents']
     });
     // Activate the middleware that sends the resulting document(s) or count.
-    add({
+    activate(this, {
       stage: 'documents',
       middleware: middleware.documents.send
     });
@@ -240,3 +246,4 @@ var mixin = module.exports = function () {
     activated = true;
     return this;
   };
+};
