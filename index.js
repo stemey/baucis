@@ -17,7 +17,7 @@ function swaggerTypeFor (type) {
   if (type === mongoose.Schema.Types.ObjectId) return 'string';
   if (type === mongoose.Schema.Types.Oid) return 'string';
   if (type === mongoose.Schema.Types.Array) return 'Array';
-  throw new Error('Unrecognized type:' + type);
+  throw new Error('Unrecognized type: ' + type);
 };
 
 // A method for capitalizing the first letter of a string
