@@ -13,10 +13,10 @@ function generateResourceListing () {
   });
   var listing = {
     apiVersion: '0.0.1', // TODO
-    swaggerVersion: '1.2',
+    swaggerVersion: '1.1',
     basePath: 'http://127.0.0.1:8012/api/v1', // TODO
     apis: plurals.map(function (plural) {
-      return { path: '/' + plural, description: 'Operations about ' + plural + '.' };
+      return { path: '/api-docs/' + plural, description: 'Operations about ' + plural + '.' };
     })
   };
 

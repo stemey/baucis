@@ -317,7 +317,8 @@ var Controller = module.exports = function (options) {
       var titlePlural = capitalize(controller.get('plural'));
       var titleSingular = capitalize(controller.get('singular'));
 
-      // Don't do post/put for single/plural
+      // Don't do head, post/put for single/plural
+      if (verb === 'head') return;
       if (verb === 'post' && !plural) return;
       if (verb === 'put' && plural) return;
 
@@ -329,8 +330,7 @@ var Controller = module.exports = function (options) {
       if (plural) operation.nickname = verb + titlePlural;
       else operation.nickname = verb + titleSingular + 'ById';
 
-      if (plural) operation.responseClass = [ titleSingular ];
-      else operation.responseClass = titleSingular;
+      operation.responseClass = titleSingular; // TODO sometimes an array!
 
       if (plural) operation.summary = capitalize(verb) + ' some ' + controller.get('plural');
       else operation.summary = capitalize(verb) + ' a ' + controller.get('singular') + ' by its unique ID';
@@ -349,7 +349,7 @@ var Controller = module.exports = function (options) {
     var modelName = capitalize(controller.get('singular'));
     var definition = {
       apiVersion: '0.0.1', // TODO
-      swaggerVersion: '1.2',
+      swaggerVersion: '1.1',
       basePath: 'http://127.0.0.1:8012/api/v1', // TODO
       resourcePath: '/' + controller.get('plural'),
       apis: [],
