@@ -152,7 +152,7 @@ var mixin = module.exports = function () {
     // Next, activate the request-stage user middleware.
     activate.call(this, 'request', custom['request']);
     // Activate middleware to build the query (except for POST requests).
-    activate.call(this,'request', middleware.query);
+    activate.call(this, 'request', middleware.query);
 
     // __Query-Stage Middleware__
     // The query will have been created (except for POST, which doesn't use a
