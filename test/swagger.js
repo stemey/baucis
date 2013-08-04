@@ -34,6 +34,7 @@ describe('Swagger Resource Listing', function () {
       expect(body).to.have.property('apiVersion', '0.0.1');
       expect(body).to.have.property('swaggerVersion', '1.1');
       expect(body).to.have.property('basePath', 'http://127.0.0.1:8012/api/v1');
+      expect(body).to.have.property('apis');
 
       // Check the API listing
       expect(body.apis).to.be.an(Array);
@@ -59,6 +60,7 @@ describe('Swagger Resource Listing', function () {
       expect(body).to.have.property('basePath', 'http://127.0.0.1:8012/api/v1');
       expect(body).to.have.property('resourcePath', '/vegetables');
       expect(body).to.have.property('models');
+      expect(body).to.have.property('apis');
       expect(body.apis).to.be.an(Array);
 
       // Check the model
@@ -94,5 +96,4 @@ describe('Swagger Resource Listing', function () {
 
   it('should keep paths deselected in the schema private');
   it('should keep paths deselected in the controller private');
-
 });
