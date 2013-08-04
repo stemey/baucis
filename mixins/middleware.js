@@ -6,21 +6,15 @@ var middleware = require('../middleware');
 // __Private Module Members__
 
 // Parse middleware
-function factor (stage, howMany, verbs, middleware) {
+function factor (stage) {
   if (!stage) throw new Error('Must supply stage.');
-  if (!middleware && !verbs && !howMany) throw new Error('Too few arguments.');
+  if (!arguments[3] && !arguments[2] && !arguments[1]) throw new Error('Too few arguments.');
 
-  if (!middleware && !verbs) {
-    middleware = howMany;
-    delete verbs;
-    delete howMany;
-  }
-
-  if (!middleware) {
-    middleware = verbs;
-    verbs = howMany;
-    delete howMany;
-  }
+  var factored = [];
+  var base = arguments.length - 2;
+  var howMany = base - 1 > 0 ? arguments[base - 1] : undefined;
+  var verbs = base > 0 ? arguments[base] : undefined;
+  var middleware = base + 1 > 0 ? arguments[base + 1] : undefined;
 
   if (verbs) verbs = verbs.toLowerCase();
 
@@ -30,8 +24,6 @@ function factor (stage, howMany, verbs, middleware) {
     throw new Error('Query stage not executed for POST.');
   }
 
-  var factored = [];
-
   // Middleware function or array
   if (Array.isArray(middleware) || typeof middleware === 'function') {
     if (howMany !== 'collection') factored.push({ stage: stage, howMany: 'instance', verbs: verbs, middleware: middleware });
@@ -39,10 +31,10 @@ function factor (stage, howMany, verbs, middleware) {
     return factored;
   }
 
+  // Middleware hash keyed on instance/collection, then verb
   if (howMany) throw new Error('Specified instance/collection twice.');
   if (verbs) throw new Error('Specified verbs twice.');
 
-  // Middleware hash keyed on instance/collection, then verb
   Object.keys(middleware).forEach(function (howManyKey) {
     Object.keys(middleware[howManyKey]).map(function (verb) {
       factored.push({
