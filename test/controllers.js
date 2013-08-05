@@ -138,14 +138,14 @@ describe('Controllers', function () {
     var controller = baucis.rest('store');
     controller.initialize();
     var register = function () { controller.request('get', function () {}) };
-    expect(register).to.throwException(/Can't add middleware after the controller has been initialized./);
+    expect(register).to.throwException(/Can't add middleware after the controller has been activated./);
     done();
   });
 
   it('should not allow query middleware to be explicitly registered for POST', function (done) {
     var controller = baucis.rest('store');
     var register = function () { controller.query('get put head del post', function () {}) };
-    expect(register).to.throwException(/POST cannot have query middleware/);
+    expect(register).to.throwException(/Query stage not executed for POST./);
     done();
   });
 

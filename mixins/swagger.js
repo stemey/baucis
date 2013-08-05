@@ -1,5 +1,8 @@
 // This is a Controller mixin to add methods for generating Swagger data.
 
+// __Dependencies__
+var mongoose = require('mongoose');
+
 // __Private Members__
 
 // Convert a Mongoose type into a Swagger type
@@ -30,6 +33,7 @@ var mixin = module.exports = function () {
 
   // A method used to generate a Swagger model definition for a controller
   this.generateModelDefinition = function () {
+    var that = this;
     var definition = {};
     var schema = this.get('schema');
 
@@ -39,7 +43,7 @@ var mixin = module.exports = function () {
     Object.keys(schema.paths).forEach(function (name) {
       var property = {};
       var path = schema.paths[name];
-      var select = this.get('select');
+      var select = that.get('select');
 
       // Keep deselected paths private
       if (path.selected === false) return;
@@ -184,8 +188,8 @@ var mixin = module.exports = function () {
       if (plural) operation.summary = capitalize(verb) + ' some ' + that.get('plural');
       else operation.summary = capitalize(verb) + ' a ' + that.get('singular') + ' by its unique ID';
 
-      operation.parameters = controller.generateParameters(plural);
-      operation.errorResponses = controller.generateErrorResponses(plural);
+      operation.parameters = that.generateParameters(plural);
+      operation.errorResponses = that.generateErrorResponses(plural);
 
       operations.push(operation);
     });
@@ -206,20 +210,20 @@ var mixin = module.exports = function () {
     };
 
     // Model
-    definition.models[modelName] = controller.generateModelDefinition();
+    definition.models[modelName] = this.generateModelDefinition();
 
     // Instance route
     definition.apis.push({
       path: '/' + this.get('plural') + '/{id}',
       description: 'Operations about a given ' + this.get('singular'),
-      operations: controller.generateOperations(false)
+      operations: this.generateOperations(false)
     });
 
     // Collection route
     definition.apis.push({
       path: '/' + this.get('plural'),
       description: 'Operations about ' + this.get('plural'),
-      operations: controller.generateOperations(true)
+      operations: this.generateOperations(true)
     });
 
     return definition;

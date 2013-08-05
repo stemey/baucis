@@ -5,43 +5,49 @@ var middleware = require('../middleware');
 
 // __Private Module Members__
 
+// Handle variable number of arguments
+function last (skip, names, values) {
+  var r = {};
+  var position = names.length;
+  var count = Object.keys(values).filter(function (key) { return values[key] }).length - skip;
+
+  if (count === 0) throw new Error('Too few arguments.');
+
+  names.forEach(function (name) {
+    var index = skip + count - position;
+    position--;
+    if (index >= skip) r[name] = values[index];
+  });
+
+  return r;
+}
+
 // Parse middleware
-function factor (stage) {
+function factor (stage, options) {
   if (!stage) throw new Error('Must supply stage.');
-  if (!arguments[3] && !arguments[2] && !arguments[1]) throw new Error('Too few arguments.');
 
   var factored = [];
-  var base = arguments.length - 2;
-  var howMany = base - 1 > 0 ? arguments[base - 1] : undefined;
-  var verbs = base > 0 ? arguments[base] : undefined;
-  var middleware = base + 1 > 0 ? arguments[base + 1] : undefined;
 
-  if (verbs) verbs = verbs.toLowerCase();
-
-  // Prevent explicitly setting query-stage POST middleware.  Implicitly adding
-  // this middleware is ignored.
-  if (stage === 'query' && verbs && verbs.indexOf('post') !== -1) {
-    throw new Error('Query stage not executed for POST.');
-  }
+  if (options.verbs) options.verbs = options.verbs.toLowerCase();
 
   // Middleware function or array
-  if (Array.isArray(middleware) || typeof middleware === 'function') {
-    if (howMany !== 'collection') factored.push({ stage: stage, howMany: 'instance', verbs: verbs, middleware: middleware });
-    if (howMany !== 'instance') factored.push({ stage: stage, howMany: 'collection', verbs: verbs, middleware: middleware });
+  if (Array.isArray(options.middleware) || typeof options.middleware === 'function') {
+    if (options.howMany !== 'collection') factored.push({ stage: stage, howMany: 'instance', verbs: options.verbs, middleware: options.middleware });
+    if (options.howMany !== 'instance') factored.push({ stage: stage, howMany: 'collection', verbs: options.verbs, middleware: options.middleware });
     return factored;
   }
 
   // Middleware hash keyed on instance/collection, then verb
-  if (howMany) throw new Error('Specified instance/collection twice.');
-  if (verbs) throw new Error('Specified verbs twice.');
+  if (options.howMany) throw new Error('Specified instance/collection twice.');
+  if (options.verbs) throw new Error('Specified verbs twice.');
 
-  Object.keys(middleware).forEach(function (howManyKey) {
-    Object.keys(middleware[howManyKey]).map(function (verb) {
+  Object.keys(options.middleware).forEach(function (howManyKey) {
+    Object.keys(options.middleware[howManyKey]).map(function (verb) {
       factored.push({
         stage: stage,
         howMany: howManyKey,
         verbs: verb,
-        middleware: middleware[howManyKey][verb]
+        middleware: options.middleware[howManyKey][verb]
       });
     });
   });
@@ -54,6 +60,7 @@ var mixin = module.exports = function () {
 
   // __Private Instance Members__
 
+  var controller = this;
   // Flags whether the custom middleware has been activated
   var activated = false;
   // A hash for storing user middleware
@@ -78,7 +85,15 @@ var mixin = module.exports = function () {
       throw new Error("Can't add middleware after the controller has been activated.");
     }
 
-    factor(stage, howMany, verbs, middleware).forEach(function (definition) {
+    var options = last(1, ['howMany', 'verbs', 'middleware'], arguments);
+
+    // Prevent explicitly setting query-stage POST middleware.  Implicitly adding
+    // this middleware is ignored.
+    if (stage === 'query' && options.verbs && options.verbs.indexOf('post') !== -1) {
+      throw new Error('Query stage not executed for POST.');
+    }
+
+    factor(stage, options).forEach(function (definition) {
       var verbs = definition.verbs || 'head get post put del';
       verbs.split(' ').forEach(function (verb) {
         if (controller.get(verb) === false) return;
@@ -91,21 +106,21 @@ var mixin = module.exports = function () {
   function activate (stage, howMany, verbs, middleware) {
     if (activated) throw new Error("Can't activate middleware after the controller has been activated.");
 
-    var that = this;
+    var options = last(1, ['howMany', 'verbs', 'middleware'], arguments);
 
-    factor(stage, howMany, verbs, middleware).forEach(function (definition) {
+    factor(stage, options).forEach(function (definition) {
       var verbs = definition.verbs || 'head get post put del';
 
       verbs.split(' ').forEach(function (verb) {
-        if (that.get(verb) === false) return;
+        if (controller.get(verb) === false) return;
 
         var path;
 
-        if (definition.howMany === 'instance') path = that.get('basePathWithId');
-        else if (definition.howMany === 'collection') path = that.get('basePath');
+        if (definition.howMany === 'instance') path = controller.get('basePathWithId');
+        else if (definition.howMany === 'collection') path = controller.get('basePath');
         else throw new Error('Unrecognized howMany.');
 
-        that[verb](path, definition.middleware);
+        controller[verb](path, definition.middleware);
       });
     });
   }
@@ -113,83 +128,83 @@ var mixin = module.exports = function () {
   // __Public Instance Methods__
 
   // A method used to register request-stage middleware.
-  this.request = function (howMany, verbs, middleware) {
+  controller.request = function (howMany, verbs, middleware) {
     register('request', howMany, verbs, middleware);
-    return this;
+    return controller;
   };
 
   // A method used to register query-stage middleware.
-  this.query = function (howMany, verbs, middleware) {
+  controller.query = function (howMany, verbs, middleware) {
     register('query', howMany, verbs, middleware);
-    return this;
+    return controller;
   };
 
   // A method used to register document-stage middleware.
-  this.documents = function (howMany, verbs, middleware) {
+  controller.documents = function (howMany, verbs, middleware) {
     register('documents', howMany, verbs, middleware);
-    return this;
+    return controller;
   };
 
   // A method used to intialize the controller and activate user middleware.  It
   // may be called multiple times, but will trigger intialization only once.
-  this.activate = function () {
-    if (activated) return this;
+  controller.activate = function () {
+    if (activated) return controller;
 
     // __Request-Stage Middleware__
 
     // Activate middleware that sets the Allow & Accept headers
-    activate.call(this, 'request', [ middleware.headers.allow, middleware.headers.accept ]);
+    activate('request', [ middleware.headers.allow, middleware.headers.accept ]);
     // Activate middleware to set request.baucis.conditions for find/remove
-    activate.call(this, 'request', 'collection', 'head get del', middleware.configure.conditions);
+    activate('request', 'collection', 'head get del', middleware.configure.conditions);
     // Next, activate the request-stage user middleware.
-    activate.call(this, 'request', custom['request']);
+    activate('request', custom['request']);
     // Activate middleware to build the query (except for POST requests).
-    activate.call(this, 'request', middleware.query);
+    activate('request', middleware.query);
 
     // __Query-Stage Middleware__
     // The query will have been created (except for POST, which doesn't use a
     // find or remove query).
 
     // Activate middleware to handle controller and query options.
-    activate.call(this, 'query', [ middleware.configure.controller, middleware.configure.query ]);
+    activate('query', [ middleware.configure.controller, middleware.configure.query ]);
 
     // Delete any query-stage POST middleware that was added implicitly.
     custom.query.instance.post = [];
     custom.query.collection.post = [];
 
     // Activate user middleware for the query-stage
-    activate.call(this, 'query', custom['query']);
+    activate('query', custom['query']);
 
     // Activate middleware to execute the query:
 
     // Get the count for HEAD requests.
-    activate.call(this, 'query', 'head', middleware.exec.count);
+    activate('query', 'head', middleware.exec.count);
     // Execute the find or remove query for GET and DELETE.
-    activate.call(this, 'query', 'get del', middleware.exec.exec);
+    activate('query', 'get del', middleware.exec.exec);
     // Create the documents for a POST request.
-    activate.call(this, 'query', 'collection', 'post', middleware.exec.create);
+    activate('query', 'collection', 'post', middleware.exec.create);
     // Update the documents specified for a PUT request.
-    activate.call(this, 'query', 'instance', 'put', middleware.exec.update);
+    activate('query', 'instance', 'put', middleware.exec.update);
 
     // Activate some middleware that will set the Link header when that feature
     // is enabled.  (This must come after exec or else the count is
     // returned for all subsequqent executions of the query.)
-    if (this.get('relations') === true) {
-      activate.call(this, 'query', 'instance', middleware.headers.link);
-      activate.call(this, 'query', 'collection', middleware.headers.linkCollection);
+    if (controller.get('relations') === true) {
+      activate('query', 'instance', 'head get post put del', middleware.headers.link);
+      activate('query', 'collection', 'head get post put del', middleware.headers.linkCollection);
     }
 
     // __Document-Stage Middleware__
 
     // Activate the middleware that sets the `Last-Modified` header when appropriate.
-    activate.call(this, 'documents', middleware.documents.lastModified);
+    activate('documents', middleware.documents.lastModified);
     // Activate the the document-stage user middleware.
-    activate.call(this, 'documents', custom['documents']);
+    activate('documents', custom['documents']);
     // Activate the middleware that sends the resulting document(s) or count.
-    activate.call(this, 'documents', middleware.documents.send);
+    activate('documents', middleware.documents.send);
 
     delete custom;
     activated = true;
-    return this;
+    return controller;
   };
 };
