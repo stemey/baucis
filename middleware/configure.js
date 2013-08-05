@@ -31,6 +31,7 @@ var middleware = module.exports = {
       populate = JSON.parse(request.query.populate);
       if (!Array.isArray(populate)) populate = [ populate ];
       populate.forEach(function (field) {
+        // TODO make sure you can't populate deselected fields
         // Don't allow selecting +field from client
         if (field.select && field.select.indexOf('+') !== -1) {
           return next(new Error('Including fields excluded at schema level (using +) is not permitted'));
