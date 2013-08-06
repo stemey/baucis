@@ -66,12 +66,40 @@ describe('Queries', function () {
     });
   });
 
-  it('should disallow selecting deselected fields');
-  it('should disallow populating deselected fields');
+  it('should disallow selecting deselected fields', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables?select=boiler+lastModified',
+      json: true
+    };
+    request.get(options, function (err, response, body) {
+      if (err) return done(err);
+      expect(response).to.have.property('statusCode', 200);
+      console.log(body)
+      body.forEach(function (vegetable) {
+        expect(vegetable).to.not.have.property('boiler');
+      });
+      done();
+    });
+  });
+
+  it('should disallow populating deselected fields', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables?populate={ "path": "foo", "select": "boiler" }',
+      json: true
+    };
+    request.get(options, function (err, response, body) {
+      if (err) return done(err);
+      expect(response).to.have.property('statusCode', 200);
+      body.forEach(function (vegetable) {
+        expect(vegetable).to.not.have.property('boiler');
+      });
+      done();
+    });
+  });
 
   it('should disallow using +fields with populate', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables?populate={ "select": "%2Bfoo" }',
+      url: 'http://localhost:8012/api/v1/vegetables?populate={ "select": "%2Bboiler" }',
       json: true
     };
     request.get(options, function (err, response, body) {
@@ -83,7 +111,7 @@ describe('Queries', function () {
 
   it('should disallow using +fields with select', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables?select=%2Bfoo',
+      url: 'http://localhost:8012/api/v1/vegetables?select=%2Bboiler',
       json: true
     };
     request.get(options, function (err, response, body) {

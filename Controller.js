@@ -74,6 +74,22 @@ var Controller = module.exports = function (options) {
   controller.set('basePathWithId', basePathWithId);
   controller.set('basePathWithOptionalId', basePathWithOptionalId);
 
+  var deselected = [];
+  model.schema.eachPath(function (name, path) {
+    if (path.options.select === false) deselected.push(name);
+  });
+  if (controller.get('select')) {
+    controller.get('select').split(/\s+/).forEach(function (path) {
+      var match = /^(?:[-](\w+))$/.exec(path);
+      if (match) deselected.push(match[1]);
+    });
+  }
+  // Filter to unique paths
+  deselected = deselected.filter(function(path, position) {
+    return deselected.indexOf(path) === position;
+  });
+  controller.set('deselected paths', deselected)
+
   // __Initial Middleware__
 
   // Middleware for parsing JSON requests

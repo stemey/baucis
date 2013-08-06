@@ -68,7 +68,7 @@ describe('Middleware', function () {
     request.get(options, function (error, response, body) {
       if (error) return done(error);
       expect(response.statusCode).to.be(200);
-      expect(body).to.eql([ '{', '"', 'n', 'a', 'm', 'e' ]);
+      expect(body).to.eql([ '{', '"', 'r', 'e', 'l', 'a' ]);
       done();
     });
   });

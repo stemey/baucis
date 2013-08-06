@@ -16,10 +16,17 @@ var fixture = module.exports = {
     var Vegetable = new Schema({
       name: { type: String, required: true },
       lastModified: { type: Date, required: true, default: Date.now },
-      diseases: { type: [ String ], select: false }
+      diseases: { type: [ String ], select: false },
+      species: { type: String, default: 'n/a', select: false },
+      related: { type: Schema.ObjectId, ref: 'vegetable' }
     });
 
     fixture.preCount = 0;
+
+    Vegetable.pre('save', function (next) {
+      this.set('related', this._id);
+      next();
+    });
 
     Vegetable.pre('save', function (next) {
       this.set('lastModified', new Date());
