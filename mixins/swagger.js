@@ -92,7 +92,7 @@ var mixin = module.exports = function () {
   };
 
   // Generate parameter list for operations
-  this.generateParameters = function (plural) {
+  this.generateParameters = function (verb, plural) {
     var parameters = [];
 
     // Parameters available for singular routes
@@ -165,6 +165,29 @@ var mixin = module.exports = function () {
       allowMultiple: false
     });
 
+    if (verb === 'post') {
+      // TODO post body can be single or array
+      parameters.push({
+        paramType: 'body',
+        name: 'document',
+        description: 'Create a document by sending the paths to be updated in the request body.',
+        dataType: capitalize(this.get('singular')),
+        required: true,
+        allowMultiple: false
+      });
+    }
+
+    if (verb === 'put') {
+      parameters.push({
+        paramType: 'body',
+        name: 'document',
+        description: 'Update a document by sending the paths to be updated in the request body.',
+        dataType: capitalize(this.get('singular')),
+        required: true,
+        allowMultiple: false
+      });
+    }
+
     return parameters;
   };
 
@@ -221,7 +244,7 @@ var mixin = module.exports = function () {
       if (plural) operation.summary = capitalize(verb) + ' some ' + that.get('plural');
       else operation.summary = capitalize(verb) + ' a ' + that.get('singular') + ' by its unique ID';
 
-      operation.parameters = that.generateParameters(plural);
+      operation.parameters = that.generateParameters(verb, plural);
       operation.errorResponses = that.generateErrorResponses(plural);
 
       operations.push(operation);
