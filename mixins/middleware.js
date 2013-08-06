@@ -28,7 +28,16 @@ function factor (stage, options) {
 
   var factored = [];
 
-  if (options.verbs) options.verbs = options.verbs.toLowerCase();
+  if (options.verbs) {
+    options.verbs = options.verbs.toLowerCase();
+    options.verbs.split(/\s+/).forEach(function (verb) {
+      if (!/^head|get|put|post|del$/.exec(verb)) throw new Error('Unrecognized verb: ' + verb);
+    });
+  }
+
+  if (options.howMany && options.howMany !== 'instance' && options.howMany !== 'collection') {
+    throw new Error('Unrecognized howMany: ' + options.howMany);
+  }
 
   // Middleware function or array
   if (Array.isArray(options.middleware) || typeof options.middleware === 'function') {

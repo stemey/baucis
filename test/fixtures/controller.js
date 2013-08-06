@@ -27,8 +27,8 @@ var fixture = module.exports = {
       color: { type: String, required: true, select: false }
     });
 
-    if (!mongoose.models['store']) mongoose.model('store', Stores);
     if (!mongoose.models['tool']) mongoose.model('tool', Tools);
+    if (!mongoose.models['store']) mongoose.model('store', Stores);
     if (!mongoose.models['cheese']) mongoose.model('cheese', Cheese);
 
     subcontroller = baucis.rest({

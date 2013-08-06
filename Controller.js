@@ -53,9 +53,7 @@ var Controller = module.exports = function (options) {
   // may be called multiple times, but will trigger intialization only once.
   controller.initialize = function () {
     if (initialized) return controller;
-
     controller.activate();
-
     return controller;
   };
 

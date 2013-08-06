@@ -176,6 +176,30 @@ describe('Controllers', function () {
     done();
   });
 
+  it('should disallow unrecognized verbs', function (done) {
+    var controller = baucis.rest('store');
+    var register = function () { controller.request('get dude', function () {}) };
+    expect(register).to.throwException(/Unrecognized verb: dude/);
+    done();
+  });
+
+  it('should disallow unrecognized howManys', function (done) {
+    var controller = baucis.rest('store');
+    var register = function () { controller.request('gargoyle', 'get put', function () {}) };
+    expect(register).to.throwException(/Unrecognized howMany: gargoyle/);
+    done();
+  });
+
+  it('should allow specifying instance or collection middleware', function (done) {
+    var controller = baucis.rest('store');
+    var register = function () {
+      controller.request('collection', 'get put head del post', function () {});
+      controller.request('instance', 'get put head del post', function () {});
+    };
+    expect(register).to.not.throwException();
+    done();
+  });
+
   it('should allow registering query middleware for other verbs', function (done) {
     var controller = baucis.rest('store');
     var register = function () { controller.query('get put head del', function () {}) };
@@ -201,5 +225,7 @@ describe('Controllers', function () {
     expect(controller.get('deselected paths')).eql([ 'a', 'd' ]);
     done();
   });
+
+  it('should support')
 
 });
