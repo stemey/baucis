@@ -198,7 +198,6 @@ describe('Controllers', function () {
     var doozle = new mongoose.Schema({ a: { type: String, select: false }, b: String, c: String, d: String });
     mongoose.model('doozle', doozle);
     var controller = baucis.rest({ singular: 'doozle', select: '-d c -a b' });
-
     expect(controller.get('deselected paths')).eql([ 'a', 'd' ]);
     done();
   });

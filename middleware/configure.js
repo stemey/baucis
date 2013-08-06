@@ -1,3 +1,12 @@
+function isBadSelection (paths, select) {
+  var bad = false;
+  paths.forEach(function (path) {
+    var badPath = new RegExp('\\b[+]?' + path + '\\b', 'i');
+    if (badPath.exec(select)) bad = true;
+  });
+  return bad;
+}
+
 // __Module Definition__
 var middleware = module.exports = {
   // Set the conditions used for finding/removing documents
@@ -16,6 +25,7 @@ var middleware = module.exports = {
   // Apply various options based on request query parameters
   query: function (request, response, next) {
     var populate;
+    var error;
     var query = request.baucis.query;
 
     if (request.query.sort) query.sort(request.query.sort);
@@ -25,13 +35,16 @@ var middleware = module.exports = {
       if (request.query.select.indexOf('+') !== -1) {
         return next(new Error('Including excluded fields is not permitted.'));
       }
+      if (isBadSelection(request.app.get('deselected paths'), request.query.select)) {
+        return next(new Error('Including excluded fields is not permitted.'));
+      }
       query.select(request.query.select);
     }
     if (request.query.populate) {
       populate = JSON.parse(request.query.populate);
       if (!Array.isArray(populate)) populate = [ populate ];
       populate.forEach(function (field) {
-        if (request.app.get('deselected').contains(field.path || field)) { // TODO case
+        if (isBadSelection(request.app.get('deselected paths'), field.path || field)) {
           return next(new Error('Including excluded fields is not permitted.'));
         }
         // Don't allow selecting +field from client

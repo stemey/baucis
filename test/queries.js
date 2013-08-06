@@ -68,31 +68,37 @@ describe('Queries', function () {
 
   it('should disallow selecting deselected fields', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables?select=boiler+lastModified',
+      url: 'http://localhost:8012/api/v1/vegetables?select=species+lastModified',
       json: true
     };
     request.get(options, function (err, response, body) {
       if (err) return done(err);
-      expect(response).to.have.property('statusCode', 200);
       console.log(body)
-      body.forEach(function (vegetable) {
-        expect(vegetable).to.not.have.property('boiler');
-      });
+      expect(response).to.have.property('statusCode', 500);
       done();
     });
   });
 
-  it('should disallow populating deselected fields', function (done) {
+  it('should disallow populating deselected fields 1', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables?populate={ "path": "foo", "select": "boiler" }',
+      url: 'http://localhost:8012/api/v1/vegetables?populate=species',
       json: true
     };
     request.get(options, function (err, response, body) {
       if (err) return done(err);
-      expect(response).to.have.property('statusCode', 200);
-      body.forEach(function (vegetable) {
-        expect(vegetable).to.not.have.property('boiler');
-      });
+      expect(response).to.have.property('statusCode', 500);
+      done();
+    });
+  });
+
+  it('should disallow populating deselected fields 2', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables?populate={ "path": "species" }',
+      json: true
+    };
+    request.get(options, function (err, response, body) {
+      if (err) return done(err);
+      expect(response).to.have.property('statusCode', 500);
       done();
     });
   });
