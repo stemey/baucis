@@ -52,7 +52,27 @@ describe('Controllers', function () {
     var makeController = function () {
       baucis.rest({ singular: 'cheese', findBy: 'color' });
     };
-    expect(makeController).to.throwException();
+    expect(makeController).to.throwException(/findBy path for cheese not unique/);
+    done();
+  });
+
+  it('should allow adding a uniqe findBy field 1', function (done) {
+    var makeController = function () {
+      var rab = new mongoose.Schema({ 'arb': { type: String, unique: true } });
+      mongoose.model('rab', rab);
+      baucis.rest({ singular: 'rab', findBy: 'arb' });
+    };
+    expect(makeController).not.to.throwException();
+    done();
+  });
+
+  it('should allow adding a unique findBy field 2', function (done) {
+    var makeController = function () {
+      var barb = new mongoose.Schema({ 'arb': { type: String, index: { unique: true } } });
+      mongoose.model('barb', barb);
+      baucis.rest({ singular: 'barb', findBy: 'arb' });
+    };
+    expect(makeController).not.to.throwException();
     done();
   });
 

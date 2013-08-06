@@ -8,32 +8,35 @@ var mixins = require('./mixins');
 // __Module Definition__
 var Controller = module.exports = function (options) {
 
-  // __Defaults__
+  // __Private Instance Members & Validation__
 
   // Marshal string into a hash
   if (typeof options === 'string') options = { singular: options };
 
-  // __Validation__
   if (!options.singular) throw new Error('Must provide the Mongoose schema name');
-  if (options.basePath) {
-    if (options.basePath.indexOf('/') !== 0) throw new Error('basePath must start with a "/"');
-    if (options.basePath.lastIndexOf('/') === options.basePath.length - 1) throw new Error('basePath must not end with a "/"');
-  }
-  if (options.findBy && !mongoose.model(options.singular).schema.path(options.findBy).options.unique) {
-    throw new Error('findBy path for ' + options.singular + ' not unique');
-  }
-
-  // __Private Instance Variables__
 
   var controller = express();
   var initialized = false;
   var model = mongoose.model(options.singular);
+  var findByPath;
+
+  if (options.basePath && options.basePath !== '/') {
+    if (options.basePath.indexOf('/') !== 0) throw new Error('basePath must start with a "/"');
+    if (options.basePath.lastIndexOf('/') === options.basePath.length - 1) throw new Error('basePath must not end with a "/"');
+  }
+  if (options.findBy) {
+    findByPath = model.schema.path(options.findBy);
+    if (!findByPath.options.unique && !(findByPath.options.index && findByPath.options.index.unique)) {
+      throw new Error('findBy path for ' + options.singular + ' not unique');
+    }
+  }
+
   var basePath = options.basePath ? options.basePath : '/';
   var separator = (basePath === '/' ? '' : '/');
   var basePathWithId = basePath + separator + ':id';
   var basePathWithOptionalId = basePath + separator + ':id?';
 
-  // __Public Instance Methods__
+  // __Public Instance Members__
 
   // Mixins
   mixins.middleware.call(controller);
