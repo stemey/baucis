@@ -1,4 +1,4 @@
-baucis v0.6.4
+baucis v0.6.5
 =============
 
 Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.
@@ -24,6 +24,13 @@ Point it at your API.  Something like:
     http://localhost:8012/api/v1/api-docs
 
 Now you have documentation and a test client for free!
+
+Examples
+--------
+
+ * [Example REST API server built with Node and Baucis](//github.com/wprl/baucis-example)
+ * [Examples with Backbone](examples/Backbone.js)
+ * [Examples with jQuery](examples/jQuery.js)
 
 ![David Rjckaert III - Philemon and Baucis Giving Hospitality to Jupiter and Mercury](http://github.com/wprl/baucis/raw/master/david_rijckaert_iii-philemon_and_baucis.jpg "Hermes is like: 'Hey Baucis, don't kill that goose.  And thanks for the REST.'")
 
@@ -78,14 +85,6 @@ HTTP Headers
 | Location | Set to the URL of the created/edited entity for PUT and POST responses. |
 | Link | If `relations: true` is passed to `baucis.rest`, this header will be set with various related links for all responses.  As of v0.5.4, `first`, `last`, `next`, and `previous` links are added when paging through a collection with `limit`/`skip`. |
 
-
-Examples
---------
-
- * [Example REST API server built with Node and Baucis](//github.com/wprl/baucis-example)
- * [Examples with Backbone](examples/Backbone.js)
- * [Examples with jQuery](examples/jQuery.js)
-
 Query Options
 -------------
 
@@ -98,9 +97,11 @@ Query Options
 | sort | Sort response documents by the given criteria.  `sort: 'foo -bar'`' sorts the collection by `foo` in ascending order, then by `bar` in descending order. |
 | populate | Set which fields should be populated for response documents.  See the Mongoose [population documentation](http://mongoosejs.com/docs/populate.html) for more information. |
 
-It is not permitted to use the `select` query option or the `select` option of `populate` with a `+path`.  This is to allow a mechanism for hiding fields from client software.
+It is not permitted to use the `select` query option to select deselected paths.  This is to allow a mechanism for hiding fields from client software.
 
-You can deselect paths in the schema definition using `select: false` or in the controller options using `select: '-foo'` and your server middleware will able to select these fields as usual using `query.select`, while preventing the client from selecting the field.
+The `select` option of `populate` is disallowed.  Only paths deselected at the model level will be deselected in populate queries.
+
+You can deselect paths in the schema definition using `select: false` or in the controller options using `select: '-foo'` and your server middleware will be able to select these fields as usual using `query.select`, while preventing the client from selecting the field.
 
 `baucis.rest`
 -------------

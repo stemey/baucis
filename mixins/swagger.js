@@ -132,6 +132,24 @@ var mixin = module.exports = function () {
       allowMultiple: false
     });
 
+    parameters.push({
+      paramType: 'query',
+      name: 'conditions',
+      description: 'Set the conditions used to find or remove the document(s).',
+      dataType: 'string',
+      required: false,
+      allowMultiple: false
+    });
+
+    parameters.push({
+      paramType: 'query',
+      name: 'sort',
+      description: 'Set the fields by which to sort.',
+      dataType: 'string',
+      required: false,
+      allowMultiple: false
+    });
+
     return parameters;
   };
 
