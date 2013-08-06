@@ -170,7 +170,7 @@ var mixin = module.exports = function () {
 
     // Delete any query-stage POST middleware that was added implicitly.
     custom.query.instance.post = [];
-    custom.query.collection.post = [];
+    custom.query.collection.put = [];
 
     // Activate user middleware for the query-stage
     activate('query', custom['query']);
