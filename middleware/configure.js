@@ -41,16 +41,21 @@ var middleware = module.exports = {
       query.select(request.query.select);
     }
     if (request.query.populate) {
-      populate = JSON.parse(request.query.populate);
+      populate = request.query.populate;
+      if (populate.indexOf('{') !== -1) populate = JSON.parse(request.query.populate);
+      else if (populate.indexOf('[') !== -1) populate = JSON.parse(request.query.populate);
+
       if (!Array.isArray(populate)) populate = [ populate ];
+
       populate.forEach(function (field) {
         if (isBadSelection(request.app.get('deselected paths'), field.path || field)) {
           return next(new Error('Including excluded fields is not permitted.'));
         }
         // Don't allow selecting +field from client
-        if (field.select && field.select.indexOf('+') !== -1) {
-          return next(new Error('Including excluded fields is not permitted.'));
+        if (field.select) {
+          return next(new Error('May not set selected fields of populated document.'));
         }
+
         query.populate(field);
       });
     }

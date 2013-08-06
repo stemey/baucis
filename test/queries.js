@@ -73,8 +73,8 @@ describe('Queries', function () {
     };
     request.get(options, function (err, response, body) {
       if (err) return done(err);
-      console.log(body)
       expect(response).to.have.property('statusCode', 500);
+      expect(body).to.match(/Including excluded fields is not permitted[.]/i);
       done();
     });
   });
@@ -87,6 +87,7 @@ describe('Queries', function () {
     request.get(options, function (err, response, body) {
       if (err) return done(err);
       expect(response).to.have.property('statusCode', 500);
+      expect(body).to.match(/Including excluded fields is not permitted[.]/i);
       done();
     });
   });
@@ -99,6 +100,7 @@ describe('Queries', function () {
     request.get(options, function (err, response, body) {
       if (err) return done(err);
       expect(response).to.have.property('statusCode', 500);
+      expect(body).to.match(/Including excluded fields is not permitted[.]/i);
       done();
     });
   });
@@ -111,6 +113,7 @@ describe('Queries', function () {
     request.get(options, function (err, response, body) {
       if (err) return done(err);
       expect(response).to.have.property('statusCode', 500);
+      expect(body).to.match(/May not set selected fields of populated document[.]/i);
       done();
     });
   });
@@ -123,6 +126,20 @@ describe('Queries', function () {
     request.get(options, function (err, response, body) {
       if (err) return done(err);
       expect(response).to.have.property('statusCode', 500);
+      expect(body).to.match(/Including excluded fields is not permitted[.]/i);
+      done();
+    });
+  });
+
+  it('should disallow selecting fields when populating', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables?populate={ "path": "", "select": "arbitrary" }',
+      json: true
+    };
+    request.get(options, function (err, response, body) {
+      if (err) return done(err);
+      expect(response).to.have.property('statusCode', 500);
+      expect(body).to.match(/May not set selected fields of populated document[.]/i);
       done();
     });
   });
