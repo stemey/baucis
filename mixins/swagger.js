@@ -7,15 +7,19 @@ var mongoose = require('mongoose');
 
 // Convert a Mongoose type into a Swagger type
 function swaggerTypeFor (type) {
+  if (!type) return null;
   if (type === String) return 'string';
   if (type === Number) return 'double';
   if (type === Date) return 'Date';
-  if (type === mongoose.Schema.Types.Buffer) throw new Error('Not implemented');
   if (type === Boolean) return 'boolean';
-  if (type === mongoose.Schema.Types.Mixed) throw new Error('Not implemented');
   if (type === mongoose.Schema.Types.ObjectId) return 'string';
   if (type === mongoose.Schema.Types.Oid) return 'string';
   if (type === mongoose.Schema.Types.Array) return 'Array';
+  if (Array.isArray(type)) return 'Array';
+  if (type === Object) return null;
+  if (type instanceof Object) return null;
+  if (type === mongoose.Schema.Types.Mixed) return null;
+  if (type === mongoose.Schema.Types.Buffer) return null;
   throw new Error('Unrecognized type: ' + type);
 };
 
@@ -44,13 +48,24 @@ var mixin = module.exports = function () {
       var property = {};
       var path = schema.paths[name];
       var select = that.get('select');
+      var type = swaggerTypeFor(path.options.type);
 
       // Keep deselected paths private
       if (path.selected === false) return;
       if (select && select.match('-' + name)) return;
 
-      property.type = swaggerTypeFor(path.options.type);
+      if (!type) {
+        console.log('Warning: That field type is not yet supported in baucis Swagger definitions, using "string."');
+        console.log('Path name: %s.%s', definition.id, name);
+        console.log('Mongoose type: %s', path.options.type);
+        property.type = 'string';
+      }
+      else {
+        property.type = swaggerTypeFor(path.options.type);
+      }
+
       property.required = path.options.required || (name === '_id');
+
 
       // Set enum values if applicable
       if (path.enumValues && path.enumValues.length > 0) {
