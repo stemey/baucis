@@ -66,6 +66,9 @@ describe('Queries', function () {
     });
   });
 
+  it('should disallow selecting deselected fields');
+  it('should disallow populating deselected fields');
+
   it('should disallow using +fields with populate', function (done) {
     var options = {
       url: 'http://localhost:8012/api/v1/vegetables?populate={ "select": "%2Bfoo" }',

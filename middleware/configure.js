@@ -23,7 +23,7 @@ var middleware = module.exports = {
     if (request.query.limit) query.limit(request.query.limit);
     if (request.query.select) {
       if (request.query.select.indexOf('+') !== -1) {
-        return next(new Error('Including fields excluded at schema level (using +) is not permitted'));
+        return next(new Error('Including excluded fields is not permitted.'));
       }
       query.select(request.query.select);
     }
@@ -31,10 +31,12 @@ var middleware = module.exports = {
       populate = JSON.parse(request.query.populate);
       if (!Array.isArray(populate)) populate = [ populate ];
       populate.forEach(function (field) {
-        // TODO make sure you can't populate deselected fields
+        if (request.app.get('deselected').contains(field.path || field)) { // TODO case
+          return next(new Error('Including excluded fields is not permitted.'));
+        }
         // Don't allow selecting +field from client
         if (field.select && field.select.indexOf('+') !== -1) {
-          return next(new Error('Including fields excluded at schema level (using +) is not permitted'));
+          return next(new Error('Including excluded fields is not permitted.'));
         }
         query.populate(field);
       });
