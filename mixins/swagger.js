@@ -254,12 +254,12 @@ var mixin = module.exports = function () {
   };
 
   // A method used to generate a Swagger API definition for a controller
-  this.generateApiDefinition = function () {
+  this.generateApiDefinition = function (options) {
     var modelName = capitalize(this.get('singular'));
     var definition = {
-      apiVersion: '0.0.1', // TODO
+      apiVersion: options.version,
       swaggerVersion: '1.1',
-      basePath: 'http://127.0.0.1:8012/api/v1', // TODO
+      basePath: options.basePath,
       resourcePath: '/' + this.get('plural'),
       apis: [],
       models: {}
