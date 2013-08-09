@@ -22,7 +22,7 @@ function last (skip, names, values) {
   return r;
 }
 
-// Parse middleware
+// Parse middleware into an array of middleware definitions for each howMany and verb
 function factor (stage, options) {
   if (!stage) throw new Error('Must supply stage.');
 
