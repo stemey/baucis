@@ -7,6 +7,14 @@ var Controller = require('./Controller');
 // __Private Module Members__
 var controllers = [];
 
+// Figure out the basePath for Swagger API definition
+function getBase (request, extra) {
+  var url = request.originalUrl;
+  var split = url.split('/');
+  while (extra) extra--, split.pop();
+  return request.protocol + '://' + request.headers.host + split.join('/');
+}
+
 // A method for generating a Swagger resource listing
 function generateResourceListing (options) {
   var plurals = this.get('controllers').map(function (controller) {
@@ -22,15 +30,6 @@ function generateResourceListing (options) {
   };
 
   return listing;
-}
-
-function getBase (request, extra) {
-  console.log(request);
-  var url = request.originalUrl;
-  var split = url.split('/');
-  while (extra) extra--, split.pop();
-  console.log(split);
-  return request.protocol + '://' + request.headers.host + split.join('/');
 }
 
 // __Module Definition__

@@ -24,7 +24,7 @@ describe('Swagger Resource Listing', function () {
 
   it('should generate the correct listing', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/api-docs',
+      url: 'http://127.0.0.1:8012/api/v1/api-docs',
       json: true
     };
     request.get(options, function (err, response, body) {
@@ -48,7 +48,7 @@ describe('Swagger Resource Listing', function () {
 
   it('should generate the correct API definition', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/api-docs/vegetables',
+      url: 'http://127.0.0.1:8012/api/v1/api-docs/vegetables',
       json: true
     };
     request.get(options, function (err, response, body) {
@@ -94,6 +94,9 @@ describe('Swagger Resource Listing', function () {
     });
   });
 
+
+  it('should generate models correctly');
+  it('should generate documentation for each controller');
   it('should keep paths deselected in the schema private');
   it('should keep paths deselected in the controller private');
 });
