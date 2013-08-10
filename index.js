@@ -7,35 +7,15 @@ var Controller = require('./Controller');
 // __Private Module Members__
 var controllers = [];
 
-function swaggerTypeFor (type) {
-  if (type === String) return 'string';
-  if (type === Number) return 'double';
-  if (type === Date) return 'Date';
-  if (type === mongoose.Schema.Types.Buffer) throw new Error('Not implemented');
-  if (type === Boolean) return 'boolean';
-  if (type === mongoose.Schema.Types.Mixed) throw new Error('Not implemented');
-  if (type === mongoose.Schema.Types.ObjectId) return 'string';
-  if (type === mongoose.Schema.Types.Oid) return 'string';
-  if (type === mongoose.Schema.Types.Array) return 'Array';
-  throw new Error('Unrecognized type:' + type);
-};
-
-// A method for capitalizing the first letter of a string
-function capitalize (s) {
-  if (!s) return s;
-  if (s.length === 1) return s.toUpperCase();
-  return s[0].toUpperCase() + s.substring(1);
-}
-
 // A method for generating a Swagger resource listing
-function generateResourceListing () {
+function generateResourceListing (options) {
   var plurals = this.get('controllers').map(function (controller) {
     return controller.get('plural');
   });
   var listing = {
-    apiVersion: '0.0.1', // TODO
+    apiVersion: options.version,
     swaggerVersion: '1.1',
-    basePath: 'http://127.0.0.1:8012/api/v1', // TODO
+    basePath: options.basePath,
     apis: plurals.map(function (plural) {
       return { path: '/api-docs/' + plural, description: 'Operations about ' + plural + '.' };
     })
@@ -44,9 +24,19 @@ function generateResourceListing () {
   return listing;
 }
 
+function getBase (request, extra) {
+  console.log(request);
+  var url = request.originalUrl;
+  var split = url.split('/');
+  while (extra) extra--, split.pop();
+  console.log(split);
+  return request.protocol + '://' + request.headers.host + split.join('/');
+}
+
 // __Module Definition__
 var baucis = module.exports = function (options) {
   options || (options = {});
+  options.version = options.version || '0.0.1';
 
   var app = express();
 
@@ -62,7 +52,7 @@ var baucis = module.exports = function (options) {
   // Activate Swagger resource listing if the option is enabled
   if (app.get('swagger') === true) {
     app.get('/api-docs', function (request, response, next) {
-      response.json(app.generateResourceListing());
+      response.json(app.generateResourceListing({ version: options.version, basePath: getBase(request, 1) }));
     });
   }
 
@@ -73,7 +63,7 @@ var baucis = module.exports = function (options) {
     // Add a route for the controller's Swagger API definition
     if (app.get('swagger')) {
       app.get('/api-docs' + route, function (request, response, next) {
-        response.json(controller.generateApiDefinition());
+        response.json(controller.generateApiDefinition({ version: options.version, basePath: getBase(request, 2) }));
       });
     }
 
