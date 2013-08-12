@@ -16,7 +16,6 @@ var Controller = module.exports = function (options) {
   if (!options.singular) throw new Error('Must provide the Mongoose schema name');
 
   var controller = express();
-  var initialized = false;
   var model = mongoose.model(options.singular);
   var findByPath;
 
@@ -39,22 +38,14 @@ var Controller = module.exports = function (options) {
   // __Public Instance Members__
 
   // Mixins
-  mixins.middleware.call(controller);
-  mixins.swagger.call(controller);
+  mixins.middleware.apply(controller);
+  mixins.swagger.apply(controller);
 
   // Return the array of active verbs
   controller.activeVerbs = function () {
     return [ 'head', 'get', 'post', 'put', 'del' ].filter(function (verb) {
       return controller.get(verb) !== false;
     });
-  }
-
-  // A method used to intialize the controller and activate user middleware.  It
-  // may be called multiple times, but will trigger intialization only once.
-  controller.initialize = function () {
-    if (initialized) return controller;
-    controller.activate();
-    return controller;
   };
 
   // __Configuration__

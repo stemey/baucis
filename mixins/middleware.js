@@ -71,7 +71,7 @@ var mixin = module.exports = function () {
 
   var controller = this;
   // Flags whether the custom middleware has been activated
-  var activated = false;
+  var initialized = false;
   // A hash for storing user middleware
   var custom = {
     "request":
@@ -90,7 +90,7 @@ var mixin = module.exports = function () {
 
   // A method used to register user middleware to be activated during intialization.
   function register (stage, howMany, verbs, middleware) {
-    if (activated) {
+    if (initialized) {
       throw new Error("Can't add middleware after the controller has been activated.");
     }
 
@@ -113,7 +113,7 @@ var mixin = module.exports = function () {
 
   // A method used to activate user middleware that was previously registered.
   function activate (stage, howMany, verbs, middleware) {
-    if (activated) throw new Error("Can't activate middleware after the controller has been activated.");
+    if (initialized) throw new Error("Can't activate middleware after the controller has been activated.");
 
     var options = last(1, ['howMany', 'verbs', 'middleware'], arguments);
 
@@ -156,8 +156,8 @@ var mixin = module.exports = function () {
 
   // A method used to intialize the controller and activate user middleware.  It
   // may be called multiple times, but will trigger intialization only once.
-  controller.activate = function () {
-    if (activated) return controller;
+  controller.initialize = function () {
+    if (initialized) return controller;
 
     // __Request-Stage Middleware__
 
@@ -213,7 +213,7 @@ var mixin = module.exports = function () {
     activate('documents', middleware.documents.send);
 
     delete custom;
-    activated = true;
+    initialized = true;
     return controller;
   };
 };
