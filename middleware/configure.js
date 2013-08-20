@@ -1,3 +1,4 @@
+// __Private Module Members__
 function isBadSelection (paths, select) {
   var bad = false;
   paths.forEach(function (path) {
@@ -14,6 +15,13 @@ var middleware = module.exports = {
     if (!request.query.conditions) return next();
 
     request.baucis.conditions = JSON.parse(request.query.conditions);
+    next();
+  },
+  // Specify that a count, rather than documents, should be returned
+  count: function (request, response, next) {
+    if (!request.query.count) return next();
+
+    request.baucis.count = true;
     next();
   },
   // Apply various options based on controller parameters

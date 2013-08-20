@@ -19,8 +19,8 @@ describe('Queries', function () {
       url: 'http://localhost:8012/api/v1/vegetables?skip=1',
       json: true
     };
-    request.get(options, function (err, response, body) {
-      if (err) return done(err);
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
       expect(response).to.have.property('statusCode', 200);
       expect(body).to.have.property('length', vegetables.length - 1);
       done();
@@ -32,8 +32,8 @@ describe('Queries', function () {
       url: 'http://localhost:8012/api/v1/vegetables?skip=2',
       json: true
     };
-    request.get(options, function (err, response, body) {
-      if (err) return done(err);
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
       expect(response).to.have.property('statusCode', 200);
       expect(body).to.have.property('length', vegetables.length - 2);
       done();
@@ -45,8 +45,8 @@ describe('Queries', function () {
       url: 'http://localhost:8012/api/v1/vegetables?limit=1',
       json: true
     };
-    request.get(options, function (err, response, body) {
-      if (err) return done(err);
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
       expect(response).to.have.property('statusCode', 200);
       expect(body).to.have.property('length', 1);
       done();
@@ -58,8 +58,8 @@ describe('Queries', function () {
       url: 'http://localhost:8012/api/v1/vegetables?limit=2',
       json: true
     };
-    request.get(options, function (err, response, body) {
-      if (err) return done(err);
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
       expect(response).to.have.property('statusCode', 200);
       expect(body).to.have.property('length', 2);
       done();
@@ -71,8 +71,8 @@ describe('Queries', function () {
       url: 'http://localhost:8012/api/v1/vegetables?select=species+lastModified',
       json: true
     };
-    request.get(options, function (err, response, body) {
-      if (err) return done(err);
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
       expect(response).to.have.property('statusCode', 500);
       expect(body).to.match(/Including excluded fields is not permitted[.]/i);
       done();
@@ -84,8 +84,8 @@ describe('Queries', function () {
       url: 'http://localhost:8012/api/v1/vegetables?populate=species',
       json: true
     };
-    request.get(options, function (err, response, body) {
-      if (err) return done(err);
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
       expect(response).to.have.property('statusCode', 500);
       expect(body).to.match(/Including excluded fields is not permitted[.]/i);
       done();
@@ -97,8 +97,8 @@ describe('Queries', function () {
       url: 'http://localhost:8012/api/v1/vegetables?populate={ "path": "species" }',
       json: true
     };
-    request.get(options, function (err, response, body) {
-      if (err) return done(err);
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
       expect(response).to.have.property('statusCode', 500);
       expect(body).to.match(/Including excluded fields is not permitted[.]/i);
       done();
@@ -110,8 +110,8 @@ describe('Queries', function () {
       url: 'http://localhost:8012/api/v1/vegetables?populate={ "select": "%2Bboiler" }',
       json: true
     };
-    request.get(options, function (err, response, body) {
-      if (err) return done(err);
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
       expect(response).to.have.property('statusCode', 500);
       expect(body).to.match(/May not set selected fields of populated document[.]/i);
       done();
@@ -123,8 +123,8 @@ describe('Queries', function () {
       url: 'http://localhost:8012/api/v1/vegetables?select=%2Bboiler',
       json: true
     };
-    request.get(options, function (err, response, body) {
-      if (err) return done(err);
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
       expect(response).to.have.property('statusCode', 500);
       expect(body).to.match(/Including excluded fields is not permitted[.]/i);
       done();
@@ -136,8 +136,8 @@ describe('Queries', function () {
       url: 'http://localhost:8012/api/v1/vegetables?populate={ "path": "", "select": "arbitrary" }',
       json: true
     };
-    request.get(options, function (err, response, body) {
-      if (err) return done(err);
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
       expect(response).to.have.property('statusCode', 500);
       expect(body).to.match(/May not set selected fields of populated document[.]/i);
       done();
@@ -149,8 +149,8 @@ describe('Queries', function () {
       url: 'http://localhost:8012/api/v1/vegetables?select=-_id lastModified',
       json: true
     };
-    request.get(options, function (err, response, body) {
-      if (err) return done(err);
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
       expect(response).to.have.property('statusCode', 200);
       expect(body[0]).to.have.property('lastModified');
       expect(body[0]).not.to.have.property('_id');
@@ -164,8 +164,8 @@ describe('Queries', function () {
       url: 'http://localhost:8012/api/v1/vegetables?limit=2&sort=name',
       json: true
     };
-    request.get(options, function (err, response, body) {
-      if (err) return done(err);
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
       expect(response).to.have.property('statusCode', 200);
       expect(response.headers).to.have.property('link');
       done();
@@ -177,8 +177,8 @@ describe('Queries', function () {
       url: 'http://localhost:8012/api/v1/vegetables?sort=name',
       json: true
     };
-    request.get(options, function (err, response, body) {
-      if (err) return done(err);
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
       expect(response).to.have.property('statusCode', 200);
       expect(response.headers.link).to.not.contain('rel="first"');
       expect(response.headers.link).to.not.contain('rel="last"');
@@ -193,8 +193,8 @@ describe('Queries', function () {
       url: 'http://localhost:8012/api/v1/vegetables?limit=2&sort=name',
       json: true
     };
-    request.get(options, function (err, response, body) {
-      if (err) return done(err);
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
       expect(response).to.have.property('statusCode', 200);
       expect(response.headers).to.have.property('link');
       expect(response.headers.link).to.contain('rel="next"');
@@ -207,8 +207,8 @@ describe('Queries', function () {
       url: 'http://localhost:8012/api/v1/vegetables?limit=2&sort=name&skip=2',
       json: true
     };
-    request.get(options, function (err, response, body) {
-      if (err) return done(err);
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
       expect(response).to.have.property('statusCode', 200);
       expect(response.headers).to.have.property('link');
       expect(response.headers.link).to.contain('rel="previous"');
@@ -221,8 +221,8 @@ describe('Queries', function () {
       url: 'http://localhost:8012/api/v1/vegetables?limit=2&sort=name',
       json: true
     };
-    request.get(options, function (err, response, body) {
-      if (err) return done(err);
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
       expect(response).to.have.property('statusCode', 200);
       expect(response.headers).to.have.property('link');
       expect(response.headers.link).not.to.contain('rel="previous"');
@@ -235,8 +235,8 @@ describe('Queries', function () {
       url: 'http://localhost:8012/api/v1/vegetables?limit=2&sort=name&skip=6',
       json: true
     };
-    request.get(options, function (err, response, body) {
-      if (err) return done(err);
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
       expect(response).to.have.property('statusCode', 200);
       expect(response.headers).to.have.property('link');
       expect(response.headers.link).not.to.contain('rel="next"');
@@ -250,8 +250,8 @@ describe('Queries', function () {
       url: 'http://localhost:8012/api/v1/vegetables?limit=2&sort=name&skip=0&conditions=' + conditions,
       json: true
     };
-    request.get(options, function (err, response, body) {
-      if (err) return done(err);
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
       expect(response).to.have.property('statusCode', 200);
       expect(response.headers).to.have.property('link');
       expect(response.headers.link).to.contain('rel="next"');
@@ -266,8 +266,8 @@ describe('Queries', function () {
       url: 'http://localhost:8012/api/v1/vegetables?limit=2&sort=name&skip=0',
       json: true
     };
-    request.get(options, function (err, response, body) {
-      if (err) return done(err);
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
       expect(response).to.have.property('statusCode', 200);
       expect(body[0]).to.have.property('name');
       expect(body[0].name).to.equal('Carrot');
@@ -278,7 +278,7 @@ describe('Queries', function () {
         url: 'http://localhost:8012' + links.next,
         json: true
       };
-      request.get(options, function (err, response, body) {
+      request.get(options, function (error, response, body) {
         expect(response).to.have.property('statusCode', 200);
         expect(body[0]).to.have.property('name');
         expect(body[0].name).to.equal('Pea');
@@ -292,8 +292,8 @@ describe('Queries', function () {
       url: 'http://localhost:8012/api/v1/vegetables?limit=2&sort=name&skip=2',
       json: true
     };
-    request.get(options, function (err, response, body) {
-      if (err) return done(err);
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
       expect(response).to.have.property('statusCode', 200);
       expect(body[0]).to.have.property('name');
       expect(body[0].name).to.equal('Pea');
@@ -304,7 +304,7 @@ describe('Queries', function () {
         url: 'http://localhost:8012' + links.previous,
         json: true
       };
-      request.get(options, function (err, response, body) {
+      request.get(options, function (error, response, body) {
         expect(response).to.have.property('statusCode', 200);
         expect(body[0]).to.have.property('name');
         expect(body[0].name).to.equal('Carrot');
@@ -318,8 +318,8 @@ describe('Queries', function () {
       url: 'http://localhost:8012/api/v1/vegetables?limit=2&sort=name&skip=6',
       json: true
     };
-    request.get(options, function (err, response, body) {
-      if (err) return done(err);
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
       expect(response).to.have.property('statusCode', 200);
       expect(body[0]).to.have.property('name');
       expect(body[0].name).to.equal('Turnip');
@@ -330,7 +330,7 @@ describe('Queries', function () {
         url: 'http://localhost:8012' + links.first,
         json: true
       };
-      request.get(options, function (err, response, body) {
+      request.get(options, function (error, response, body) {
         expect(response).to.have.property('statusCode', 200);
         expect(body[0]).to.have.property('name');
         expect(body[0].name).to.equal('Carrot');
@@ -344,8 +344,8 @@ describe('Queries', function () {
       url: 'http://localhost:8012/api/v1/vegetables?limit=2&sort=name&skip=0',
       json: true
     };
-    request.get(options, function (err, response, body) {
-      if (err) return done(err);
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
       expect(response).to.have.property('statusCode', 200);
       expect(body[0]).to.have.property('name');
       expect(body[0].name).to.equal('Carrot');
@@ -356,12 +356,25 @@ describe('Queries', function () {
         url: 'http://localhost:8012' + links.last,
         json: true
       };
-      request.get(options, function (err, response, body) {
+      request.get(options, function (error, response, body) {
         expect(response).to.have.property('statusCode', 200);
         expect(body[0]).to.have.property('name');
         expect(body[0].name).to.equal('Turnip');
         done();
-      })
+      });
+    });
+  });
+
+  it('should allow retrieving count instead of documents', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables?count=true',
+      json: true
+    };
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response).to.have.property('statusCode', 200);
+      expect(body).to.be(8);
+      done();
     });
   });
 });

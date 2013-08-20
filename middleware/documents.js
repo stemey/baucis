@@ -49,7 +49,7 @@ var middleware = module.exports = {
 
     // If count mode is set, send the length, or send 1 for single document
     if (request.baucis.count) {
-      if (Array.isArray(documents)) response.send(documents.length);
+      if (Array.isArray(documents)) response.json(documents.length);
       else response.json(1);
       return;
     }

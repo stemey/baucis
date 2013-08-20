@@ -1,4 +1,4 @@
-baucis v0.6.10
+baucis v0.6.11
 ==============
 
 Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.
@@ -96,6 +96,7 @@ Query Options
 | select | Set which fields should be selected for response documents |
 | sort | Sort response documents by the given criteria.  `sort: 'foo -bar'`' sorts the collection by `foo` in ascending order, then by `bar` in descending order. |
 | populate | Set which fields should be populated for response documents.  See the Mongoose [population documentation](http://mongoosejs.com/docs/populate.html) for more information. |
+| count | May be set to true for GET requests to specify that a count should be return instead of documents |
 
 It is not permitted to use the `select` query option to select deselected paths.  This is to allow a mechanism for hiding fields from client software.
 

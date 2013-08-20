@@ -131,6 +131,15 @@ var mixin = module.exports = function () {
     // Parameters available for singular and plural routes
     parameters.push({
       paramType: 'query',
+      name: 'count',
+      description: 'Set to true to return count instead of documents.',
+      dataType: 'boolean',
+      required: false,
+      allowMultiple: false
+    });
+
+    parameters.push({
+      paramType: 'query',
       name: 'select',
       description: 'Select which paths will be returned by the query.',
       dataType: 'string',
