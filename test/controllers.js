@@ -226,6 +226,54 @@ describe('Controllers', function () {
     done();
   });
 
-  it('should support')
+
+  it('should disallow push mode by default', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/stores/Westlake',
+      headers: { 'X-Baucis-Push': true },
+      json: true,
+      body: { molds: 'penicillium roqueforti' }
+    };
+    request.put(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response).to.have.property('statusCode', 500);
+      done();
+    });
+  });
+
+  it('should disallow pushing to non-whitelisted paths', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/cheeses/Huntsman',
+      headers: { 'X-Baucis-Push': true },
+      json: true,
+      body: { arbitrary: 'bubble bobble' }
+    };
+    request.put(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response).to.have.property('statusCode', 500);
+
+      done();
+    });
+  });
+
+  it("should allow pushing to an instance document's whitelisted arrays when push mode is enabled", function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/cheeses/Huntsman',
+      headers: { 'X-Baucis-Push': true },
+      json: true,
+      body: { molds: 'penicillium roqueforti' }
+    };
+    request.put(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response).to.have.property('statusCode', 201);
+
+      expect(body).to.have.property('molds');
+      expect(body.molds).to.have.property('length', 1);
+      expect(body.molds).to.eql([ 'penicillium roqueforti' ]);
+
+      done();
+    });
+  });
+
 
 });

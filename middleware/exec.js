@@ -33,24 +33,37 @@ var middleware = module.exports = {
     }
   },
   update: function (request, response, next) {
-    request.baucis.query.exec(function (error, doc) {
-      // TODO handle array
-
+    var pushMode = request.headers['x-baucis-push'] ? true : false;
+    var update = extend(request.body);
+    var done = function (error, saved) {
       if (error) return next(error);
-      if (!doc) return next(new Error('No document with that ID was found'));
+      request.baucis.documents = saved;
+      next();
+    };
+
+    if (pushMode && !request.app.get('allow push')) return next(new Error('Push mode is not enabled.'));
+    if (pushMode && request.app.checkBadPushPaths(Object.keys(update))) {
+      return next(new Error("Can't push to non-whitelisted paths"));
+    }
+
+    request.baucis.query.exec(function (error, doc) {
+      if (error) return next(error);
+      if (!doc) return response.send(404);
+
+      console.log(doc)
+      console.log(update)
+
+      if (pushMode) {
+	response.status(201);
+	request.app.get('model').findOneAndUpdate(request.app.getFindByCondition(request), { $push: update }, done);
+	return;
+      }
 
       // Can't send id for update, even if unchanged
-      var update = extend(request.body);
       delete update._id;
 
       doc.set(update);
-
-      doc.save(function (error, savedDoc) {
-        if (error) return next(error);
-
-        request.baucis.documents = savedDoc;
-        next();
-      });
+      doc.save(done);
     });
   },
   // Create new document(s) and send them back in the response

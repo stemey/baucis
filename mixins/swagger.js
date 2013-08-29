@@ -105,6 +105,15 @@ var mixin = module.exports = function () {
         required: true,
         allowMultiple: false
       });
+
+      parameters.push({
+        paramType: 'header',
+        name: 'X-Baucis-Push',
+        description: 'May be used with PUT to update the document using $push rather than $set',
+        dataType: 'boolean',
+        required: false,
+        allowMultiple: false
+      });
     }
 
     // Parameters available for plural routes

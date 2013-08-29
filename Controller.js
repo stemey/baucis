@@ -48,6 +48,35 @@ var Controller = module.exports = function (options) {
     });
   };
 
+  controller.checkBadSelection = function (select) {
+    var bad = false;
+    controller.get('deselected paths').forEach(function (path) {
+      var badPath = new RegExp('\\b[+]?' + path + '\\b', 'i');
+      if (badPath.exec(select)) bad = true;
+    });
+    return bad;
+  };
+
+  controller.checkBadPushPaths = function (paths) {
+    var bad = false;
+    var whitelisted = controller.get('allow push').split(/\s+/);
+
+    paths.forEach(function (path) {
+      if (whitelisted.indexOf(path) !== -1) return;
+      bad = true;
+    });
+
+    return bad;
+  };
+
+  controller.getFindByCondition = function (request) {
+    var condition = {};
+    condition[request.app.get('findBy')] = request.params.id;
+    return condition;
+  };
+
+  // __Module Definition__
+
   // __Configuration__
 
   Object.keys(options).forEach(function (key) {
@@ -58,6 +87,7 @@ var Controller = module.exports = function (options) {
   controller.set('schema', model.schema);
   controller.set('plural', options.plural || lingo.en.pluralize(options.singular));
   controller.set('findBy', options.findBy || '_id');
+  controller.set('allow push', options['allow push'] || false);
 
   controller.set('basePath', basePath);
   controller.set('basePathWithId', basePathWithId);

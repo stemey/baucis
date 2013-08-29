@@ -1,13 +1,3 @@
-// __Private Module Members__
-function isBadSelection (paths, select) {
-  var bad = false;
-  paths.forEach(function (path) {
-    var badPath = new RegExp('\\b[+]?' + path + '\\b', 'i');
-    if (badPath.exec(select)) bad = true;
-  });
-  return bad;
-}
-
 // __Module Definition__
 var middleware = module.exports = {
   // Set the conditions used for finding/removing documents
@@ -43,7 +33,7 @@ var middleware = module.exports = {
       if (request.query.select.indexOf('+') !== -1) {
         return next(new Error('Including excluded fields is not permitted.'));
       }
-      if (isBadSelection(request.app.get('deselected paths'), request.query.select)) {
+      if (request.app.checkBadSelection(request.query.select)) {
         return next(new Error('Including excluded fields is not permitted.'));
       }
       query.select(request.query.select);
@@ -56,10 +46,10 @@ var middleware = module.exports = {
       if (!Array.isArray(populate)) populate = [ populate ];
 
       populate.forEach(function (field) {
-        if (isBadSelection(request.app.get('deselected paths'), field.path || field)) {
+        if (request.app.checkBadSelection(field.path || field)) {
           return next(new Error('Including excluded fields is not permitted.'));
         }
-        // Don't allow selecting +field from client
+        // Don't allow selecting fields from client when populating
         if (field.select) {
           return next(new Error('May not set selected fields of populated document.'));
         }

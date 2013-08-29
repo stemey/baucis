@@ -1,10 +1,3 @@
-// __Private Members__
-function getFindCondition (request) {
-  var conditions = {};
-  conditions[request.app.get('findBy')] = request.params.id;
-  return conditions;
-}
-
 // __Module Definition__
 var middleware = module.exports = {
   instance: {
@@ -12,13 +5,13 @@ var middleware = module.exports = {
     head: function (request, response, next) {
       var Model = request.app.get('model');
       request.baucis.noBody = true;
-      request.baucis.query = Model.findOne(getFindCondition(request));
+      request.baucis.query = Model.findOne(request.app.getFindByCondition(request));
       next();
     },
     // Retrieve the addressed document
     get: function (request, response, next) {
       var Model = request.app.get('model');
-      request.baucis.query = Model.findOne(getFindCondition(request));
+      request.baucis.query = Model.findOne(request.app.getFindByCondition(request));
       next();
     },
     // Treat the addressed document as a collection, and push
@@ -34,13 +27,13 @@ var middleware = module.exports = {
       if (bodyId && request.params.id !== bodyId) return next(new Error('ID mismatch'));
 
       request.baucis.updateWithBody = true;
-      request.baucis.query = Model.findOne(getFindCondition(request));
+      request.baucis.query = Model.findOne(request.app.getFindByCondition(request));
       next();
     },
     // Delete the addressed object
     del: function (request, response, next) {
       var Model = request.app.get('model');
-      request.baucis.query = Model.remove(getFindCondition(request));
+      request.baucis.query = Model.remove(request.app.getFindByCondition(request));
       next();
     }
   },

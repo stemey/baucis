@@ -15,7 +15,7 @@ var fixture = module.exports = {
     mongoose.connect('mongodb://localhost/xXxBaUcIsTeStXxX');
 
     var Stores = new Schema({
-      name: { type: String, required: true }
+      name: { type: String, required: true, unique: true }
     });
 
     var Tools = new Schema({
@@ -24,7 +24,8 @@ var fixture = module.exports = {
 
     var Cheese = new Schema({
       name: { type: String, required: true, unique: true },
-      color: { type: String, required: true, select: false }
+      color: { type: String, required: true, select: false },
+      molds: [ String ]
     });
 
     if (!mongoose.models['tool']) mongoose.model('tool', Tools);
@@ -39,7 +40,7 @@ var fixture = module.exports = {
 
     subcontroller.initialize();
 
-    controller = baucis.rest('store');
+    controller = baucis.rest({ singular: 'store', findBy: 'name' });
 
     controller.use('/binfo', function (request, response, next) {
       response.json('Poncho!');
@@ -63,8 +64,9 @@ var fixture = module.exports = {
     cheesy = baucis.rest({
       singular: 'cheese',
       select: '-_id +color name',
-      findBy: 'name'
-    })
+      findBy: 'name',
+      'allow push': 'molds'
+    });
 
     app = express();
     app.use('/api/v1', baucis());
@@ -96,7 +98,7 @@ var fixture = module.exports = {
 
               var cheeses = [
                 { name: 'Cheddar', color: 'Yellow' },
-                { name: 'Hunstman', color: 'Yellow, Blue, White' },
+                { name: 'Huntsman', color: 'Yellow, Blue, White' },
                 { name: 'Camembert', color: 'White' }
               ];
 

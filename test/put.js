@@ -63,7 +63,7 @@ describe('PUT singular', function () {
       };
       request.put(options, function (err, response, body) {
         if (err) return done(err);
-        expect(response).to.have.property('statusCode', 500);
+        expect(response).to.have.property('statusCode', 404);
 
         // Make sure it wasn't created
         var options = {
