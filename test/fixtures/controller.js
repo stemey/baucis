@@ -25,7 +25,11 @@ var fixture = module.exports = {
     var Cheese = new Schema({
       name: { type: String, required: true, unique: true },
       color: { type: String, required: true, select: false },
-      molds: [ String ]
+      molds: [ String ],
+      arbitrary: [{
+        goat: Boolean,
+        llama: [ Number ]
+      }]
     });
 
     if (!mongoose.models['tool']) mongoose.model('tool', Tools);
@@ -65,7 +69,7 @@ var fixture = module.exports = {
       singular: 'cheese',
       select: '-_id +color name',
       findBy: 'name',
-      'allow push': 'molds'
+      'allow push': 'molds arbitrary arbitrary.$.llama'
     });
 
     app = express();
@@ -99,7 +103,12 @@ var fixture = module.exports = {
               var cheeses = [
                 { name: 'Cheddar', color: 'Yellow' },
                 { name: 'Huntsman', color: 'Yellow, Blue, White' },
-                { name: 'Camembert', color: 'White' }
+                { name: 'Camembert', color: 'White',
+                  arbitrary: [
+                    { goat: true, llama: [ 3, 4 ] },
+                    { goat: false, llama: [ 1, 2 ] }
+                  ]
+                }
               ];
 
               mongoose.model('cheese').create(cheeses, function (error) {

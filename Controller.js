@@ -5,6 +5,9 @@ var mongoose = require('mongoose');
 var lingo = require('lingo');
 var mixins = require('./mixins');
 
+// __Private Module Members__
+var extend = util._extend;
+
 // __Module Definition__
 var Controller = module.exports = function (options) {
 
@@ -69,10 +72,10 @@ var Controller = module.exports = function (options) {
     return bad;
   };
 
-  controller.getFindByCondition = function (request) {
-    var condition = {};
-    condition[request.app.get('findBy')] = request.params.id;
-    return condition;
+  controller.getFindByConditions = function (request) {
+    var conditions = extend({}, request.baucis.conditions || {});
+    conditions[request.app.get('findBy')] = request.params.id;
+    return conditions;
   };
 
   // __Module Definition__

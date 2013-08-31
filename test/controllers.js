@@ -246,7 +246,7 @@ describe('Controllers', function () {
       url: 'http://localhost:8012/api/v1/cheeses/Huntsman',
       headers: { 'X-Baucis-Push': true },
       json: true,
-      body: { arbitrary: 'bubble bobble' }
+      body: { 'favorite nes game': 'bubble bobble' }
     };
     request.put(options, function (error, response, body) {
       if (error) return done(error);
@@ -270,6 +270,33 @@ describe('Controllers', function () {
       expect(body).to.have.property('molds');
       expect(body.molds).to.have.property('length', 1);
       expect(body.molds).to.eql([ 'penicillium roqueforti' ]);
+
+      done();
+    });
+  });
+
+  it("should allow pushing to embedded arrays using positional $", function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/cheeses/Camembert',
+      headers: { 'X-Baucis-Push': true },
+      json: true,
+      qs: { conditions: JSON.stringify({ 'arbitrary.goat': true }) },
+      body: { 'arbitrary.$.llama': 5 }
+    };
+    request.put(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response).to.have.property('statusCode', 201);
+
+      expect(body).to.have.property('arbitrary');
+      expect(body.arbitrary).to.have.property('length', 2);
+      expect(body.arbitrary[0]).to.have.property('llama');
+      expect(body.arbitrary[0].llama).to.have.property('length', 3);
+      expect(body.arbitrary[0].llama[0]).to.be(3);
+      expect(body.arbitrary[0].llama[1]).to.be(4);
+      expect(body.arbitrary[0].llama[2]).to.be(5);
+      expect(body.arbitrary[1].llama).to.have.property('length', 2);
+      expect(body.arbitrary[1].llama[0]).to.be(1);
+      expect(body.arbitrary[1].llama[1]).to.be(2);
 
       done();
     });

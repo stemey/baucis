@@ -50,13 +50,10 @@ var middleware = module.exports = {
       if (error) return next(error);
       if (!doc) return response.send(404);
 
-      console.log(doc)
-      console.log(update)
-
       if (pushMode) {
-	response.status(201);
-	request.app.get('model').findOneAndUpdate(request.app.getFindByCondition(request), { $push: update }, done);
-	return;
+        response.status(201);
+        request.app.get('model').findOneAndUpdate(request.app.getFindByConditions(request), { $push: update }, done);
+        return;
       }
 
       // Can't send id for update, even if unchanged

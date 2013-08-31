@@ -165,6 +165,8 @@ var mixin = module.exports = function () {
     activate('request', [ middleware.headers.allow, middleware.headers.accept ]);
     // Activate middleware to set request.baucis.conditions for find/remove
     activate('request', 'collection', 'head get del', middleware.configure.conditions);
+    // Also activate conditions middleware for update
+    activate('request', 'instance', 'put', middleware.configure.conditions);
     // Activate middleware to set request.baucis.count when query is present
     activate('request', 'get', middleware.configure.count);
     // Next, activate the request-stage user middleware.
