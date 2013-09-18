@@ -1,6 +1,11 @@
 Baucis Change Log
 =================
 
+v0.6.14
+-------
+
+Add examples for AngularJS.  Contributed by Illniyar.
+
 v0.6.13
 -------
 
