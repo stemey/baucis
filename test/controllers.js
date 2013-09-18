@@ -265,7 +265,7 @@ describe('Controllers', function () {
     };
     request.put(options, function (error, response, body) {
       if (error) return done(error);
-      expect(response).to.have.property('statusCode', 201);
+      expect(response).to.have.property('statusCode', 200);
 
       expect(body).to.have.property('molds');
       expect(body.molds).to.have.property('length', 1);
@@ -285,7 +285,7 @@ describe('Controllers', function () {
     };
     request.put(options, function (error, response, body) {
       if (error) return done(error);
-      expect(response).to.have.property('statusCode', 201);
+      expect(response).to.have.property('statusCode', 200);
 
       expect(body).to.have.property('arbitrary');
       expect(body.arbitrary).to.have.property('length', 2);
@@ -297,6 +297,28 @@ describe('Controllers', function () {
       expect(body.arbitrary[1].llama).to.have.property('length', 2);
       expect(body.arbitrary[1].llama[0]).to.be(1);
       expect(body.arbitrary[1].llama[1]).to.be(2);
+
+      done();
+    });
+  });
+
+  it("should allow setting embedded fields using positional $", function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/cheeses/Camembert',
+      headers: { 'X-Baucis-Push': false },
+      json: true,
+      qs: { conditions: JSON.stringify({ 'arbitrary.goat': false }) },
+      body: { 'arbitrary.$.champagne': 'extra dry' }
+    };
+    request.put(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response).to.have.property('statusCode', 200);
+
+      expect(body).to.have.property('arbitrary');
+      expect(body.arbitrary).to.have.property('length', 2);
+      expect(body.arbitrary[0]).to.have.property('champagne');
+      expect(body.arbitrary[0].champagne).to.eql(null);
+      expect(body.arbitrary[1]).to.have.property('champagne', 'extra dry');
 
       done();
     });

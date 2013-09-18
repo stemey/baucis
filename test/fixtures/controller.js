@@ -28,6 +28,7 @@ var fixture = module.exports = {
       molds: [ String ],
       arbitrary: [{
         goat: Boolean,
+        champagne: String,
         llama: [ Number ]
       }]
     });

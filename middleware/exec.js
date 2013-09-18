@@ -33,7 +33,7 @@ var middleware = module.exports = {
     }
   },
   update: function (request, response, next) {
-    var pushMode = request.headers['x-baucis-push'] ? true : false;
+    var pushMode = request.headers['x-baucis-push'] === 'true' ? true : false;
     var update = extend(request.body);
     var done = function (error, saved) {
       if (error) return next(error);
@@ -50,9 +50,17 @@ var middleware = module.exports = {
       if (error) return next(error);
       if (!doc) return response.send(404);
 
+      var pathParts = 'arbitrary.$.llama'.split('.');
+
+      doc.get(parts[0]) //arr
+      subdoc = ...;// find one(s) that matches where for query
+      subdoc.push(parts[2], val)
+
+
       if (pushMode) {
-        response.status(201);
-        request.app.get('model').findOneAndUpdate(request.app.getFindByConditions(request), { $push: update }, done);
+        request.app.get('model').findOneAndUpdate(
+          request.app.getFindByConditions(request), { $push: update }, done
+        );
         return;
       }
 
