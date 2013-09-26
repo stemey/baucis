@@ -71,8 +71,8 @@ var fixture = module.exports = {
       select: '-_id +color name',
       findBy: 'name',
       'allow $push': 'molds arbitrary arbitrary.$.llama',
-      'allow $set': 'arbitrary.$.champagne',
-      'allow $pull': 'arbitrary.$.llama'
+      'allow $set': 'molds arbitrary.$.champagne',
+      'allow $pull': 'molds arbitrary.$.llama'
     });
 
     app = express();
