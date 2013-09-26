@@ -181,8 +181,9 @@ var mixin = module.exports = function () {
     // Activate middleware to handle controller and query options.
     activate('query', [ middleware.configure.controller, middleware.configure.query ]);
 
-    // Delete any query-stage POST middleware that was added implicitly.
+    // Delete any query instance POST middleware that was added implicitly.
     custom.query.instance.post = [];
+    // Delete any query collection PUT middleware that was added implicitly.
     custom.query.collection.put = [];
 
     // Activate user middleware for the query-stage
