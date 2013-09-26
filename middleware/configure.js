@@ -17,7 +17,14 @@ var middleware = module.exports = {
   // Apply various options based on controller parameters
   controller: function (request, response, next) {
     if (request.app.get('select')) request.baucis.query.select(request.app.get('select'));
-    if (request.app.get('restrict')) return next(new Error('Use query middleware instead'));
+    next();
+  },
+  deprecated: function (request, response, next) {
+    // Controller Options
+    if (request.app.get('restrict')) return next(new Error('The "restrict" controller options is deprecated.  Use query middleware instead.'));
+    // Headers
+    if (request.headers['x-baucis-push']) return next(new Error('The "X-Baucis-Push header" is deprecated.  Use "X-Baucis-Update-Operator: $push" instead.'));
+    // No deprecated features found.
     next();
   },
   // Apply various options based on request query parameters

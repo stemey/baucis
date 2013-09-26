@@ -226,17 +226,30 @@ describe('Controllers', function () {
     done();
   });
 
+  it('should err when X-Baucis-Push is used (deprecated)', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/stores/Westlake',
+      headers: { 'X-Baucis-Push': true },
+    };
+    request.put(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response).to.have.property('statusCode', 500);
+      expect(body).to.contain('Error: The "X-Baucis-Push header" is deprecated.  Use "X-Baucis-Update-Operator: $push" instead.');
+      done();
+    });
+  });
 
   it('should disallow push mode by default', function (done) {
     var options = {
       url: 'http://localhost:8012/api/v1/stores/Westlake',
-      headers: { 'X-Baucis-Push': true },
+      headers: { 'X-Baucis-Update-Operator': '$push' },
       json: true,
       body: { molds: 'penicillium roqueforti' }
     };
     request.put(options, function (error, response, body) {
       if (error) return done(error);
       expect(response).to.have.property('statusCode', 500);
+      expect(body).to.contain('Error: Push mode is not enabled.');
       done();
     });
   });
@@ -244,14 +257,14 @@ describe('Controllers', function () {
   it('should disallow pushing to non-whitelisted paths', function (done) {
     var options = {
       url: 'http://localhost:8012/api/v1/cheeses/Huntsman',
-      headers: { 'X-Baucis-Push': true },
+      headers: { 'X-Baucis-Update-Operator': '$push' },
       json: true,
       body: { 'favorite nes game': 'bubble bobble' }
     };
     request.put(options, function (error, response, body) {
       if (error) return done(error);
       expect(response).to.have.property('statusCode', 500);
-
+      expect(body).to.contain("Error: Can't push to non-whitelisted paths.");
       done();
     });
   });
@@ -259,7 +272,7 @@ describe('Controllers', function () {
   it("should allow pushing to an instance document's whitelisted arrays when push mode is enabled", function (done) {
     var options = {
       url: 'http://localhost:8012/api/v1/cheeses/Huntsman',
-      headers: { 'X-Baucis-Push': true },
+      headers: { 'X-Baucis-Update-Operator': '$push' },
       json: true,
       body: { molds: 'penicillium roqueforti' }
     };
@@ -278,7 +291,7 @@ describe('Controllers', function () {
   it("should allow pushing to embedded arrays using positional $", function (done) {
     var options = {
       url: 'http://localhost:8012/api/v1/cheeses/Camembert',
-      headers: { 'X-Baucis-Push': true },
+      headers: { 'X-Baucis-Update-Operator': '$push' },
       json: true,
       qs: { conditions: JSON.stringify({ 'arbitrary.goat': true }) },
       body: { 'arbitrary.$.llama': 5 }
@@ -305,7 +318,7 @@ describe('Controllers', function () {
   it("should allow setting embedded fields using positional $", function (done) {
     var options = {
       url: 'http://localhost:8012/api/v1/cheeses/Camembert',
-      headers: { 'X-Baucis-Push': false },
+      //headers: { 'X-Baucis-Update-Operator': '$push' },
       json: true,
       qs: { conditions: JSON.stringify({ 'arbitrary.goat': false }) },
       body: { 'arbitrary.$.champagne': 'extra dry' }

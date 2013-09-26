@@ -161,6 +161,8 @@ var mixin = module.exports = function () {
 
     // __Request-Stage Middleware__
 
+    // Activate middleware to check for deprecated features
+    activate('request', middleware.configure.deprecated);
     // Activate middleware that sets the Allow & Accept headers
     activate('request', [ middleware.headers.allow, middleware.headers.accept ]);
     // Activate middleware to set request.baucis.conditions for find/remove

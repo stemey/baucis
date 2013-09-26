@@ -2,6 +2,9 @@
 var async = require('async');
 var extend = require('util')._extend;
 
+// __Private Module Members__
+var validOperators = [ '$set', '$push', '$pull' ];
+
 // __Module Definition__
 var middleware = module.exports = {
   exec: function (request, response, next) {
@@ -33,7 +36,7 @@ var middleware = module.exports = {
     }
   },
   update: function (request, response, next) {
-    var pushMode = request.headers['x-baucis-push'] === 'true' ? true : false;
+    var operator = request.headers['x-baucis-update-operator'] || '$set';
     var update = extend(request.body);
     var done = function (error, saved) {
       if (error) return next(error);
@@ -41,34 +44,40 @@ var middleware = module.exports = {
       next();
     };
 
-    if (pushMode && !request.app.get('allow push')) return next(new Error('Push mode is not enabled.'));
-    if (pushMode && request.app.checkBadPushPaths(Object.keys(update))) {
-      return next(new Error("Can't push to non-whitelisted paths"));
-    }
+    if (validOperators.indexOf(operator) === -1) return next(new Error('Unsupported update operator: ' + operator));
 
     request.baucis.query.exec(function (error, doc) {
       if (error) return next(error);
       if (!doc) return response.send(404);
 
-//      var pathParts = 'arbitrary.$.llama'.split('.');
-//
-//      doc.get(parts[0]) //arr
-//      subdoc = ...;// find one(s) that matches where for query
-//      subdoc.push(parts[2], val)
-
-
-      if (pushMode) {
-        request.app.get('model').findOneAndUpdate(
-          request.app.getFindByConditions(request), { $push: update }, done
-        );
+      if (operator === '$set') {
+        doc.set(update);
+        doc.save(done);
         return;
       }
 
-      // Can't send id for update, even if unchanged
-      delete update._id;
+      // Non-default operator
+      var conditions = request.app.getFindByConditions(request);
+      var updateWrapper = {};
 
-      doc.set(update);
-      doc.save(done);
+      updateWrapper[operator] = update;
+
+      // Oh man I really want this to trigger validation…
+      //      var pathParts = 'arbitrary.$.llama'.split('.');
+      //
+      //      doc.get(parts[0]) //arr
+      //      subdoc = ...;// find one(s) that matches where for query
+      //      subdoc.push(parts[2], val)
+
+      // Ensure that some paths have been enabled for the operator.
+      if (!request.app.get('allow ' + operator)) return next(new Error('Update operator not enabled for this controller: ' + operator));
+
+      // Make sure paths have been whitelisted for this operator.
+      if (request.app.checkBadPushPaths(Object.keys(update))) {
+        return next(new Error("Can't push to non-whitelisted paths."));
+      }
+
+      request.app.get('model').findOneAndUpdate(conditions, updateWrapper, done);
     });
   },
   // Create new document(s) and send them back in the response
