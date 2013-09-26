@@ -36,7 +36,7 @@ var middleware = module.exports = {
     }
   },
   update: function (request, response, next) {
-    var operator = request.headers['x-baucis-update-operator'] || '$set';
+    var operator = request.headers['x-baucis-update-operator'];
     var update = extend(request.body);
     var done = function (error, saved) {
       if (error) return next(error);
@@ -44,13 +44,13 @@ var middleware = module.exports = {
       next();
     };
 
-    if (validOperators.indexOf(operator) === -1) return next(new Error('Unsupported update operator: ' + operator));
+    if (operator && validOperators.indexOf(operator) === -1) return next(new Error('Unsupported update operator: ' + operator));
 
     request.baucis.query.exec(function (error, doc) {
       if (error) return next(error);
       if (!doc) return response.send(404);
 
-      if (operator === '$set') {
+      if (!operator) {
         doc.set(update);
         doc.save(done);
         return;

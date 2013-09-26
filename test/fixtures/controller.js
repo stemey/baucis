@@ -70,7 +70,9 @@ var fixture = module.exports = {
       singular: 'cheese',
       select: '-_id +color name',
       findBy: 'name',
-      'allow $push': 'molds arbitrary arbitrary.$.llama'
+      'allow $push': 'molds arbitrary arbitrary.$.llama',
+      'allow $set': 'arbitrary.$.champagne',
+      'allow $pull': 'arbitrary.$.llama'
     });
 
     app = express();

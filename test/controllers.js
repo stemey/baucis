@@ -318,7 +318,7 @@ describe('Controllers', function () {
   it("should allow setting embedded fields using positional $", function (done) {
     var options = {
       url: 'http://localhost:8012/api/v1/cheeses/Camembert',
-      //headers: { 'X-Baucis-Update-Operator': '$push' },
+      headers: { 'X-Baucis-Update-Operator': '$set' },
       json: true,
       qs: { conditions: JSON.stringify({ 'arbitrary.goat': false }) },
       body: { 'arbitrary.$.champagne': 'extra dry' }
@@ -329,9 +329,33 @@ describe('Controllers', function () {
 
       expect(body).to.have.property('arbitrary');
       expect(body.arbitrary).to.have.property('length', 2);
-      expect(body.arbitrary[0]).to.have.property('champagne');
-      expect(body.arbitrary[0].champagne).to.eql(null);
+      expect(body.arbitrary[0]).not.to.have.property('champagne');
       expect(body.arbitrary[1]).to.have.property('champagne', 'extra dry');
+
+      done();
+    });
+  });
+
+  it("should allow pulling from embedded fields using positional $", function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/cheeses/Camembert',
+      headers: { 'X-Baucis-Update-Operator': '$pull' },
+      json: true,
+      qs: { conditions: JSON.stringify({ 'arbitrary.goat': true }) },
+      body: { 'arbitrary.$.llama': 3 }
+    };
+    request.put(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response).to.have.property('statusCode', 200);
+
+      expect(body).to.have.property('arbitrary');
+      expect(body.arbitrary).to.have.property('length', 2);
+      expect(body.arbitrary[0]).to.have.property('llama');
+      expect(body.arbitrary[0].llama).to.have.property('length', 3);
+      expect(body.arbitrary[0].llama[1]).to.be(4);
+      expect(body.arbitrary[1].llama).to.have.property('length', 2);
+      expect(body.arbitrary[1].llama[0]).to.be(1);
+      expect(body.arbitrary[1].llama[1]).to.be(2);
 
       done();
     });
