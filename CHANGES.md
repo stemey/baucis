@@ -23,7 +23,9 @@ Allow support for $pull, and $set
     // Later...
 
     // PUT /api/v1/arbitraries/1234567890abcdef12345678?conditions={ "arr.flag": "jolly roger" }
+
     // X-Baucis-Update-Operator: $push
+
     // BODY
 
     //   { "arr.$.pirates": { name: 'Blue beard' } }
@@ -31,7 +33,9 @@ Allow support for $pull, and $set
     // Blue beard's dead, pull him from the array
 
     // PUT /api/v1/arbitraries/1234567890abcdef12345678?conditions={ "arr.flag": "jolly roger" }
+
     // X-Baucis-Update-Operator: $pull
+
     // BODY
 
     //   { "arr.$.pirates": { name: 'Blue beard' } }
@@ -58,7 +62,9 @@ Allow pushing to embedded arrays using positional $
     // Later...
       
     // PUT /api/v1/arbitraries/1234567890abcdef12345678?conditions={ "arr.flag": "jolly roger" }
+
     // X-Baucis-Push: true
+
     // BODY
     
     //   { "arr.$.pirates": { name: 'Blue beard' } }
