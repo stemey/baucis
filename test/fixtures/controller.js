@@ -15,7 +15,8 @@ var fixture = module.exports = {
     mongoose.connect('mongodb://10.0.0.101/xXxBaUcIsTeStXxX');
 
     var Stores = new Schema({
-      name: { type: String, required: true, unique: true }
+      name: { type: String, required: true, unique: true },
+      mercoledi: Boolean
     });
 
     var Tools = new Schema({
@@ -37,6 +38,7 @@ var fixture = module.exports = {
     if (!mongoose.models['store']) mongoose.model('store', Stores);
     if (!mongoose.models['cheese']) mongoose.model('cheese', Cheese);
 
+    // Tools embedded controller
     subcontroller = baucis.rest({
       singular: 'tool',
       basePath: '/:storeId/tools',
@@ -45,7 +47,12 @@ var fixture = module.exports = {
 
     subcontroller.initialize();
 
-    controller = baucis.rest({ singular: 'store', findBy: 'name' });
+    // Stores controller
+    controller = baucis.rest({
+      singular: 'store',
+      findBy: 'name',
+      select: '-mercoledi'
+    });
 
     controller.use('/binfo', function (request, response, next) {
       response.json('Poncho!');
