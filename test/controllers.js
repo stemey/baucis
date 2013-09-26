@@ -22,15 +22,32 @@ describe('Controllers', function () {
   it('should support select options', function (done) {
     var options = {
       url: 'http://localhost:8012/api/v1/cheeses',
+      qs: { sort: 'name' },
       json: true
     };
     request.get(options, function (err, response, body) {
       if (err) return done(err);
       expect(response.statusCode).to.be(200);
       expect(body).to.have.property('length', 3);
-      expect(body[0]).to.have.property('color', 'Yellow');
-      expect(body[0]).to.have.property('name', 'Cheddar');
-      expect(body[0]).not.to.have.property('_id');
+      expect(body[1]).to.have.property('color', 'Yellow');
+      expect(body[1]).to.have.property('name', 'Cheddar');
+      expect(body[1]).not.to.have.property('_id');
+      done();
+    });
+  });
+
+  it('should allow POSTing when fields are deselected (issue #67)', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/stores',
+      json: true,
+      body: { name: "Lou's" }
+    };
+    request.post(options, function (err, response, body) {
+      if (err) return done(err);
+      expect(response.statusCode).to.be(201);
+      expect(body).to.have.property('_id');
+      expect(body).to.have.property('__v');
+      expect(body).to.have.property('name', "Lou's");
       done();
     });
   });
@@ -105,13 +122,13 @@ describe('Controllers', function () {
   it('should still allow using baucis routes when adding arbitrary routes', function (done) {
     var options = {
       url: 'http://localhost:8012/api/v1/stores',
-      qs: { select: 'name -_id' },
+      qs: { select: '-_id -__v', sort: 'name' },
       json: true
     };
     request.get(options, function (err, response, body) {
       if (err) return done(err);
       expect(response.statusCode).to.be(200);
-      expect(body).to.eql([ { name: 'Westlake' }, { name: 'Corner' } ]);
+      expect(body).to.eql([ { name: 'Corner' }, { name: 'Westlake' } ]);
       done();
     });
   });

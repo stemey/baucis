@@ -16,7 +16,9 @@ var middleware = module.exports = {
   },
   // Apply various options based on controller parameters
   controller: function (request, response, next) {
-    if (request.app.get('select')) request.baucis.query.select(request.app.get('select'));
+    if (request.app.get('select') && request.baucis.query) {
+      request.baucis.query.select(request.app.get('select'));
+    }
     next();
   },
   deprecated: function (request, response, next) {
@@ -36,7 +38,7 @@ var middleware = module.exports = {
     if (request.query.sort) query.sort(request.query.sort);
     if (request.query.skip) query.skip(request.query.skip);
     if (request.query.limit) query.limit(request.query.limit);
-    if (request.query.select) {
+    if (request.query.select && request.baucis.query) {
       if (request.query.select.indexOf('+') !== -1) {
         return next(new Error('Including excluded fields is not permitted.'));
       }
