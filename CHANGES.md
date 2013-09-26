@@ -1,7 +1,13 @@
 Baucis Change Log
 =================
 
+v0.6.16
+-------
+
+Fixes issue #67
+
 v0.6.15
+-------
 
 Allow support for $pull, and $set
   * Deprecates X-Baucis-Push
