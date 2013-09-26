@@ -14,31 +14,31 @@ Allow support for $pull, and $set
   * Now positional $ can be used with `$set`!
   * Fields must be whitelisted by setting the appropriate controller option (notice additional $ character)
 
-    var controller = baucis.rest({
-      singular: 'arrbitrary',
-      'allow $push': 'arr.$.pirates',
-      'allow $pull': 'arr.$.pirates'
-    });
+      var controller = baucis.rest({
+        singular: 'arrbitrary',
+        'allow $push': 'arr.$.pirates',
+        'allow $pull': 'arr.$.pirates'
+      });
 
-    // Later...
+      // Later...
 
-    // PUT /api/v1/arbitraries/1234567890abcdef12345678?conditions={ "arr.flag": "jolly roger" }
+      // PUT /api/v1/arbitraries/1234567890abcdef12345678?conditions={ "arr.flag": "jolly roger" }
 
-    // X-Baucis-Update-Operator: $push
+      // X-Baucis-Update-Operator: $push
 
-    // BODY
+      // BODY
 
-    //   { "arr.$.pirates": { name: 'Blue beard' } }
+      //   { "arr.$.pirates": { name: 'Blue beard' } }
 
-    // Blue beard's dead, pull him from the array
+      // Blue beard's dead, pull him from the array
 
-    // PUT /api/v1/arbitraries/1234567890abcdef12345678?conditions={ "arr.flag": "jolly roger" }
+      // PUT /api/v1/arbitraries/1234567890abcdef12345678?conditions={ "arr.flag": "jolly roger" }
 
-    // X-Baucis-Update-Operator: $pull
+      // X-Baucis-Update-Operator: $pull
 
-    // BODY
+      // BODY
 
-    //   { "arr.$.pirates": { name: 'Blue beard' } }
+      //   { "arr.$.pirates": { name: 'Blue beard' } }
 
 
 v0.6.14
@@ -54,20 +54,20 @@ Allow pushing to embedded arrays using positional $
   * Paths with positional $ must be whitelisted
   * Embedded array must be specified in the conditions query parameter
 
-    var controller = baucis.rest({
-      singular: 'arbitrary',
-      'allow push': 'arr.$.pirates'
-    });
+      var controller = baucis.rest({
+        singular: 'arbitrary',
+        'allow push': 'arr.$.pirates'
+      });
 
-    // Later...
-      
-    // PUT /api/v1/arbitraries/1234567890abcdef12345678?conditions={ "arr.flag": "jolly roger" }
+      // Later...
 
-    // X-Baucis-Push: true
+      // PUT /api/v1/arbitraries/1234567890abcdef12345678?conditions={ "arr.flag": "jolly roger" }
 
-    // BODY
-    
-    //   { "arr.$.pirates": { name: 'Blue beard' } }
+      // X-Baucis-Push: true
+
+      // BODY
+
+      //   { "arr.$.pirates": { name: 'Blue beard' } }
 
 v0.6.12
 -------
