@@ -1,6 +1,11 @@
 Baucis Change Log
 =================
 
+v0.6.14
+-------
+
+Add examples for AngularJS.  Contributed by Illniyar.
+
 v0.6.13
 -------
 
@@ -15,9 +20,11 @@ Allow pushing to embedded arrays using positional $
     });
 
     // Later...
+      
     // PUT /api/v1/arbitraries/1234567890abcdef12345678?conditions={ "arr.flag": "jolly roger" }
     // X-Baucis-Push: true
     // BODY
+    
     //   { "arr.$.pirates": { name: 'Blue beard' } }
 
 v0.6.12

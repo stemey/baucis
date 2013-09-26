@@ -1,4 +1,4 @@
-baucis v0.6.13
+baucis v0.6.14
 ==============
 
 Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.
@@ -31,7 +31,9 @@ Examples
 --------
 
  * [Example REST API server built with Node and Baucis](//github.com/wprl/baucis-example)
- * [Examples with Backbone](examples/Backbone.js)
+ * [Examples with Backbone.js](examples/Backbone.js)
+ * [Examples with AngularJS](examples/angular-example-resource.html)
+ * [Examples with Restangular](examples/angular-example-restangular.html)
  * [Examples with jQuery](examples/jQuery.js)
 
 ![David Rjckaert III - Philemon and Baucis Giving Hospitality to Jupiter and Mercury](http://github.com/wprl/baucis/raw/master/david_rijckaert_iii-philemon_and_baucis.jpg "Hermes is like: 'Hey Baucis, don't kill that goose.  And thanks for the REST.'")
