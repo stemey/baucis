@@ -60,12 +60,19 @@ var Controller = module.exports = function (options) {
     return bad;
   };
 
-  controller.checkBadPushPaths = function (paths) {
+  controller.checkBadUpdateOperatorPaths = function (operator, paths) {
     var bad = false;
-    var whitelisted = controller.get('allow push').split(/\s+/);
+    var whitelisted = controller.get('allow ' + operator);
+    var parts;
+
+    console.log(whitelisted)
+
+    if (!whitelisted) return true;
+
+    parts = whitelisted.split(/\s+/);
 
     paths.forEach(function (path) {
-      if (whitelisted.indexOf(path) !== -1) return;
+      if (parts.indexOf(path) !== -1) return;
       bad = true;
     });
 

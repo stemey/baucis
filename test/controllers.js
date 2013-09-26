@@ -249,7 +249,7 @@ describe('Controllers', function () {
     request.put(options, function (error, response, body) {
       if (error) return done(error);
       expect(response).to.have.property('statusCode', 500);
-      expect(body).to.contain('Error: Push mode is not enabled.');
+      expect(body).to.contain('Error: Update operator not enabled for this controller: $push');
       done();
     });
   });
@@ -264,7 +264,7 @@ describe('Controllers', function () {
     request.put(options, function (error, response, body) {
       if (error) return done(error);
       expect(response).to.have.property('statusCode', 500);
-      expect(body).to.contain("Error: Can't push to non-whitelisted paths.");
+      expect(body).to.contain("Error: Can't use update operator with non-whitelisted paths.");
       done();
     });
   });

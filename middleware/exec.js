@@ -73,8 +73,8 @@ var middleware = module.exports = {
       if (!request.app.get('allow ' + operator)) return next(new Error('Update operator not enabled for this controller: ' + operator));
 
       // Make sure paths have been whitelisted for this operator.
-      if (request.app.checkBadPushPaths(Object.keys(update))) {
-        return next(new Error("Can't push to non-whitelisted paths."));
+      if (request.app.checkBadUpdateOperatorPaths(operator, Object.keys(update))) {
+        return next(new Error("Can't use update operator with non-whitelisted paths."));
       }
 
       request.app.get('model').findOneAndUpdate(conditions, updateWrapper, done);
