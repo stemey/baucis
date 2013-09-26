@@ -1,6 +1,42 @@
 Baucis Change Log
 =================
 
+v0.6.15
+
+Allow support for $pull, and $set
+  * Deprecates X-Baucis-Push
+  * Enables X-Baucis-Update-Operator
+  * By default, a mongoose document is updated using `doc.set` then `doc.save`.
+  * When the X-Baucis-Update-Operator is set, `findOneAndUpdate` is used
+  * *THIS BYPASSES VALIDATION*
+  * Operators must be enabled per-controller
+  * Supported operators are currently: `$set`, `$pull`, and `$push`.
+  * Now positional $ can be used with `$set`!
+  * Fields must be whitelisted by setting the appropriate controller option (notice additional $ character)
+
+    var controller = baucis.rest({
+      singular: 'arrbitrary',
+      'allow $push': 'arr.$.pirates',
+      'allow $pull': 'arr.$.pirates'
+    });
+
+    // Later...
+
+    // PUT /api/v1/arbitraries/1234567890abcdef12345678?conditions={ "arr.flag": "jolly roger" }
+    // X-Baucis-Update-Operator: $push
+    // BODY
+
+    //   { "arr.$.pirates": { name: 'Blue beard' } }
+
+    // Blue beard's dead, pull him from the array
+
+    // PUT /api/v1/arbitraries/1234567890abcdef12345678?conditions={ "arr.flag": "jolly roger" }
+    // X-Baucis-Update-Operator: $pull
+    // BODY
+
+    //   { "arr.$.pirates": { name: 'Blue beard' } }
+
+
 v0.6.14
 -------
 
