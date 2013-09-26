@@ -11,7 +11,7 @@ var fixture = module.exports = {
   init: function(done) {
     var Schema = mongoose.Schema;
 
-    mongoose.connect('mongodb://localhost/xXxBaUcIsTeStXxX');
+    mongoose.connect('mongodb://10.0.0.101/xXxBaUcIsTeStXxX');
 
     var Vegetable = new Schema({
       name: { type: String, required: true },

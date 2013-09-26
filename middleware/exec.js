@@ -50,11 +50,11 @@ var middleware = module.exports = {
       if (error) return next(error);
       if (!doc) return response.send(404);
 
-      var pathParts = 'arbitrary.$.llama'.split('.');
-
-      doc.get(parts[0]) //arr
-      subdoc = ...;// find one(s) that matches where for query
-      subdoc.push(parts[2], val)
+//      var pathParts = 'arbitrary.$.llama'.split('.');
+//
+//      doc.get(parts[0]) //arr
+//      subdoc = ...;// find one(s) that matches where for query
+//      subdoc.push(parts[2], val)
 
 
       if (pushMode) {
