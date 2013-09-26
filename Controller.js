@@ -65,8 +65,6 @@ var Controller = module.exports = function (options) {
     var whitelisted = controller.get('allow ' + operator);
     var parts;
 
-    console.log(whitelisted)
-
     if (!whitelisted) return true;
 
     parts = whitelisted.split(/\s+/);

@@ -351,8 +351,8 @@ describe('Controllers', function () {
       expect(body).to.have.property('arbitrary');
       expect(body.arbitrary).to.have.property('length', 2);
       expect(body.arbitrary[0]).to.have.property('llama');
-      expect(body.arbitrary[0].llama).to.have.property('length', 3);
-      expect(body.arbitrary[0].llama[1]).to.be(4);
+      expect(body.arbitrary[0].llama).to.have.property('length', 1);
+      expect(body.arbitrary[0].llama[0]).to.be(4);
       expect(body.arbitrary[1].llama).to.have.property('length', 2);
       expect(body.arbitrary[1].llama[0]).to.be(1);
       expect(body.arbitrary[1].llama[1]).to.be(2);
