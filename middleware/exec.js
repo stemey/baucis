@@ -88,7 +88,7 @@ var middleware = module.exports = {
 
     // Must be an object or array
     if (!documents || typeof documents !== 'object') {
-      return next(new Error('Must supply a document or array to POST'));
+      return next(new Error('Must supply a document or array to POST.'));
     }
 
     // Make it an array if it wasn't already
@@ -108,8 +108,23 @@ var middleware = module.exports = {
       },
       function (error, saved) {
         if (error) return next(error);
-        request.baucis.documents = saved.length === 1 ? saved[0] : saved;
-        next();
+
+        var ids = [].concat(saved).map(function (doc) { return doc._id });
+        var query = Model.find({ _id: { $in: ids } });
+        var selected = { // TODO move to request.baucis i.e. set elsewhere
+          controller: request.app.get('select'),
+          query: request.query.select
+        };
+
+        if (selected.controller) query.select(selected.controller);
+        if (selected.query) query.select(selected.query);
+
+        // Reload models and apply select options
+        query.exec(function (error, reloaded) {
+          if (error) return next(error);
+          request.baucis.documents = reloaded.length === 1 ? reloaded[0] : reloaded;
+          next();
+        });
       }
     );
   }

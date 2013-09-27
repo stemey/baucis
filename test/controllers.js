@@ -19,7 +19,7 @@ describe('Controllers', function () {
     done();
   });
 
-  it('should support select options', function (done) {
+  it('should support select options for GET requests', function (done) {
     var options = {
       url: 'http://localhost:8012/api/v1/cheeses',
       qs: { sort: 'name' },
@@ -32,6 +32,41 @@ describe('Controllers', function () {
       expect(body[1]).to.have.property('color', 'Yellow');
       expect(body[1]).to.have.property('name', 'Cheddar');
       expect(body[1]).not.to.have.property('_id');
+      expect(body[1]).not.to.have.property('cave');
+      done();
+    });
+  });
+
+  it('should support select options for POST requests', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/cheeses',
+      json: true,
+      body: { name: 'Gorgonzola', color: 'Green' }
+    };
+    request.post(options, function (err, response, body) {
+      if (err) return done(err);
+      expect(response.statusCode).to.be(201);
+      expect(body).to.have.property('color', 'Green');
+      expect(body).to.have.property('name', 'Gorgonzola');
+      expect(body).not.to.have.property('_id');
+      expect(body).not.to.have.property('cave');
+      done();
+    });
+  });
+
+  it('should support select options for PUT requests', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/cheeses/Cheddar',
+      json: true,
+      body: { color: 'White' }
+    };
+    request.put(options, function (err, response, body) {
+      if (err) return done(err);
+      expect(response.statusCode).to.be(200);
+      expect(body).to.have.property('color', 'White');
+      expect(body).to.have.property('name', 'Cheddar');
+      expect(body).not.to.have.property('_id');
+      expect(body).not.to.have.property('cave');
       done();
     });
   });
