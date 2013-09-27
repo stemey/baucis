@@ -1,6 +1,12 @@
 Baucis Change Log
 =================
 
+v0.6.17
+-------
+
+Fixes a bug in v0.6.16 that could allow deselected paths to be sent back in the
+response body of a POST request.
+
 v0.6.16
 -------
 
