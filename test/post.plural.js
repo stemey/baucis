@@ -42,6 +42,8 @@ describe('POST plural', function () {
     request.post(options, function (error, response, body) {
       if (error) return done(error);
 
+      console.log(body)
+
       expect(response.statusCode).to.equal(201);
       expect(body[0]._id).not.to.be.empty();
       expect(body[1]._id).not.to.be.empty();
