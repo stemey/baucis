@@ -1,6 +1,11 @@
 Baucis Change Log
 =================
 
+v0.6.19
+-------
+
+Better error handling when detecing selected fields when populating via query.
+
 v0.6.18 
 -------
 
