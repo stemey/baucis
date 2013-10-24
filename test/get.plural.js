@@ -38,7 +38,7 @@ describe('GET plural', function () {
     });
   });
 
- it('should use JSON content type', function (done) {
+  it('should use JSON content type', function (done) {
     var options = {
       url: 'http://localhost:8012/api/v1/vegetables',
       json: true

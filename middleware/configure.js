@@ -32,7 +32,7 @@ var middleware = module.exports = {
   // Apply various options based on request query parameters
   query: function (request, response, next) {
     var populate;
-    var error;
+    var error = null;
     var query = request.baucis.query;
 
     if (request.query.sort) query.sort(request.query.sort);
@@ -55,18 +55,19 @@ var middleware = module.exports = {
       if (!Array.isArray(populate)) populate = [ populate ];
 
       populate.forEach(function (field) {
+        if (error) return;
         if (request.app.checkBadSelection(field.path || field)) {
-          return next(new Error('Including excluded fields is not permitted.'));
+          return error = new Error('Including excluded fields is not permitted.');
         }
         // Don't allow selecting fields from client when populating
         if (field.select) {
-          return next(new Error('May not set selected fields of populated document.'));
+          return error = new Error('May not set selected fields of populated document.');
         }
 
         query.populate(field);
       });
     }
 
-    next();
+    next(error);
   }
 };

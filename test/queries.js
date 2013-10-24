@@ -133,7 +133,20 @@ describe('Queries', function () {
 
   it('should disallow selecting fields when populating', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables?populate={ "path": "", "select": "arbitrary" }',
+      url: 'http://localhost:8012/api/v1/vegetables?populate={ "path": "a", "select": "arbitrary" }',
+      json: true
+    };
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response).to.have.property('statusCode', 500);
+      expect(body).to.match(/May not set selected fields of populated document[.]/i);
+      done();
+    });
+  });
+
+  it('should not crash when disallowing selecting fields when populating', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables?populate=[{ "path": "a", "select": "arbitrary actuary" }, { "path": "b", "select": "arbitrary actuary" }]',
       json: true
     };
     request.get(options, function (error, response, body) {
