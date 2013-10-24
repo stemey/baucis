@@ -1,6 +1,13 @@
 Baucis Change Log
 =================
 
+v0.6.18 
+-------
+
+Fixes issue #72.  The `Location` header is now only set for POST responses.  
+This fixes the related issue of response headers being too large when doing 
+GET requests that return a large number of documents.
+
 v0.6.17
 -------
 

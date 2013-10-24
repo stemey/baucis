@@ -54,6 +54,9 @@ var middleware = module.exports = {
       return;
     }
 
+    // If it's not a POST, send now because Location shouldn't be set.
+    if (request.method !== 'POST') return response.json(documents);       
+
     // Otherwise, set the location and send JSON document(s).  Don't set location if documents
     // don't have IDs for whatever reason e.g. custom middleware.
     if (!Array.isArray(documents) && documents instanceof mongoose.Document) {
@@ -72,7 +75,6 @@ var middleware = module.exports = {
     }
 
     if (location) response.set('Location', location);
-
     response.json(documents);
   }
 };

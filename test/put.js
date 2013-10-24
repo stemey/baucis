@@ -29,10 +29,11 @@ describe('PUT singular', function () {
       request.put(options, function (err, response, body) {
         if (err) return done(err);
         expect(response).to.have.property('statusCode', 200);
-        expect(response.headers.location).to.equal('/api/v1/vegetables/' + radicchio._id);
+        expect(response.headers).to.not.have.property('location');
 
+        var leekId = radicchio._id;
         var options = {
-          url: 'http://localhost:8012' + response.headers.location,
+          url: 'http://localhost:8012/api/v1/vegetables/' + leekId,
           json: true
         };
         request.get(options, function (err, response, body) {

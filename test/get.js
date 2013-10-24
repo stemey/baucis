@@ -47,4 +47,17 @@ describe('GET singular', function () {
     });
   });
 
+  it('should not set Location header', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables/6',
+      json: true
+    };
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response.headers).not.to.have.property('location');
+      console.log(response.headers);
+      done();
+    });
+  });
+
 });

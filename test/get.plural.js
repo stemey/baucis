@@ -25,4 +25,28 @@ describe('GET plural', function () {
       done();
     });
   });
+
+  it('should not set Location header', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables',
+      json: true
+    };
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response.headers).not.to.have.property('location');
+      done();
+    });
+  });
+
+ it('should use JSON content type', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables',
+      json: true
+    };
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response.headers).to.have.property('content-type', 'application/json; charset=utf-8');
+      done();
+    });
+  });
 });
