@@ -55,7 +55,11 @@ var middleware = module.exports = {
     }
 
     // If it's not a POST, send now because Location shouldn't be set.
-    if (request.method !== 'POST') return response.json(documents);       
+    if (request.method !== 'POST') return response.json(documents);
+
+    // ensure there is a trailing slash on basePath
+    // otherwise the models plural will be missing in the location url
+    if(/\/$/.test(basePath) == false) basePath += '/';
 
     // Otherwise, set the location and send JSON document(s).  Don't set location if documents
     // don't have IDs for whatever reason e.g. custom middleware.
