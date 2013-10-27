@@ -54,18 +54,17 @@ var mixin = module.exports = function () {
       if (path.selected === false) return;
       
       if(select && name != '_id'){
-        //clean-up and split select fields
         select = select.trim();
-        selects = select.split(/\s+/);
-
-        //if select is excluding
-        for(var i in selects){
-          if(selects[i].match(new RegExp('^-' + name + '$'))) return;
-        }
-
-        //if select is not excluding, make sure the field is in the list
-        if(select.length > 0 && select[0] != '-'){
-          if( selects.indexOf(name) == -1) return;
+        if(select.length > 0){
+          selects = select.split('-');
+          
+          if(select[0] == '-'){
+            //select is excluding, so exclude fields in list
+            if(selects.indexOf('-'+name) > -1) return
+          } else {
+            //select is including, so exclude fields not in list
+            if( selects.indexOf(name) == -1) return;
+          }
         }
       }
 
