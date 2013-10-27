@@ -52,7 +52,21 @@ var mixin = module.exports = function () {
 
       // Keep deselected paths private
       if (path.selected === false) return;
-      if (select && select.match('-' + name)) return;
+      
+      if(select && name != '_id'){
+        select = select.trim();
+        if(select.length > 0){
+          selects = select.split('-');
+          
+          if(select[0] == '-'){
+            //select is excluding, so exclude fields in list
+            if(selects.indexOf('-'+name) > -1) return
+          } else {
+            //select is including, so exclude fields not in list
+            if( selects.indexOf(name) == -1) return;
+          }
+        }
+      }
 
       if (!type) {
         console.log('Warning: That field type is not yet supported in baucis Swagger definitions, using "string."');
