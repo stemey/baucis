@@ -49,37 +49,23 @@ var mixin = module.exports = function () {
       var path = schema.paths[name];
       var select = that.get('select');
       var type = swaggerTypeFor(path.options.type);
+      var mode = select && (select.match(/\b[-]/g) ? 'exclusive' : 'inclusive');
+      var exclusiveNamePattern = new RegExp('\\B-' + name + '\\b', 'gi');
+      var inclusiveNamePattern = new RegExp('(?:\\B[+]|\\b)' + name + '\\b', 'gi');
 
       // Keep deselected paths private
       if (path.selected === false) return;
-      
-      if(select && name != '_id'){
-        select = select.trim();
-        if(select.length > 0){
-          selects = select.split('-');
-          
-          if(select[0] == '-'){
-            //select is excluding, so exclude fields in list
-            if(selects.indexOf('-'+name) > -1) return
-          } else {
-            //select is including, so exclude fields not in list
-            if( selects.indexOf(name) == -1) return;
-          }
-        }
-      }
 
-      if (!type) {
-        console.log('Warning: That field type is not yet supported in baucis Swagger definitions, using "string."');
-        console.log('Path name: %s.%s', definition.id, name);
-        console.log('Mongoose type: %s', path.options.type);
-        property.type = 'string';
-      }
-      else {
-        property.type = swaggerTypeFor(path.options.type);
-      }
+      // TODO is _id always included unless explicitly excluded?
 
+      // If it's excluded, skip this one
+      if (mode === 'exclusive' && select.match(exclusiveNamePattern)) return;
+      // If the mode is inclusive but the name is not present, skip this one
+      if (mode === 'inclusive' && name !== '_id' && !select.match(inclusiveNamePattern)) return;
+
+      // Configure the property
       property.required = path.options.required || (name === '_id');
-
+      property.type = type;
 
       // Set enum values if applicable
       if (path.enumValues && path.enumValues.length > 0) {
@@ -97,6 +83,13 @@ var mixin = module.exports = function () {
 
       if (!isNaN(path.options.max)) {
         property.allowableValues.max = path.options.max;
+      }
+
+      if (!property.type) {
+        console.log('Warning: That field type is not yet supported in baucis Swagger definitions, using "string."');
+        console.log('Path name: %s.%s', definition.id, name);
+        console.log('Mongoose type: %s', path.options.type);
+        property.type = 'string';
       }
 
       definition.properties[name] = property;

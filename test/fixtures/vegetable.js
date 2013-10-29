@@ -38,7 +38,16 @@ var fixture = module.exports = {
       next();
     });
 
+    var Fungus = new Schema({ 'hyphenated-field-name': String });
+
     if (!mongoose.models['vegetable']) mongoose.model('vegetable', Vegetable);
+    if (!mongoose.models['fungus']) mongoose.model('fungus', Fungus);
+
+    baucis.rest({
+      singular: 'fungus',
+      plural: 'fungi',
+      select: '-hyphenated-field-name'
+    });
 
     controller = baucis.rest({
       singular: 'vegetable',

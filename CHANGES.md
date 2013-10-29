@@ -1,16 +1,22 @@
 Baucis Change Log
 =================
 
+v0.6.20
+-------
+
+Fix an issue with swagger when using models with hyphenated names.  Special
+thanks to feychenie.
+
 v0.6.19
 -------
 
 Better error handling when detecing selected fields when populating via query.
 
-v0.6.18 
+v0.6.18
 -------
 
-Fixes issue #72.  The `Location` header is now only set for POST responses.  
-This fixes the related issue of response headers being too large when doing 
+Fixes issue #72.  The `Location` header is now only set for POST responses.
+This fixes the related issue of response headers being too large when doing
 GET requests that return a large number of documents.
 
 v0.6.17
@@ -102,7 +108,7 @@ Added X-Baucis-Push header for PUTs
  * Feature must be enabled per-controller
  * Fields must be whitelisted by setting the 'allow push' controller option, e.g.
 
-    var controller = baucis.rest({ 
-      singular: 'arbitrary', 
-      'allow push': 'field some.path some.other.path' 
+    var controller = baucis.rest({
+      singular: 'arbitrary',
+      'allow push': 'field some.path some.other.path'
     });

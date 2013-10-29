@@ -38,9 +38,11 @@ describe('Swagger Resource Listing', function () {
 
       // Check the API listing
       expect(body.apis).to.be.an(Array);
-      expect(body.apis).to.have.property('length', 1);
-      expect(body.apis[0].path).to.be('/api-docs/vegetables');
-      expect(body.apis[0].description).to.be('Operations about vegetables.');
+      expect(body.apis).to.have.property('length', 2);
+      expect(body.apis[0].path).to.be('/api-docs/fungi');
+      expect(body.apis[0].description).to.be('Operations about fungi.');
+      expect(body.apis[1].path).to.be('/api-docs/vegetables');
+      expect(body.apis[1].description).to.be('Operations about vegetables.');
 
       done();
     });
@@ -94,6 +96,19 @@ describe('Swagger Resource Listing', function () {
     });
   });
 
+  it('should correctly set path names with hyphens as private', function (done) {
+    var options = {
+      url: 'http://127.0.0.1:8012/api/v1/api-docs/fungi',
+      json: true
+    };
+    request.get(options, function (err, response, body) {
+      if (err) return done(err);
+
+      expect(response).to.have.property('statusCode', 200);
+      expect(body.models.Fungus.properties).to.not.have.property('hyphenated-field-name');
+      done();
+    });
+  });
 
   it('should generate models correctly');
   it('should generate documentation for each controller');
