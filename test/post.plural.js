@@ -34,6 +34,22 @@ describe('POST plural', function () {
     });
   });
 
+  it('should correctly set location header when there is no trailing slash', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables',
+      json: { name: 'Tomato' }
+    };
+    request.post(options, function (error, response, body) {
+      if (error) return done(error);
+
+      expect(response.statusCode).to.equal(201);
+      expect(body._id).not.to.be.empty();
+      expect(response.headers.location).to.equal('/api/v1/vegetables/' + body._id);
+
+      done();
+    });
+  });
+
   it('should allow posting multiple documents at once', function (done) {
     var options = {
       url: 'http://localhost:8012/api/v1/vegetables/',
