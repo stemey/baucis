@@ -1,6 +1,11 @@
 Baucis Change Log
 =================
 
+v0.6.21
+-------
+
+Fix an issue where the `Location` response header would be set incorrectly.  Special thanks to feychenie.
+
 v0.6.20
 -------
 
