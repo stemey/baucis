@@ -1,4 +1,4 @@
-baucis v0.6.21
+baucis v0.6.22
 ==============
 
 Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.
@@ -7,12 +7,18 @@ Like Baucis and Philemon of old, this library provides REST to the weary travele
 
 Baucis uses [semver](http://semver.org).
 
+<a href="https://www.gittip.com/wprl/">Donations via gittip.com are appreciated.</a>
+
 What's New
 ----------
 
 A [change log](CHANGES.md) has been added with info about each new release.  Check there for the latest update notes.
 
-[Swagger](https://developers.helloreverb.com/swagger/) support is being added.  Most basic functionality is tested and seems to be working well!  Want to check it out?  Create your API with the swagger option enabled:
+v0.6 has taken a detour into many small improvements and fixes.  Your suggestions, bug reports, forks, and patches are welcome!
+
+Additional swagger functionality is still planned before moving on to v0.7.
+
+[Swagger](https://developers.helloreverb.com/swagger/) support has been partially added but is rather inflexible at the moment.  Want to check it out?  Create your API with the swagger option enabled:
 
     app.use('/api/v1', baucis({ swagger: true }));
 

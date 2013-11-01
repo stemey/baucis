@@ -1,6 +1,10 @@
 Baucis Change Log
 =================
 
+v0.6.22
+-------
+Move Express to peer dependency.
+
 v0.6.21
 -------
 
