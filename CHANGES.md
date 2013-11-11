@@ -1,6 +1,10 @@
 Baucis Change Log
 =================
 
+v0.6.23
+-------
+Adds `request.baucis.controller`.  This also fixes issue #76 that was occurring with newer Express versions when they were used as a peer dependency.
+
 v0.6.22
 -------
 Move Express to peer dependency.

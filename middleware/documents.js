@@ -5,7 +5,7 @@ var mongoose = require('mongoose');
 // __Module Definition__
 var middleware = module.exports = {
   lastModified: function (request, response, next) {
-    var lastModifiedPath = request.app.get('lastModified');
+    var lastModifiedPath = request.baucis.controller.get('lastModified');
     var documents = request.baucis.documents;
 
     if (!lastModifiedPath) return next();
@@ -34,7 +34,7 @@ var middleware = module.exports = {
   send: function (request, response, next) {
     var ids;
     var location;
-    var findBy = request.app.get('findBy');
+    var findBy = request.baucis.controller.get('findBy');
     var basePath = request.originalUrl;
     var documents = request.baucis.documents;
 

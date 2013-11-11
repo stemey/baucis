@@ -79,7 +79,7 @@ var Controller = module.exports = function (options) {
 
   controller.getFindByConditions = function (request) {
     var conditions = extend({}, request.baucis.conditions || {});
-    conditions[request.app.get('findBy')] = request.params.id;
+    conditions[request.baucis.controller.get('findBy')] = request.params.id;
     return conditions;
   };
 
@@ -125,6 +125,7 @@ var Controller = module.exports = function (options) {
   // Initialize baucis state
   controller.use(function (request, response, next) {
     request.baucis = {};
+    request.baucis.controller = controller;
     next();
   });
 

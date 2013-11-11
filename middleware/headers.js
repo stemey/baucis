@@ -54,7 +54,7 @@ var middleware = module.exports = {
   },
   // Build the "Allow" response header
   allow: function (request, response, next) {
-    var allowed = request.app.activeVerbs().map(function (verb) {
+    var allowed = request.baucis.controller.activeVerbs().map(function (verb) {
       return verb.toUpperCase();
     });
 

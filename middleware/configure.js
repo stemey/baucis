@@ -16,14 +16,14 @@ var middleware = module.exports = {
   },
   // Apply various options based on controller parameters
   controller: function (request, response, next) {
-    if (request.app.get('select') && request.baucis.query) {
-      request.baucis.query.select(request.app.get('select'));
+    if (request.baucis.controller.get('select') && request.baucis.query) {
+      request.baucis.query.select(request.baucis.controller.get('select'));
     }
     next();
   },
   deprecated: function (request, response, next) {
     // Controller Options
-    if (request.app.get('restrict')) return next(new Error('The "restrict" controller options is deprecated.  Use query middleware instead.'));
+    if (request.baucis.controller.get('restrict')) return next(new Error('The "restrict" controller options is deprecated.  Use query middleware instead.'));
     // Headers
     if (request.headers['x-baucis-push']) return next(new Error('The "X-Baucis-Push header" is deprecated.  Use "X-Baucis-Update-Operator: $push" instead.'));
     // No deprecated features found.
@@ -42,7 +42,7 @@ var middleware = module.exports = {
       if (request.query.select.indexOf('+') !== -1) {
         return next(new Error('Including excluded fields is not permitted.'));
       }
-      if (request.app.checkBadSelection(request.query.select)) {
+      if (request.baucis.controller.checkBadSelection(request.query.select)) {
         return next(new Error('Including excluded fields is not permitted.'));
       }
       query.select(request.query.select);
@@ -56,7 +56,7 @@ var middleware = module.exports = {
 
       populate.forEach(function (field) {
         if (error) return;
-        if (request.app.checkBadSelection(field.path || field)) {
+        if (request.baucis.controller.checkBadSelection(field.path || field)) {
           return error = new Error('Including excluded fields is not permitted.');
         }
         // Don't allow selecting fields from client when populating

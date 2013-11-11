@@ -3,15 +3,15 @@ var middleware = module.exports = {
   instance: {
     // Retrieve header for the addressed document
     head: function (request, response, next) {
-      var Model = request.app.get('model');
+      var Model = request.baucis.controller.get('model');
       request.baucis.noBody = true;
-      request.baucis.query = Model.findOne(request.app.getFindByConditions(request));
+      request.baucis.query = Model.findOne(request.baucis.controller.getFindByConditions(request));
       next();
     },
     // Retrieve the addressed document
     get: function (request, response, next) {
-      var Model = request.app.get('model');
-      request.baucis.query = Model.findOne(request.app.getFindByConditions(request));
+      var Model = request.baucis.controller.get('model');
+      request.baucis.query = Model.findOne(request.baucis.controller.getFindByConditions(request));
       next();
     },
     // Treat the addressed document as a collection, and push
@@ -21,33 +21,33 @@ var middleware = module.exports = {
     },
     // Update the addressed document
     put: function (request, response, next) {
-      var Model = request.app.get('model');
-      var bodyId = request.body[request.app.get('findBy')];
+      var Model = request.baucis.controller.get('model');
+      var bodyId = request.body[request.baucis.controller.get('findBy')];
 
       if (bodyId && request.params.id !== bodyId) return next(new Error('ID mismatch'));
 
       request.baucis.updateWithBody = true;
-      request.baucis.query = Model.findOne(request.app.getFindByConditions(request));
+      request.baucis.query = Model.findOne(request.baucis.controller.getFindByConditions(request));
       next();
     },
     // Delete the addressed object
     del: function (request, response, next) {
-      var Model = request.app.get('model');
-      request.baucis.query = Model.remove(request.app.getFindByConditions(request));
+      var Model = request.baucis.controller.get('model');
+      request.baucis.query = Model.remove(request.baucis.controller.getFindByConditions(request));
       next();
     }
   },
   collection: {
     // Retrieve documents matching conditions
     head: function (request, response, next) {
-      var Model = request.app.get('model');
+      var Model = request.baucis.controller.get('model');
       request.baucis.noBody = true;
       request.baucis.query = Model.find(request.baucis.conditions);
       next();
     },
     // Retrieve documents matching conditions
     get: function (request, response, next) {
-      var Model = request.app.get('model');
+      var Model = request.baucis.controller.get('model');
       request.baucis.query = Model.find(request.baucis.conditions);
       next();
     },
@@ -57,7 +57,7 @@ var middleware = module.exports = {
     },
     // Delete all documents matching conditions
     del: function (request, response, next) {
-      var Model = request.app.get('model');
+      var Model = request.baucis.controller.get('model');
       request.baucis.query = Model.remove(request.baucis.conditions);
       next();
     }

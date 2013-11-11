@@ -15,7 +15,7 @@ var middleware = module.exports = {
     });
   },
   count: function (request, response, next) {
-    var lastModifiedPath = request.app.get('lastModified');
+    var lastModifiedPath = request.baucis.controller.get('lastModified');
 
     request.baucis.count = true;
 
@@ -57,7 +57,7 @@ var middleware = module.exports = {
       }
 
       // Non-default operator
-      var conditions = request.app.getFindByConditions(request);
+      var conditions = request.baucis.controller.getFindByConditions(request);
       var updateWrapper = {};
 
       updateWrapper[operator] = update;
@@ -70,21 +70,21 @@ var middleware = module.exports = {
       //      subdoc.push(parts[2], val)
 
       // Ensure that some paths have been enabled for the operator.
-      if (!request.app.get('allow ' + operator)) return next(new Error('Update operator not enabled for this controller: ' + operator));
+      if (!request.baucis.controller.get('allow ' + operator)) return next(new Error('Update operator not enabled for this controller: ' + operator));
 
       // Make sure paths have been whitelisted for this operator.
-      if (request.app.checkBadUpdateOperatorPaths(operator, Object.keys(update))) {
+      if (request.baucis.controller.checkBadUpdateOperatorPaths(operator, Object.keys(update))) {
         return next(new Error("Can't use update operator with non-whitelisted paths."));
       }
 
-      request.app.get('model').findOneAndUpdate(conditions, updateWrapper, done);
+      request.baucis.controller.get('model').findOneAndUpdate(conditions, updateWrapper, done);
     });
   },
   // Create new document(s) and send them back in the response
   create: function (request, response, next) {
     var saved = [];
     var documents = request.body;
-    var Model = request.app.get('model');
+    var Model = request.baucis.controller.get('model');
 
     // Must be an object or array
     if (!documents || typeof documents !== 'object') {
@@ -112,7 +112,7 @@ var middleware = module.exports = {
         var ids = [].concat(saved).map(function (doc) { return doc._id });
         var query = Model.find({ _id: { $in: ids } });
         var selected = { // TODO move to request.baucis i.e. set elsewhere
-          controller: request.app.get('select'),
+          controller: request.baucis.controller.get('select'),
           query: request.query.select
         };
 

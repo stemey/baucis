@@ -286,7 +286,7 @@ describe('Controllers', function () {
     request.put(options, function (error, response, body) {
       if (error) return done(error);
       expect(response).to.have.property('statusCode', 500);
-      expect(body).to.contain('Error: The "X-Baucis-Push header" is deprecated.  Use "X-Baucis-Update-Operator: $push" instead.');
+      expect(body).to.contain('Error: The &quot;X-Baucis-Push header&quot; is deprecated.  Use &quot;X-Baucis-Update-Operator: $push&quot; instead.');
       done();
     });
   });
