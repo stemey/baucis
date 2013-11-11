@@ -12,11 +12,12 @@
   $.ajax({
     type: 'POST',
     dataType: 'json',
+    contentType : 'application/json',
     url: '/api/v1/vegetables',
-    data: {
+    data: JSON.stringify({
       name: 'carrot',
       color: 'orange'
-    }
+    })
   }).done(function (vegetable) {
     // The new document that was just created
     console.dir(vegetable);
@@ -27,14 +28,15 @@
     type: 'GET',
     dataType: 'json',
     url: '/api/v1/vegetables',
-    data: {
+    contentType : 'application/json',
+    data: JSON.stringify({
       limit: 2,
       sort: 'color',
-      conditions: JSON.stringify({
+      conditions: {
         color: 'red',
         'nutrition.sodium': { $lte: 10 }
-      }),
-      populate: JSON.stringify([
+      },
+      populate: [
         {
           path: 'child1',
           select: ['fieldA', 'fieldB'],
@@ -47,8 +49,8 @@
           path: 'child2',
           select: '-_id color nutrition'
         }
-      ])
-    }
+      ]
+    })
   }).done(function (vegetables) {
     console.dir(vegetables);
   });
