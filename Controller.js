@@ -119,10 +119,10 @@ var Controller = module.exports = function (options) {
 
   // __Initial Middleware__
 
-  // Middleware for parsing JSON POSTs
+  // Middleware for parsing JSON POST/PUTs
   controller.use(express.json());
 
-  // Middleware for parsing form POSTs
+  // Middleware for parsing form POST/PUTs
   controller.use(express.urlencoded());
 
   // Initialize baucis state
