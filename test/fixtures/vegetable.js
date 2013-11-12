@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 var express = require('express');
 var baucis = require('../..');
+var config = require('./config');
 
 var app;
 var server;
@@ -11,7 +12,7 @@ var fixture = module.exports = {
   init: function(done) {
     var Schema = mongoose.Schema;
 
-    mongoose.connect('mongodb://10.0.0.101/xXxBaUcIsTeStXxX');
+    mongoose.connect(config.mongo.url);
 
     var Vegetable = new Schema({
       name: { type: String, required: true },
