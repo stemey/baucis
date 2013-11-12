@@ -55,7 +55,6 @@ describe('GET singular', function () {
     request.get(options, function (error, response, body) {
       if (error) return done(error);
       expect(response.headers).not.to.have.property('location');
-      console.log(response.headers);
       done();
     });
   });
