@@ -1,6 +1,10 @@
 Baucis Change Log
 =================
 
+v0.6.24
+-------
+Adds default support for form POST (`application/x-www-form-urlencoded`).  Also allows use of default Express request query string parser (`conditions[name]=Tomato`), in addition to the JSON string format that is supported.
+
 v0.6.23
 -------
 Adds `request.baucis.controller`.  This also fixes issue #76 that was occurring with newer Express versions when they were used as a peer dependency.

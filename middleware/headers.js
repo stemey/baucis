@@ -63,7 +63,12 @@ var middleware = module.exports = {
   },
   // Build the "Accept" response header
   accept: function (request, response, next) {
-    response.set('Accept', 'application/json');
+    var putOff = (request.baucis.controller.get('put') === false);
+    var postOff = (request.baucis.controller.get('post') === false);
+
+    if (putOff && postOff) return next();
+
+    response.set('Accept', 'application/json, application/x-www-form-urlencoded');
     next();
   },
   // Add the "Location" response header

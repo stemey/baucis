@@ -9,7 +9,7 @@ describe('POST plural', function () {
   beforeEach(fixtures.vegetable.create);
   after(fixtures.vegetable.deinit);
 
-  it('should create a new object and return its ID', function (done) {
+  it('should create a new object and return its ID (JSON)', function (done) {
     var options = {
       url: 'http://localhost:8012/api/v1/vegetables/',
       json: { name: 'Tomato' }
@@ -30,6 +30,32 @@ describe('POST plural', function () {
       	expect(response).to.have.property('statusCode', 200);
       	expect(body).to.have.property('name', 'Tomato');
       	done();
+      });
+    });
+  });
+
+  it('should create a new object and return its ID (form)', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables/',
+      json: true,
+      form: { name: 'Tepin Pepper' }
+    };
+    request.post(options, function (error, response, body) {
+      if (error) return done(error);
+
+      expect(response.statusCode).to.equal(201);
+      expect(body._id).not.to.be.empty();
+      expect(response.headers.location).to.equal('/api/v1/vegetables/' + body._id);
+
+      var options = {
+        url: 'http://localhost:8012' + response.headers.location,
+        json: true
+      };
+      request.get(options, function (error, response, body) {
+        if (error) return done(error);
+        expect(response).to.have.property('statusCode', 200);
+        expect(body).to.have.property('name', 'Tepin Pepper');
+        done();
       });
     });
   });
@@ -57,8 +83,6 @@ describe('POST plural', function () {
     };
     request.post(options, function (error, response, body) {
       if (error) return done(error);
-
-      console.log(body)
 
       expect(response.statusCode).to.equal(201);
       expect(body[0]._id).not.to.be.empty();

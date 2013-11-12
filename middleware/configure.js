@@ -4,7 +4,10 @@ var middleware = module.exports = {
   conditions: function (request, response, next) {
     if (!request.query.conditions) return next();
 
-    request.baucis.conditions = JSON.parse(request.query.conditions);
+    var conditions = request.query.conditions;
+    if (typeof request.query.conditions === 'string') conditions = JSON.parse(conditions);
+
+    request.baucis.conditions = conditions;
     next();
   },
   // Specify that a count, rather than documents, should be returned
@@ -49,8 +52,11 @@ var middleware = module.exports = {
     }
     if (request.query.populate) {
       populate = request.query.populate;
-      if (populate.indexOf('{') !== -1) populate = JSON.parse(request.query.populate);
-      else if (populate.indexOf('[') !== -1) populate = JSON.parse(request.query.populate);
+
+      if (typeof populate === 'string') {
+        if (populate.indexOf('{') !== -1) populate = JSON.parse(populate);
+        else if (populate.indexOf('[') !== -1) populate = JSON.parse(populate);
+      }
 
       if (!Array.isArray(populate)) populate = [ populate ];
 

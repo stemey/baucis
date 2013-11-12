@@ -105,6 +105,19 @@ describe('Queries', function () {
     });
   });
 
+  it('should support default express query parser when using populate', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables?populate[path]=species',
+      json: true
+    };
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response).to.have.property('statusCode', 500);
+      expect(body).to.match(/Including excluded fields is not permitted[.]/i);
+      done();
+    });
+  });
+
   it('should disallow using +fields with populate', function (done) {
     var options = {
       url: 'http://localhost:8012/api/v1/vegetables?populate={ "select": "%2Bboiler" }',
@@ -153,6 +166,20 @@ describe('Queries', function () {
       if (error) return done(error);
       expect(response).to.have.property('statusCode', 500);
       expect(body).to.match(/May not set selected fields of populated document[.]/i);
+      done();
+    });
+  });
+
+  it('should allow default express query string format', function(done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables?conditions[name]=Radicchio',
+      json: true
+    };
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response).to.have.property('statusCode', 200);
+      expect(body).to.have.property('length', 1);
+      expect(body[0]).to.have.property('name', 'Radicchio')
       done();
     });
   });
