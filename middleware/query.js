@@ -17,7 +17,7 @@ var middleware = module.exports = {
     // Treat the addressed document as a collection, and push
     // the addressed object to it
     post: function (request, response, next) {
-      response.send(405); // method not allowed (as of yet unimplemented)
+      response.send(405); // method not allowed
     },
     // Update the addressed document
     put: function (request, response, next) {
@@ -53,7 +53,7 @@ var middleware = module.exports = {
     },
     // Update all given docs ...
     put: function (request, response, next) {
-      response.send(405); // method not allowed (as of yet unimplemented)
+      response.send(405); // method not allowed
     },
     // Delete all documents matching conditions
     del: function (request, response, next) {

@@ -1,6 +1,10 @@
 Baucis Change Log
 =================
 
+v0.6.25
+-------
+Respond with 400 for requests with malformed IDs.  Respond with 405 for disabled verbs.
+
 v0.6.24
 -------
 Adds default support for form POST (`application/x-www-form-urlencoded`).  Also allows use of default Express request query string parser (`conditions[name]=Tomato`), in addition to the JSON string format that is supported.

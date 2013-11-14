@@ -35,9 +35,12 @@ var fixture = module.exports = {
       }]
     });
 
+    var Beans = new Schema({ koji: Boolean });
+
     if (!mongoose.models['tool']) mongoose.model('tool', Tools);
     if (!mongoose.models['store']) mongoose.model('store', Stores);
     if (!mongoose.models['cheese']) mongoose.model('cheese', Cheese);
+    if (!mongoose.models['bean']) mongoose.model('bean', Beans);
 
     // Tools embedded controller
     subcontroller = baucis.rest({
@@ -81,6 +84,11 @@ var fixture = module.exports = {
       'allow $push': 'molds arbitrary arbitrary.$.llama',
       'allow $set': 'molds arbitrary.$.champagne',
       'allow $pull': 'molds arbitrary.$.llama'
+    });
+
+    baucis.rest({
+      singular: 'bean',
+      get: false
     });
 
     app = express();

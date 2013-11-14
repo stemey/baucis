@@ -111,17 +111,15 @@ var mixin = module.exports = function () {
     });
   }
 
-  // A method used to activate user middleware that was previously registered.
-  function activate (stage, howMany, verbs, middleware) {
+  // Core function for activating middleware
+  function _activate (factored, override) {
     if (initialized) throw new Error("Can't activate middleware after the controller has been activated.");
 
-    var options = last(1, ['howMany', 'verbs', 'middleware'], arguments);
-
-    factor(stage, options).forEach(function (definition) {
+    factored.forEach(function (definition) {
       var verbs = definition.verbs || 'head get post put del';
 
       verbs.split(' ').forEach(function (verb) {
-        if (controller.get(verb) === false) return;
+        if (!override && controller.get(verb) === false) return;
 
         var path;
 
@@ -132,6 +130,19 @@ var mixin = module.exports = function () {
         controller[verb](path, definition.middleware);
       });
     });
+  }
+
+  // A method used to activate baucis middleware & user middleware that was
+  // previously registered.
+  function activate (stage, howMany, verbs, middleware) {
+    var options = last(1, ['howMany', 'verbs', 'middleware'], arguments);
+    _activate(factor(stage, options), false);
+  }
+
+  // A method used to activate middleware overriding any verb options
+  function activateOverride (stage, howMany, verbs, middleware) {
+    var options = last(1, ['howMany', 'verbs', 'middleware'], arguments);
+    _activate(factor(stage, options), true);
   }
 
   // __Public Instance Methods__
@@ -164,7 +175,11 @@ var mixin = module.exports = function () {
     // Activate middleware to check for deprecated features
     activate('request', middleware.configure.deprecated);
     // Activate middleware that sets the Allow & Accept headers
-    activate('request', [ middleware.headers.allow, middleware.headers.accept ]);
+    activateOverride('request', [ middleware.headers.allow, middleware.headers.accept ]);
+    // Activate middleware that checks for correct Mongo _ids when applicable
+    activate('request', middleware.configure.checkId);
+    // Activate middleware that checks for disabled HTTP methods
+    activateOverride('request', middleware.configure.checkMethod);
     // Activate middleware to set request.baucis.conditions for find/remove
     activate('request', 'collection', 'head get del', middleware.configure.conditions);
     // Also activate conditions middleware for update

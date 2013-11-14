@@ -75,5 +75,21 @@ var middleware = module.exports = {
     }
 
     next(error);
+  },
+  checkId: function (request, response, next) {
+    var findBy = request.baucis.controller.get('findBy');
+    var id = request.params.id;
+    var findByPath = request.baucis.controller.get('model').schema.path(findBy);
+
+    if (!id) return next();
+    if (findByPath.instance !== 'ObjectID') return next();
+    if (id.match(/^[a-f0-9]{24}$/i)) return next();
+
+    response.send(400, 'Invalid ID.');
+  },
+  checkMethod: function (request, response, next) {
+    var method = request.method.toLowerCase();
+    if (request.baucis.controller.get(method) !== false) return next();
+    response.send(405, 'The requested method has been disabled for this resource.');
   }
 };
