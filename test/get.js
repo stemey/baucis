@@ -35,18 +35,6 @@ describe('GET singular', function () {
     });
   });
 
-  it('should return a 400 when ID malformed (not ObjectID)', function (done) {
-    var options = {
-      url: 'http://localhost:8012/api/v1/vegetables/6',
-      json: true
-    };
-    request.get(options, function (error, response, body) {
-      if (error) return done(error);
-      expect(response).to.have.property('statusCode', 400);
-      done();
-    });
-  });
-
   it('should not set Location header', function (done) {
     var options = {
       url: 'http://localhost:8012/api/v1/vegetables/6',

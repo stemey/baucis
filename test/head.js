@@ -35,16 +35,4 @@ describe('HEAD singular', function () {
     });
   });
 
-  it('should return a 400 when ID malformed (not ObjectID)', function (done) {
-    var options = {
-      url: 'http://localhost:8012/api/v1/vegetables/bad',
-      json: true
-    };
-    request.head(options, function (error, response, body) {
-      if (error) return done(error);
-      expect(response).to.have.property('statusCode', 400);
-      done();
-    });
-  });
-
 });

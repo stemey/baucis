@@ -7,7 +7,6 @@ var app;
 var server;
 var controller;
 var subcontroller;
-var cheesy;
 
 var fixture = module.exports = {
   init: function(done) {
@@ -36,11 +35,13 @@ var fixture = module.exports = {
     });
 
     var Beans = new Schema({ koji: Boolean });
+    var Deans = new Schema({ room: { type: Number, unique: true } });
 
     if (!mongoose.models['tool']) mongoose.model('tool', Tools);
     if (!mongoose.models['store']) mongoose.model('store', Stores);
     if (!mongoose.models['cheese']) mongoose.model('cheese', Cheese);
     if (!mongoose.models['bean']) mongoose.model('bean', Beans);
+    if (!mongoose.models['dean']) mongoose.model('dean', Deans);
 
     // Tools embedded controller
     subcontroller = baucis.rest({
@@ -77,7 +78,7 @@ var fixture = module.exports = {
 
     controller.use(subcontroller);
 
-    cheesy = baucis.rest({
+    baucis.rest({
       singular: 'cheese',
       select: '-_id +color name',
       findBy: 'name',
@@ -88,6 +89,12 @@ var fixture = module.exports = {
 
     baucis.rest({
       singular: 'bean',
+      get: false
+    });
+
+    baucis.rest({
+      singular: 'dean',
+      findBy: 'room',
       get: false
     });
 
