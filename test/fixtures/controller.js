@@ -9,7 +9,7 @@ var controller;
 var subcontroller;
 
 var fixture = module.exports = {
-  init: function(done) {
+  init: function (done) {
     var Schema = mongoose.Schema;
 
     mongoose.connect(config.mongo.url);
@@ -105,12 +105,12 @@ var fixture = module.exports = {
 
     done();
   },
-  deinit: function(done) {
+  deinit: function (done) {
     server.close();
     mongoose.disconnect();
     done();
   },
-  create: function(done) {
+  create: function (done) {
     // clear all first
     mongoose.model('store').remove({}, function (error) {
       if (error) return done(error);
