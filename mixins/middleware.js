@@ -170,6 +170,13 @@ var mixin = module.exports = function () {
   controller.initialize = function () {
     if (initialized) return controller;
 
+     // Subcontroller problem workaround, see https://github.com/wprl/baucis/issues/86
+    var alwaysSetController = function (request, response, next){
+        request.baucis.controller = controller;
+        next();
+    }
+    activate('request', alwaysSetController);
+
     // __Request-Stage Middleware__
 
     // Activate middleware to check for deprecated features
