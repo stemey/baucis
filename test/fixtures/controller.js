@@ -20,7 +20,8 @@ var fixture = module.exports = {
     });
 
     var Tools = new Schema({
-      name: { type: String, required: true }
+      name: { type: String, required: true },
+      bogus: { type: Boolean, default: false, required: true }
     });
 
     var Cheese = new Schema({
@@ -48,6 +49,11 @@ var fixture = module.exports = {
       singular: 'tool',
       basePath: '/:storeId/tools',
       publish: false
+    });
+
+    subcontroller.query(function (request, response, next) {
+      request.baucis.query.where('bogus', false);
+      next();
     });
 
     subcontroller.initialize();

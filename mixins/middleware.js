@@ -200,6 +200,8 @@ var mixin = module.exports = function () {
 
     // Delete any query instance POST middleware that was added implicitly.
     custom.query.instance.post = [];
+    // Delete any query collection POST middleware that was added implicitly (POSTs don't have a query stage).
+    custom.query.collection.post = [];
     // Delete any query collection PUT middleware that was added implicitly.
     custom.query.collection.put = [];
 
