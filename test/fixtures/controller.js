@@ -51,6 +51,11 @@ var fixture = module.exports = {
       publish: false
     });
 
+    subcontroller.request(function (request, response, next) {
+      if (request.baucis.controller === subcontroller) return next();
+      next(new Error('request.baucis.controller set incorrectly!'));
+    });
+
     subcontroller.query(function (request, response, next) {
       request.baucis.query.where('bogus', false);
       next();
@@ -63,6 +68,11 @@ var fixture = module.exports = {
       singular: 'store',
       findBy: 'name',
       select: '-mercoledi'
+    });
+
+    controller.request(function (request, response, next) {
+      if (request.baucis.controller === controller) return next();
+      next(new Error('request.baucis.controller set incorrectly!'));
     });
 
     controller.use('/binfo', function (request, response, next) {
