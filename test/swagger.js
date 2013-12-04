@@ -38,11 +38,13 @@ describe('Swagger Resource Listing', function () {
 
       // Check the API listing
       expect(body.apis).to.be.an(Array);
-      expect(body.apis).to.have.property('length', 2);
+      expect(body.apis).to.have.property('length', 3);
       expect(body.apis[0].path).to.be('/api-docs/fungi');
       expect(body.apis[0].description).to.be('Operations about fungi.');
-      expect(body.apis[1].path).to.be('/api-docs/vegetables');
-      expect(body.apis[1].description).to.be('Operations about vegetables.');
+      expect(body.apis[1].path).to.be('/api-docs/minerals');
+      expect(body.apis[1].description).to.be('Operations about minerals.');
+      expect(body.apis[2].path).to.be('/api-docs/vegetables');
+      expect(body.apis[2].description).to.be('Operations about vegetables.');
 
       done();
     });
