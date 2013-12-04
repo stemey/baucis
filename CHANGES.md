@@ -1,6 +1,10 @@
 Baucis Change Log
 =================
 
+v0.6.26
+-------
+Fix tests for latest version of Mongoose & Express
+
 v0.6.25
 -------
 Respond with 400 for requests with malformed IDs.  Respond with 405 for disabled verbs.
