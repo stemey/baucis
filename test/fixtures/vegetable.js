@@ -56,7 +56,10 @@ var fixture = module.exports = {
       select: '-hyphenated-field-name'
     });
 
-    baucis.rest('mineral');
+    baucis.rest({
+      singular: 'mineral',
+      relations: true
+    });
 
     controller = baucis.rest({
       singular: 'vegetable',
@@ -97,7 +100,7 @@ var fixture = module.exports = {
   create: function (done) {
     var Vegetable = mongoose.model('vegetable');
     var Mineral = mongoose.model('mineral');
-    var mineralNames = [ 'Blue', 'Green', 'Pearlescent' ];
+    var mineralNames = [ 'Blue', 'Green', 'Pearlescent', 'Red', 'Orange', 'Yellow', 'Indigo', 'Violet' ];
     var vegetableNames = [ 'Turnip', 'Spinach', 'Pea', 'Shitake', 'Lima Bean', 'Carrot', 'Zucchini', 'Radicchio' ];
     var minerals = mineralNames.map(function (color) {
       return new Mineral({ color: color });
