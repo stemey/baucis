@@ -168,15 +168,105 @@ describe('Controllers', function () {
     });
   });
 
-  it('should allow mounting of subcontrollers', function (done) {
+  it('should allow mounting of subcontrollers (GET plural)', function (done) {
     var options = {
       url: 'http://localhost:8012/api/v1/stores/123/tools',
       json: true
     };
-    request.get(options, function (err, response, body) {
-      if (err) return done(err);
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
       expect(response.statusCode).to.be(200);
       done();
+    });
+  });
+
+  it('should allow mounting of subcontrollers (POST plural)', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/stores/123/tools',
+      json: { name: 'Reticulating Saw' }
+    };
+    request.post(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response.statusCode).to.be(201);
+      done();
+    });
+  });
+
+  it('should allow mounting of subcontrollers (DEL plural)', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/stores/123/tools',
+      json: true
+    };
+    request.del(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response.statusCode).to.be(200);
+      done();
+    });
+  });
+
+  it('should allow mounting of subcontrollers (GET singular)', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/stores/123/tools',
+      json: true
+    };
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response.statusCode).to.be(200);
+
+      var id = body[0]._id;
+      var options = {
+        url: 'http://localhost:8012/api/v1/stores/123/tools/' + id,
+        json: true
+      };
+      request.get(options, function (error, response, body) {
+        if (error) return done(error);
+        expect(response.statusCode).to.be(200);
+        done();
+      });
+    });
+  });
+
+  it('should allow mounting of subcontrollers (PUT singular)', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/stores/123/tools',
+      json: true
+    };
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response.statusCode).to.be(200);
+
+      var id = body[0]._id;
+      var options = {
+        url: 'http://localhost:8012/api/v1/stores/123/tools/' + id,
+        json: { name: 'Screwdriver' }
+      };
+      request.put(options, function (error, response, body) {
+        if (error) return done(error);
+        expect(response.statusCode).to.be(200);
+        done();
+      });
+    });
+  });
+
+  it('should allow mounting of subcontrollers (DEL singular)', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/stores/123/tools',
+      json: true
+    };
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response.statusCode).to.be(200);
+
+      var id = body[0]._id;
+      var options = {
+        url: 'http://localhost:8012/api/v1/stores/123/tools/' + id,
+        json: true
+      };
+      request.del(options, function (error, response, body) {
+        if (error) return done(error);
+        expect(response.statusCode).to.be(200);
+        done();
+      });
     });
   });
 
@@ -185,8 +275,8 @@ describe('Controllers', function () {
       url: 'http://localhost:8012/api/v1/stores',
       json: true
     };
-    request.del(options, function (err, response, body) {
-      if (err) return done(err);
+    request.del(options, function (error, response, body) {
+      if (error) return done(error);
       expect(response).to.have.property('statusCode', 200);
       expect(response.headers['x-poncho']).to.be('Poncho!');
       done();
@@ -198,8 +288,8 @@ describe('Controllers', function () {
       url: 'http://localhost:8012/api/v1/stores/binfo',
       json: true
     };
-    request.post(options, function (err, response, body) {
-      if (err) return done(err);
+    request.post(options, function (error, response, body) {
+      if (error) return done(error);
       expect(response).to.have.property('statusCode', 200);
       expect(body).to.be('Poncho!');
       done();
