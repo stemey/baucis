@@ -1,13 +1,17 @@
+// __Dependencies__
 var mongoose = require('mongoose');
 var express = require('express');
+var async = require('async');
 var baucis = require('../..');
 var config = require('./config');
 
+// __Private Module Members__
 var app;
 var server;
 var controller;
 var subcontroller;
 
+// __Module Definition__
 var fixture = module.exports = {
   init: function(done) {
     var Schema = mongoose.Schema;
@@ -40,15 +44,19 @@ var fixture = module.exports = {
     });
 
     var Fungus = new Schema({ 'hyphenated-field-name': String });
+    var Mineral = new Schema({ color: String });
 
     if (!mongoose.models['vegetable']) mongoose.model('vegetable', Vegetable);
     if (!mongoose.models['fungus']) mongoose.model('fungus', Fungus);
+    if (!mongoose.models['mineral']) mongoose.model('mineral', Mineral);
 
     baucis.rest({
       singular: 'fungus',
       plural: 'fungi',
       select: '-hyphenated-field-name'
     });
+
+    baucis.rest('mineral');
 
     controller = baucis.rest({
       singular: 'vegetable',
@@ -86,28 +94,30 @@ var fixture = module.exports = {
     mongoose.disconnect();
     done();
   },
-  create: function(done) {
-    // clear all first
-    mongoose.model('vegetable').remove({}, function (error) {
-      if (error) return done(error);
-
-      var names = ['Turnip',   'Spinach',   'Pea',
-          		     'Shitake',  'Lima Bean', 'Carrot',
-                   'Zucchini', 'Radicchio'];
-
-      vegetables = names.map(function (name) { // TODO leaked global
-	      return new (mongoose.model('vegetable'))({ name: name });
-      });
-
-      var numberToSave = names.length;
-
-      vegetables.forEach(function (vege) {
-      	vege.save(function (error) {
-      	  numberToSave--;
-      	  if (error) return done(error);
-      	  if (numberToSave === 0) return done();
-      	});
-      });
+  create: function (done) {
+    var Vegetable = mongoose.model('vegetable');
+    var Mineral = mongoose.model('mineral');
+    var mineralNames = [ 'Blue', 'Green', 'Pearlescent' ];
+    var vegetableNames = [ 'Turnip', 'Spinach', 'Pea', 'Shitake', 'Lima Bean', 'Carrot', 'Zucchini', 'Radicchio' ];
+    var minerals = mineralNames.map(function (color) {
+      return new Mineral({ color: color });
     });
+    vegetables = vegetableNames.map(function (name) { // TODO leaked global
+      return new Vegetable({ name: name });
+    });
+    var deferred = [
+      Vegetable.remove.bind(Vegetable),
+      Mineral.remove.bind(Mineral)
+    ];
+
+    deferred = deferred.concat(vegetables.map(function (vegetable) {
+      return vegetable.save.bind(vegetable);
+    }));
+
+    deferred = deferred.concat(minerals.map(function (mineral) {
+      return mineral.save.bind(mineral);
+    }));
+
+    async.series(deferred, done);
   }
 };
