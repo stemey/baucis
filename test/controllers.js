@@ -270,6 +270,78 @@ describe('Controllers', function () {
     });
   });
 
+  it('should allow parent to function when mounting subcontrollers (GET plural)', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/stores/',
+      json: true
+    };
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response.statusCode).to.be(200);
+      done();
+    });
+  });
+
+  it('should allow parent to function when mounting subcontrollers (POST plural)', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/stores/',
+      json: { name: 'Arena' }
+    };
+    request.post(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response.statusCode).to.be(201);
+      done();
+    });
+  });
+
+  it('should allow parent to function when mounting subcontrollers (DELETE plural)', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/stores/',
+      json: true
+    };
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response.statusCode).to.be(200);
+      done();
+    });
+  });
+
+  it('should allow parent to function when mounting subcontrollers (GET singular)', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/stores/Westlake',
+      json: true
+    };
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response.statusCode).to.be(200);
+      done();
+    });
+  });
+
+  it('should allow parent to function when mounting subcontrollers (PUT singular)', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/stores/Westlake',
+      json: { mercoledi: false }
+    };
+    request.put(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response.statusCode).to.be(200);
+      done();
+    });
+  });
+
+  it('should allow parent to function when mounting subcontrollers (DELETE singular)', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/stores/Westlake',
+      json: true
+    };
+    request.del(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response.statusCode).to.be(200);
+      done();
+    });
+  });
+
   it('should allow using middleware', function (done) {
     var options = {
       url: 'http://localhost:8012/api/v1/stores',
