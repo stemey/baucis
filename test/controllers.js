@@ -27,7 +27,7 @@ describe('Controllers', function () {
     };
     request.get(options, function (err, response, body) {
       if (err) return done(err);
-      expect(response.statusCode).to.be(200);
+      expect(response).to.have.property('statusCode', 200);
       expect(body).to.have.property('length', 3);
       expect(body[1]).to.have.property('color', 'Yellow');
       expect(body[1]).to.have.property('name', 'Cheddar');
@@ -45,7 +45,7 @@ describe('Controllers', function () {
     };
     request.post(options, function (err, response, body) {
       if (err) return done(err);
-      expect(response.statusCode).to.be(201);
+      expect(response).to.have.property('statusCode', 201);
       expect(body).to.have.property('color', 'Green');
       expect(body).to.have.property('name', 'Gorgonzola');
       expect(body).not.to.have.property('_id');
@@ -62,7 +62,7 @@ describe('Controllers', function () {
     };
     request.put(options, function (err, response, body) {
       if (err) return done(err);
-      expect(response.statusCode).to.be(200);
+      expect(response).to.have.property('statusCode', 200);
       expect(body).to.have.property('color', 'White');
       expect(body).to.have.property('name', 'Cheddar');
       expect(body).not.to.have.property('_id');
@@ -79,7 +79,7 @@ describe('Controllers', function () {
     };
     request.post(options, function (err, response, body) {
       if (err) return done(err);
-      expect(response.statusCode).to.be(201);
+      expect(response).to.have.property('statusCode', 201);
       expect(body).to.have.property('_id');
       expect(body).to.have.property('__v');
       expect(body).to.have.property('name', "Lou's");
@@ -94,7 +94,7 @@ describe('Controllers', function () {
     };
     request.get(options, function (err, response, body) {
       if (err) return done(err);
-      expect(response.statusCode).to.be(200);
+      expect(response).to.have.property('statusCode', 200);
       expect(body).to.have.property('color', 'White');
       done();
     });
@@ -135,7 +135,7 @@ describe('Controllers', function () {
     };
     request.get(options, function (err, response, body) {
       if (err) return done(err);
-      expect(response.statusCode).to.be(200);
+      expect(response).to.have.property('statusCode', 200);
       expect(body).to.be('OK!');
       done();
     });
@@ -148,7 +148,7 @@ describe('Controllers', function () {
     };
     request.get(options, function (err, response, body) {
       if (err) return done(err);
-      expect(response.statusCode).to.be(200);
+      expect(response).to.have.property('statusCode', 200);
       expect(body).to.be('XYZ');
       done();
     });
@@ -162,7 +162,7 @@ describe('Controllers', function () {
     };
     request.get(options, function (err, response, body) {
       if (err) return done(err);
-      expect(response.statusCode).to.be(200);
+      expect(response).to.have.property('statusCode', 200);
       expect(body).to.eql([ { name: 'Corner' }, { name: 'Westlake' } ]);
       done();
     });
@@ -170,12 +170,14 @@ describe('Controllers', function () {
 
   it('should allow mounting of subcontrollers (GET plural)', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/stores/123/tools',
+      url: 'http://localhost:8012/api/v1/stores/123/tools?sort=name',
       json: true
     };
     request.get(options, function (error, response, body) {
       if (error) return done(error);
-      expect(response.statusCode).to.be(200);
+      expect(response).to.have.property('statusCode', 200);
+      expect(body).to.have.property('length', 3);
+      expect(body[0]).to.have.property('name', 'Axe');
       done();
     });
   });
@@ -187,7 +189,8 @@ describe('Controllers', function () {
     };
     request.post(options, function (error, response, body) {
       if (error) return done(error);
-      expect(response.statusCode).to.be(201);
+      expect(response).to.have.property('statusCode', 201);
+      expect(body).to.have.property('bogus', false);
       done();
     });
   });
@@ -199,19 +202,22 @@ describe('Controllers', function () {
     };
     request.del(options, function (error, response, body) {
       if (error) return done(error);
-      expect(response.statusCode).to.be(200);
+      expect(response).to.have.property('statusCode', 200);
+      expect(body).to.be(3);
       done();
     });
   });
 
   it('should allow mounting of subcontrollers (GET singular)', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/stores/123/tools',
+      url: 'http://localhost:8012/api/v1/stores/123/tools?sort=name',
       json: true
     };
     request.get(options, function (error, response, body) {
       if (error) return done(error);
-      expect(response.statusCode).to.be(200);
+      expect(response).to.have.property('statusCode', 200);
+      expect(body).to.have.property('length', 3);
+      expect(body[0]).to.have.property('name', 'Axe');
 
       var id = body[0]._id;
       var options = {
@@ -220,7 +226,8 @@ describe('Controllers', function () {
       };
       request.get(options, function (error, response, body) {
         if (error) return done(error);
-        expect(response.statusCode).to.be(200);
+        expect(response).to.have.property('statusCode', 200);
+        expect(body).to.have.property('name', 'Axe');
         done();
       });
     });
@@ -233,7 +240,7 @@ describe('Controllers', function () {
     };
     request.get(options, function (error, response, body) {
       if (error) return done(error);
-      expect(response.statusCode).to.be(200);
+      expect(response).to.have.property('statusCode', 200);
 
       var id = body[0]._id;
       var options = {
@@ -242,7 +249,9 @@ describe('Controllers', function () {
       };
       request.put(options, function (error, response, body) {
         if (error) return done(error);
-        expect(response.statusCode).to.be(200);
+        expect(response).to.have.property('statusCode', 200);
+        expect(body).to.have.property('name', 'Screwdriver');
+        expect(body).to.have.property('bogus', false);
         done();
       });
     });
@@ -250,12 +259,15 @@ describe('Controllers', function () {
 
   it('should allow mounting of subcontrollers (DEL singular)', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/stores/123/tools',
+      url: 'http://localhost:8012/api/v1/stores/123/tools?sort=name',
       json: true
     };
     request.get(options, function (error, response, body) {
       if (error) return done(error);
-      expect(response.statusCode).to.be(200);
+      expect(response).to.have.property('statusCode', 200);
+      expect(body).to.have.property('length', 3);
+      expect(body[0]).to.have.property('name', 'Axe');
+      expect()
 
       var id = body[0]._id;
       var options = {
@@ -264,7 +276,8 @@ describe('Controllers', function () {
       };
       request.del(options, function (error, response, body) {
         if (error) return done(error);
-        expect(response.statusCode).to.be(200);
+        expect(response).to.have.property('statusCode', 200);
+        expect(body).to.be(1);
         done();
       });
     });
@@ -272,12 +285,13 @@ describe('Controllers', function () {
 
   it('should allow parent to function when mounting subcontrollers (GET plural)', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/stores/',
+      url: 'http://localhost:8012/api/v1/stores/?sort=name',
       json: true
     };
     request.get(options, function (error, response, body) {
       if (error) return done(error);
-      expect(response.statusCode).to.be(200);
+      expect(response).to.have.property('statusCode', 200);
+      expect(body).to.have.length(2);
       done();
     });
   });
@@ -289,7 +303,8 @@ describe('Controllers', function () {
     };
     request.post(options, function (error, response, body) {
       if (error) return done(error);
-      expect(response.statusCode).to.be(201);
+      expect(response).to.have.property('statusCode', 201);
+      expect(body).not.to.have.property('bogus');
       done();
     });
   });
@@ -299,9 +314,10 @@ describe('Controllers', function () {
       url: 'http://localhost:8012/api/v1/stores/',
       json: true
     };
-    request.get(options, function (error, response, body) {
+    request.del(options, function (error, response, body) {
       if (error) return done(error);
-      expect(response.statusCode).to.be(200);
+      expect(response).to.have.property('statusCode', 200);
+      expect(body).to.be(2);
       done();
     });
   });
@@ -313,7 +329,8 @@ describe('Controllers', function () {
     };
     request.get(options, function (error, response, body) {
       if (error) return done(error);
-      expect(response.statusCode).to.be(200);
+      expect(response).to.have.property('statusCode', 200);
+      expect(body).to.have.property('name', 'Westlake');
       done();
     });
   });
@@ -325,7 +342,8 @@ describe('Controllers', function () {
     };
     request.put(options, function (error, response, body) {
       if (error) return done(error);
-      expect(response.statusCode).to.be(200);
+      expect(response).to.have.property('statusCode', 200);
+      expect(body).to.have.property('mercoledi', false);
       done();
     });
   });
@@ -337,7 +355,8 @@ describe('Controllers', function () {
     };
     request.del(options, function (error, response, body) {
       if (error) return done(error);
-      expect(response.statusCode).to.be(200);
+      expect(response).to.have.property('statusCode', 200);
+      expect(body).to.be(1);
       done();
     });
   });
