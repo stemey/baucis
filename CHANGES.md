@@ -1,6 +1,18 @@
 Baucis Change Log
 =================
 
+v0.7.0
+------
+Add support for hint and comment.  Enable them like so:
+
+    baucis.rest({
+      singular: 'fish',
+      'allow hints': true,
+      'allow comments': true
+    });
+
+Note: I decided to be more strict with implementing semver.  Minor version will be increasing with each new feature and patch number will be increased with bug fixes and misc. patches.
+
 v0.6.29
 -------
 Fix issue #86 which caused request.baucis.controller to sometimes be set incorrectly.

@@ -91,7 +91,11 @@ var Controller = module.exports = function (options) {
   controller.set('schema', model.schema);
   controller.set('plural', options.plural || lingo.en.pluralize(options.singular));
   controller.set('findBy', options.findBy || '_id');
+  controller.set('allow set', options['allow set'] || false);
+  controller.set('allow pull', options['allow pull'] || false);
   controller.set('allow push', options['allow push'] || false);
+  controller.set('allow comments', options['allow comments'] || false);
+  controller.set('allow hints', options['allow hints'] || false);
 
   controller.set('basePath', basePath);
   controller.set('basePathWithId', basePathWithId);

@@ -5,20 +5,20 @@ Baucis is Express middleware that creates configurable REST APIs using Mongoose 
 
 Like Baucis and Philemon of old, this library provides REST to the weary traveler.  The goal is to create a JSON REST API for Mongoose & Express that matches as closely as possible the richness and versatility of the [HTTP 1.1 protocol](http://www.w3.org/Protocols/rfc2616/rfc2616.html).
 
-Baucis uses [semver](http://semver.org).
+Baucis uses [semver](http://semver.org).  Each new feature results in a minor version increase, each bug fix in a patch number increase.
 
 <a href="https://www.gittip.com/wprl/">Donations via gittip.com are appreciated.</a>
 
 What's New
 ----------
 
+Lots of bug fixes and minor enhancements were added during v0.6.x.  Baucis now includes over 120 Mocha.js tests!
+
 A [change log](CHANGES.md) has been added with info about each new release.  Check there for the latest update notes.
 
-v0.6 has taken a detour into many small improvements and fixes.  Your suggestions, bug reports, forks, and patches are welcome!
+[Swagger](https://developers.helloreverb.com/swagger/) support has been partially added but is rather inflexible at the moment.  More Swagger functionality is planned in the near future.
 
-Additional swagger functionality is still planned before moving on to v0.7.
-
-[Swagger](https://developers.helloreverb.com/swagger/) support has been partially added but is rather inflexible at the moment.  Want to check it out?  Create your API with the swagger option enabled:
+Want to check it out now?  Create your API with the swagger option enabled:
 
     app.use('/api/v1', baucis({ swagger: true }));
 
@@ -107,6 +107,8 @@ Query Options
 | sort | Sort response documents by the given criteria.  `sort: 'foo -bar'`' sorts the collection by `foo` in ascending order, then by `bar` in descending order. |
 | populate | Set which fields should be populated for response documents.  See the Mongoose [population documentation](http://mongoosejs.com/docs/populate.html) for more information. |
 | count | May be set to true for GET requests to specify that a count should be returned instead of documents |
+| hint | Add an index hint to the query (must be enabled per controller).
+| comment | Add a comment to a query (must be enabled per controller).
 
 It is not permitted to use the `select` query option to select deselected paths.  This is to allow a mechanism for hiding fields from client software.
 
@@ -200,6 +202,11 @@ Controller Options
 | select | Select or deselect fields for all queries e.g. `'foo +bar -password'` |
 | findBy | Use another field besides `_id` for entity queries. |
 | lastModified | Set the `Last-Modified` HTTP header using the given field.  Currently this field must be a `Date`. |
+| allow push | *BYPASSES VALIDATION* Allow using X-Baucis-Update-Operator to push to a document's path. |
+| allow pull | *BYPASSES VALIDATION* Allow using X-Baucis-Update-Operator to pull from a document's path. |
+| allow set | *BYPASSES VALIDATION* Allow using X-Baucis-Update-Operator to set a document's path. |
+| allow hints | Allow sending an index hint from the client. |
+| allow comments | Allow sending a query comment from the client. |
 | head, get, post, put, del | May be set to false to disable those HTTP verbs completely for the controller |
 
 An example of embedding a controller within another controller
