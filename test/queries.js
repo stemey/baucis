@@ -404,4 +404,81 @@ describe('Queries', function () {
       done();
     });
   });
+
+  it('should report bad hints', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables?count=true&hint={ "foogle": 1 }',
+      json: true
+    };
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response).to.have.property('statusCode', 500);
+      done();
+    });
+  });
+
+  it('should allow adding index hint', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables?count=true&hint={ "_id": 1 }',
+      json: true
+    };
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response).to.have.property('statusCode', 200);
+      expect(body).to.be(8);
+      done();
+    });
+  });
+
+  it('should allow adding index hint', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables?count=true&hint[_id]=1',
+      json: true
+    };
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response).to.have.property('statusCode', 200);
+      expect(body).to.be(8);
+      done();
+    });
+  });
+
+  it('should allow adding a query comment', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables?count=true&comment=testing testing 123',
+      json: true
+    };
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response).to.have.property('statusCode', 200);
+      expect(body).to.be(8);
+      done();
+    });
+  });
+
+  it('should not allow adding an index hint if not enabled', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/fungi?hint={ "_id": 1 }',
+      json: true
+    };
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response).to.have.property('statusCode', 403);
+      done();
+    });
+  });
+
+
+  it('should ignore query comments if not enabled', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/fungi?comment=testing testing 123',
+      json: true
+    };
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response).to.have.property('statusCode', 200);
+      done();
+    });
+  });
+
 });

@@ -32,27 +32,55 @@ var middleware = module.exports = {
     // No deprecated features found.
     next();
   },
-  // Apply various options based on request query parameters
+  // Apply various options based on request query parameters.
   query: function (request, response, next) {
-    var populate;
+    var populate = request.query.populate;
+    var hint = request.query.hint;
+    var select = request.query.select;
+    var sort = request.query.sort;
+    var skip = request.query.skip;
+    var limit = request.query.limit;
+    var comment = request.query.comment;
     var error = null;
     var query = request.baucis.query;
 
-    if (request.query.sort) query.sort(request.query.sort);
-    if (request.query.skip) query.skip(request.query.skip);
-    if (request.query.limit) query.limit(request.query.limit);
-    if (request.query.select && request.baucis.query) {
-      if (request.query.select.indexOf('+') !== -1) {
-        return next(new Error('Including excluded fields is not permitted.'));
-      }
-      if (request.baucis.controller.checkBadSelection(request.query.select)) {
-        return next(new Error('Including excluded fields is not permitted.'));
-      }
-      query.select(request.query.select);
-    }
-    if (request.query.populate) {
-      populate = request.query.populate;
+    if (sort) query.sort(sort);
+    if (skip) query.skip(skip);
+    if (limit) query.limit(limit);
 
+    if (comment) {
+      if (request.baucis.controller.get('allow comments') === true) {
+        query.comment(comment);
+      }
+      else {
+        console.warn('Query comment was ignored.');
+      }
+    }
+
+    if (hint) {
+      if (request.baucis.controller.get('allow hints') === true) {
+        if (typeof hint === 'string') hint = JSON.parse(hint);
+        Object.keys(hint).forEach(function (path) {
+          hint[path] = Number(hint[path]);
+        });
+        query.hint(hint);
+      }
+      else {
+        response.send(403, 'Hints are not enabled for this resource.');
+      }
+    }
+
+    if (select && request.baucis.query) {
+      if (select.indexOf('+') !== -1) {
+        return next(new Error('Including excluded fields is not permitted.'));
+      }
+      if (request.baucis.controller.checkBadSelection(select)) {
+        return next(new Error('Including excluded fields is not permitted.'));
+      }
+      query.select(select);
+    }
+
+    if (populate) {
       if (typeof populate === 'string') {
         if (populate.indexOf('{') !== -1) populate = JSON.parse(populate);
         else if (populate.indexOf('[') !== -1) populate = JSON.parse(populate);

@@ -64,7 +64,9 @@ var fixture = module.exports = {
     controller = baucis.rest({
       singular: 'vegetable',
       lastModified: 'lastModified',
-      relations: true
+      relations: true,
+      'allow hints': true,
+      'allow comments': true
     });
 
     controller.request(function (request, response, next) {
