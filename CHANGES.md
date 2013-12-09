@@ -1,6 +1,10 @@
 Baucis Change Log
 =================
 
+v0.6.29
+-------
+Fix issue #86 which caused request.baucis.controller to sometimes be set incorrectly.
+
 v0.6.28
 -------
 Fix dependecy on async

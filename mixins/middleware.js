@@ -1,6 +1,7 @@
 // This is a Controller mixin for adding methods to manage middleware creation.
 
 // __Dependencies__
+var express = require('express');
 var middleware = require('../middleware');
 
 // __Private Module Members__
@@ -169,6 +170,22 @@ var mixin = module.exports = function () {
   // may be called multiple times, but will trigger intialization only once.
   controller.initialize = function () {
     if (initialized) return controller;
+
+    // __Initialization Middleware__
+
+    // Initialize baucis state
+    activateOverride('request', function (request, response, next) {
+      if (request.baucis) return next(new Error('Baucis request property already created!'));
+      request.baucis = {};
+      request.baucis.controller = controller;
+      next();
+    });
+
+    // Middleware for parsing JSON POST/PUTs
+    activateOverride('request', express.json());
+
+    // Middleware for parsing form POST/PUTs
+    activateOverride('request', express.urlencoded());
 
     // __Request-Stage Middleware__
 

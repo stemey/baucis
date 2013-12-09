@@ -40,10 +40,6 @@ var Controller = module.exports = function (options) {
 
   // __Public Instance Members__
 
-  // Mixins
-  mixins.middleware.apply(controller);
-  mixins.swagger.apply(controller);
-
   // Return the array of active verbs
   controller.activeVerbs = function () {
     return [ 'head', 'get', 'post', 'put', 'del' ].filter(function (verb) {
@@ -117,20 +113,9 @@ var Controller = module.exports = function (options) {
   });
   controller.set('deselected paths', deselected)
 
-  // __Initial Middleware__
-
-  // Middleware for parsing JSON POST/PUTs
-  controller.use(express.json());
-
-  // Middleware for parsing form POST/PUTs
-  controller.use(express.urlencoded());
-
-  // Initialize baucis state
-  controller.use(function (request, response, next) {
-    request.baucis = {};
-    request.baucis.controller = controller;
-    next();
-  });
+  // __Mixins__
+  mixins.middleware.apply(controller);
+  mixins.swagger.apply(controller);
 
   return controller;
 };
