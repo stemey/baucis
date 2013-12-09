@@ -2,7 +2,7 @@
   "name": "baucis",
   "author": "William Riley-Land <william@kun.io>",
   "homepage": "https://github.com/wprl/baucis",
-  "version": "0.6.27",
+  "version": "0.6.28",
   "main": "index.js",
   "scripts": {
     "test": "mocha --bail --timeout 5000 --globals vegetables"
@@ -19,16 +19,19 @@
   "description": "Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.",
   "keywords": [
     "REST",
+    "RESTful",
     "API",
     "express",
     "mongoose",
     "schema",
     "schemata",
-    "mongo"
+    "mongo",
+    "rfc2616"
   ],
   "dependencies": {
     "lingo": "0.0.5",
-    "requireindex": "~1.0.1"
+    "requireindex": "~1.0.1",
+    "async": "~0.2.9"
   },
   "peerDependencies": {
     "mongoose": "~3.8.1",
@@ -42,7 +45,6 @@
     "request": "~2.21.0",
     "parse-links": "0.0.1",
     "mongoose": "~3.8.1",
-    "express": "~3.4.6",
-    "async": "~0.2.9"
+    "express": "~3.4.6"
   }
 }

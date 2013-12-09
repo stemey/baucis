@@ -1,6 +1,10 @@
 Baucis Change Log
 =================
 
+v0.6.28
+-------
+Fix dependecy on async
+
 v0.6.27
 -------
 Fix an issue where POST middleware could be called at query stage
