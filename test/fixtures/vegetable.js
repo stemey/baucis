@@ -61,7 +61,7 @@ var fixture = module.exports = {
       relations: true
     });
 
-    controller = baucis.rest({
+    controller = fixture.controller = baucis.rest({
       singular: 'vegetable',
       lastModified: 'lastModified',
       relations: true,

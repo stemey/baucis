@@ -1,6 +1,12 @@
 Baucis Change Log
 =================
 
+v0.8.0
+------
+More Swagger!
+
+Add custom API definitions to a controller with `controller.addSwaggerApi`.  Other minor Swagger fixes.
+
 v0.7.0
 ------
 Add support for hint and comment.  Enable them like so:
