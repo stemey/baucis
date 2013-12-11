@@ -119,7 +119,7 @@ var mixin = module.exports = function () {
       parameters.push({
         paramType: 'header',
         name: 'X-Baucis-Update-Operator',
-        description: 'May be used with PUT to update the document using $push, $pull, or $set.',
+        description: '**BYPASSES VALIDATION** May be used with PUT to update the document using $push, $pull, or $set.',
         dataType: 'string',
         required: false,
         allowMultiple: false
