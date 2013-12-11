@@ -33,6 +33,9 @@ function capitalize (s) {
 // __Module Definition__
 var mixin = module.exports = function () {
 
+  // __Private Members__
+  var customApis = [];
+
   // __Public Members__
 
   // A method used to generate a Swagger model definition for a controller
@@ -115,9 +118,9 @@ var mixin = module.exports = function () {
 
       parameters.push({
         paramType: 'header',
-        name: 'X-Baucis-Push',
-        description: 'May be used with PUT to update the document using $push rather than $set',
-        dataType: 'boolean',
+        name: 'X-Baucis-Update-Operator',
+        description: '**BYPASSES VALIDATION** May be used with PUT to update the document using $push, $pull, or $set.',
+        dataType: 'string',
         required: false,
         allowMultiple: false
       });
@@ -142,18 +145,27 @@ var mixin = module.exports = function () {
         required: false,
         allowMultiple: false
       });
+
+      parameters.push({
+        paramType: 'query',
+        name: 'count',
+        description: 'Set to true to return count instead of documents.',
+        dataType: 'boolean',
+        required: false,
+        allowMultiple: false
+      });
+
+      parameters.push({
+        paramType: 'query',
+        name: 'conditions',
+        description: 'Set the conditions used to find or remove the document(s).',
+        dataType: 'string',
+        required: false,
+        allowMultiple: false
+      });
     }
 
     // Parameters available for singular and plural routes
-    parameters.push({
-      paramType: 'query',
-      name: 'count',
-      description: 'Set to true to return count instead of documents.',
-      dataType: 'boolean',
-      required: false,
-      allowMultiple: false
-    });
-
     parameters.push({
       paramType: 'query',
       name: 'select',
@@ -167,15 +179,6 @@ var mixin = module.exports = function () {
       paramType: 'query',
       name: 'populate',
       description: 'Specify which paths to populate.',
-      dataType: 'string',
-      required: false,
-      allowMultiple: false
-    });
-
-    parameters.push({
-      paramType: 'query',
-      name: 'conditions',
-      description: 'Set the conditions used to find or remove the document(s).',
       dataType: 'string',
       required: false,
       allowMultiple: false
@@ -218,6 +221,8 @@ var mixin = module.exports = function () {
 
   this.generateErrorResponses = function (plural) {
     var errorResponses = [];
+
+    // TODO other errors (400, 403, etc. )
 
     // Error rosponses for singular operations
     if (!plural) {
@@ -278,6 +283,12 @@ var mixin = module.exports = function () {
     return operations;
   };
 
+  this.addSwaggerApi = function (api) {
+    if (!api) throw new Error('Must provide an API definition.')
+    customApis.push(api);
+    return this;
+  };
+
   // A method used to generate a Swagger API definition for a controller
   this.generateApiDefinition = function (options) {
     var modelName = capitalize(this.get('singular'));
@@ -291,7 +302,11 @@ var mixin = module.exports = function () {
     };
 
     // Model
+    // TODO embedded models
     definition.models[modelName] = this.generateModelDefinition();
+
+    // Any custom routes
+    customApis.forEach(definition.apis.push.bind(definition.apis));
 
     // Instance route
     definition.apis.push({

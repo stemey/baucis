@@ -1,11 +1,6 @@
 var expect = require('expect.js');
-var mongoose = require('mongoose');
-var express = require('express');
-var passport = require('passport')
-var LocalStrategy = require('passport-local').Strategy;
 var request = require('request');
 var baucis = require('..');
-var parselinks = require('parse-links');
 
 var fixtures = require('./fixtures');
 
@@ -112,7 +107,34 @@ describe('Swagger Resource Listing', function () {
     });
   });
 
+  it('should allow adding custom APIs', function (done) {
+    fixtures.vegetable.controller.addSwaggerApi({
+      'path': '/vegetables/best',
+      'description': 'Operations on the best vegetable.',
+      'operations': [
+        {
+          'httpMethod': 'GET',
+          'nickname': 'getBestVegetable',
+          'responseClass': 'Vegetable',
+          'summary': 'Get the best vegetable'
+        }
+      ]
+    });
+    var options = {
+      url: 'http://127.0.0.1:8012/api/v1/api-docs/vegetables',
+      json: true
+    };
+    request.get(options, function (err, response, body) {
+      if (err) return done(err);
+
+      expect(response).to.have.property('statusCode', 200);
+      expect(body.apis[0]).to.have.property('path', '/vegetables/best');
+      done();
+    });
+  });
+
   it('should generate models correctly');
+  it('should generate embedded models correctly');
   it('should generate documentation for each controller');
   it('should keep paths deselected in the schema private');
   it('should keep paths deselected in the controller private');
