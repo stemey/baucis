@@ -1,5 +1,5 @@
 baucis v0.8.0
-==============
+=============
 
 Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.
 
@@ -237,4 +237,4 @@ Contact
  * http://kun.io/
  * @wprl
 
-&copy; 2012-2013 William P. Riley-Land
+&copy; 2012-2014 William P. Riley-Land
