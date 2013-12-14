@@ -161,6 +161,15 @@ var mixin = module.exports = function () {
         required: false,
         allowMultiple: false
       });
+
+      parameters.push({
+        paramType: 'query',
+        name: 'sort',
+        description: 'Set the fields by which to sort.',
+        dataType: 'string',
+        required: false,
+        allowMultiple: false
+      });
     }
 
     // Parameters available for singular and plural routes
@@ -177,15 +186,6 @@ var mixin = module.exports = function () {
       paramType: 'query',
       name: 'populate',
       description: 'Specify which paths to populate.',
-      dataType: 'string',
-      required: false,
-      allowMultiple: false
-    });
-
-    parameters.push({
-      paramType: 'query',
-      name: 'sort',
-      description: 'Set the fields by which to sort.',
       dataType: 'string',
       required: false,
       allowMultiple: false
