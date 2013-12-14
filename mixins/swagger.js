@@ -287,7 +287,6 @@ var mixin = module.exports = function () {
     controller.swagger = { apis: [], models: {} };
 
     // Model
-    // TODO embedded models
     controller.swagger.models[modelName] = controller.generateModelDefinition();
 
     // Instance route
