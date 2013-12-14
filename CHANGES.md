@@ -1,6 +1,11 @@
 Baucis Change Log
 =================
 
+v0.9.2
+------
+
+Don't list "sort" query parameter for plural endpoints.
+
 v0.9.1
 ------
 Custom swagger definitions — add an example to the README.
