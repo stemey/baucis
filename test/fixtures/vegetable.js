@@ -45,10 +45,13 @@ var fixture = module.exports = {
 
     var Fungus = new Schema({ 'hyphenated-field-name': String });
     var Mineral = new Schema({ color: String });
+    var Stuffing = new Schema({ bread: Boolean });
+    var Goose = new Schema({ cooked: Boolean, stuffed: [Stuffing] });
 
     if (!mongoose.models['vegetable']) mongoose.model('vegetable', Vegetable);
     if (!mongoose.models['fungus']) mongoose.model('fungus', Fungus);
     if (!mongoose.models['mineral']) mongoose.model('mineral', Mineral);
+    if (!mongoose.models['goose']) mongoose.model('goose', Goose);
 
     baucis.rest({
       singular: 'fungus',
@@ -60,6 +63,8 @@ var fixture = module.exports = {
       singular: 'mineral',
       relations: true
     });
+
+    baucis.rest({ singular: 'goose', plural: 'geese' });
 
     controller = fixture.controller = baucis.rest({
       singular: 'vegetable',

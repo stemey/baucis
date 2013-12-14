@@ -33,13 +33,15 @@ describe('Swagger Resource Listing', function () {
 
       // Check the API listing
       expect(body.apis).to.be.an(Array);
-      expect(body.apis).to.have.property('length', 3);
+      expect(body.apis).to.have.property('length', 4);
       expect(body.apis[0].path).to.be('/api-docs/fungi');
       expect(body.apis[0].description).to.be('Operations about fungi.');
       expect(body.apis[1].path).to.be('/api-docs/minerals');
       expect(body.apis[1].description).to.be('Operations about minerals.');
-      expect(body.apis[2].path).to.be('/api-docs/vegetables');
-      expect(body.apis[2].description).to.be('Operations about vegetables.');
+      expect(body.apis[2].path).to.be('/api-docs/geese');
+      expect(body.apis[2].description).to.be('Operations about geese.');
+      expect(body.apis[3].path).to.be('/api-docs/vegetables');
+      expect(body.apis[3].description).to.be('Operations about vegetables.');
 
       done();
     });
@@ -133,7 +135,25 @@ describe('Swagger Resource Listing', function () {
     });
   });
 
-  it('should generate models correctly');
+  it('should generate models correctly', function (done) {
+    var options = {
+      url: 'http://127.0.0.1:8012/api/v1/api-docs/geese',
+      json: true
+    };
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
+
+      expect(response).to.have.property('statusCode', 200);
+      expect(body.models).to.have.property('Goose');
+      expect(body.models.Goose).to.have.property('id', 'Goose');
+      expect(body.models.Goose.properties).to.have.property('cooked');
+      expect(body.models.Goose.properties).to.have.property('_id');
+      expect(body.models.Goose.properties).to.have.property('__v');
+
+      done();
+    });
+  });
+
   it('should generate embedded models correctly');
   it('should generate documentation for each controller');
   it('should keep paths deselected in the schema private');
