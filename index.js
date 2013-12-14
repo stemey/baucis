@@ -51,6 +51,7 @@ var baucis = module.exports = function (options) {
   // Activate Swagger resource listing if the option is enabled
   if (app.get('swagger') === true) {
     app.get('/api-docs', function (request, response, next) {
+      response.set('X-Powered-By', 'Baucis');
       response.json(app.generateResourceListing({ version: options.version, basePath: getBase(request, 1) }));
     });
   }
@@ -62,6 +63,7 @@ var baucis = module.exports = function (options) {
     // Add a route for the controller's Swagger API definition
     if (app.get('swagger')) {
       app.get('/api-docs' + route, function (request, response, next) {
+        response.set('X-Powered-By', 'Baucis');
         response.json({
           apiVersion: options.version,
           swaggerVersion: '1.1',

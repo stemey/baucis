@@ -76,4 +76,17 @@ describe('Headers', function () {
     });
   });
 
+  it('should set X-Powered-By', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables',
+      json: true
+    };
+    request.head(options, function (err, response, body) {
+      if (err) return done(err);
+      expect(response).to.have.property('statusCode', 200);
+      expect(response.headers).to.have.property('x-powered-by', 'Baucis');
+      done();
+    });
+  });
+
 });

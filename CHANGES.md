@@ -1,6 +1,11 @@
 Baucis Change Log
 =================
 
+v0.9.3
+------
+
+Set X-Powered-By to baucis for controller routes
+
 v0.9.2
 ------
 

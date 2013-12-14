@@ -178,6 +178,7 @@ var mixin = module.exports = function () {
       if (request.baucis) return next(new Error('Baucis request property already created!'));
       request.baucis = {};
       request.baucis.controller = controller;
+      response.set('X-Powered-By', 'Baucis');
       next();
     });
 
