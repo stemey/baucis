@@ -1,6 +1,11 @@
 Baucis Change Log
 =================
 
+v0.9.0
+------
+
+`controller.addSwaggerApi` has been destroyed in favor of exposing the controller Swagger APIs and models at `controller.swagger.apis` and `controller.swagger.models`.  These may be modified directly to change the genereated Swagger definitions.
+
 v0.8.0
 ------
 More Swagger!

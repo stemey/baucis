@@ -93,7 +93,7 @@ describe('Swagger Resource Listing', function () {
     });
   });
 
-  it('should correctly set path names with hyphens as private', function (done) {
+  it('should correctly set paths as private even if the path name contains hyphens', function (done) {
     var options = {
       url: 'http://127.0.0.1:8012/api/v1/api-docs/fungi',
       json: true
@@ -108,7 +108,7 @@ describe('Swagger Resource Listing', function () {
   });
 
   it('should allow adding custom APIs', function (done) {
-    fixtures.vegetable.controller.addSwaggerApi({
+    fixtures.vegetable.controller.swagger.apis.push({
       'path': '/vegetables/best',
       'description': 'Operations on the best vegetable.',
       'operations': [
@@ -128,7 +128,7 @@ describe('Swagger Resource Listing', function () {
       if (err) return done(err);
 
       expect(response).to.have.property('statusCode', 200);
-      expect(body.apis[0]).to.have.property('path', '/vegetables/best');
+      expect(body.apis[2]).to.have.property('path', '/vegetables/best');
       done();
     });
   });
