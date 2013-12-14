@@ -1,6 +1,10 @@
 Baucis Change Log
 =================
 
+v0.9.1
+------
+Custom swagger definitions — add an example to the README.
+
 v0.9.0
 ------
 

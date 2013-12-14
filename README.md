@@ -1,5 +1,5 @@
-baucis v0.9.0
-==============
+baucis v0.9.1
+=============
 
 Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.
 
@@ -7,16 +7,16 @@ Like Baucis and Philemon of old, this library provides REST to the weary travele
 
 Baucis uses [semver](http://semver.org).  Each new feature results in a minor version increase, each bug fix in a patch number increase.
 
+Baucis now includes over 120 Mocha.js tests.
+
 <a href="https://www.gittip.com/wprl/">Donations via gittip.com are appreciated.</a>
 
 What's New
 ----------
 
-Lots of bug fixes and minor enhancements were added during v0.6.x.  Baucis now includes over 120 Mocha.js tests!
+Check the [change log](CHANGES.md) for info on all the latest features.
 
-A [change log](CHANGES.md) has been added with info about each new release.  Check there for the latest update notes.
-
-[Swagger](https://developers.helloreverb.com/swagger/) support has been partially added but is rather inflexible at the moment.  More Swagger functionality is planned in the near future.
+[Swagger](https://developers.helloreverb.com/swagger/) support has been partially added.  More Swagger functionality is planned in the near future.
 
 Want to check it out now?  Create your API with the swagger option enabled:
 
@@ -32,6 +32,25 @@ Point it at your API.  Something like:
     http://localhost:8012/api/v1/api-docs
 
 Now you have documentation and a test client for free!
+
+To customize the swagger definition, simply alter the controler's swagger data directly:
+
+    var controller = baucis.rest('sauce');
+
+    controller.swagger.apis.push({
+      'path': '/sauces/awesome',
+      'description': 'Awesome sauce.',
+      'operations': [
+        {
+          'httpMethod': 'GET',
+          'nickname': 'getAwesomeSauce',
+          'responseClass': 'Sauce',
+          'summary': 'Taste the awesome sauce; be the awesome sauce.'
+        }
+      ]
+    });
+
+`controller.swagger.models` may also be directly modified.
 
 Examples
 --------
