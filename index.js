@@ -62,7 +62,14 @@ var baucis = module.exports = function (options) {
     // Add a route for the controller's Swagger API definition
     if (app.get('swagger')) {
       app.get('/api-docs' + route, function (request, response, next) {
-        response.json(controller.generateApiDefinition({ version: options.version, basePath: getBase(request, 2) }));
+        response.json({
+          apiVersion: options.version,
+          swaggerVersion: '1.1',
+          basePath: getBase(request, 2),
+          resourcePath: route,
+          apis: controller.swagger.apis,
+          models: controller.swagger.models
+        });
       });
     }
 
@@ -80,6 +87,8 @@ var baucis = module.exports = function (options) {
 // __Public Methods__
 baucis.rest = function (options) {
   var controller = Controller(options);
+
+  controller.generateSwaggerDefinition();
 
   // Publish unless told not to
   if (options.publish !== false) controllers.push(controller);

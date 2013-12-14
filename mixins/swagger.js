@@ -33,24 +33,22 @@ function capitalize (s) {
 // __Module Definition__
 var mixin = module.exports = function () {
 
-  // __Private Members__
-  var customApis = [];
+  var controller = this;
 
   // __Public Members__
 
   // A method used to generate a Swagger model definition for a controller
-  this.generateModelDefinition = function () {
-    var that = this;
+  controller.generateModelDefinition = function () {
     var definition = {};
-    var schema = this.get('schema');
+    var schema = controller.get('schema');
 
-    definition.id = capitalize(this.get('singular'));
+    definition.id = capitalize(controller.get('singular'));
     definition.properties = {};
 
     Object.keys(schema.paths).forEach(function (name) {
       var property = {};
       var path = schema.paths[name];
-      var select = that.get('select');
+      var select = controller.get('select');
       var type = swaggerTypeFor(path.options.type);
       var mode = select && (select.match(/\b[-]/g) ? 'exclusive' : 'inclusive');
       var exclusiveNamePattern = new RegExp('\\B-' + name + '\\b', 'gi');
@@ -102,7 +100,7 @@ var mixin = module.exports = function () {
   };
 
   // Generate parameter list for operations
-  this.generateParameters = function (verb, plural) {
+  controller.generateParameters = function (verb, plural) {
     var parameters = [];
 
     // Parameters available for singular routes
@@ -110,7 +108,7 @@ var mixin = module.exports = function () {
       parameters.push({
         paramType: 'path',
         name: 'id',
-        description: 'The ID of a ' + this.get('singular'),
+        description: 'The ID of a ' + controller.get('singular'),
         dataType: 'string',
         required: true,
         allowMultiple: false
@@ -199,7 +197,7 @@ var mixin = module.exports = function () {
         paramType: 'body',
         name: 'document',
         description: 'Create a document by sending the paths to be updated in the request body.',
-        dataType: capitalize(this.get('singular')),
+        dataType: capitalize(controller.get('singular')),
         required: true,
         allowMultiple: false
       });
@@ -210,7 +208,7 @@ var mixin = module.exports = function () {
         paramType: 'body',
         name: 'document',
         description: 'Update a document by sending the paths to be updated in the request body.',
-        dataType: capitalize(this.get('singular')),
+        dataType: capitalize(controller.get('singular')),
         required: true,
         allowMultiple: false
       });
@@ -219,7 +217,7 @@ var mixin = module.exports = function () {
     return parameters;
   };
 
-  this.generateErrorResponses = function (plural) {
+  controller.generateErrorResponses = function (plural) {
     var errorResponses = [];
 
     // TODO other errors (400, 403, etc. )
@@ -228,7 +226,7 @@ var mixin = module.exports = function () {
     if (!plural) {
       errorResponses.push({
         code: 404,
-        reason: 'No ' + this.get('singular') + ' was found with that ID.'
+        reason: 'No ' + controller.get('singular') + ' was found with that ID.'
       });
     }
 
@@ -236,7 +234,7 @@ var mixin = module.exports = function () {
     if (plural) {
       errorResponses.push({
         code: 404,
-        reason: 'No ' + this.get('plural') + ' matched that query.'
+        reason: 'No ' + controller.get('plural') + ' matched that query.'
       });
     }
 
@@ -247,14 +245,13 @@ var mixin = module.exports = function () {
   };
 
   // Generate a list of a controller's operations
-  this.generateOperations = function (plural) {
-    var that = this;
+  controller.generateOperations = function (plural) {
     var operations = [];
 
-    this.activeVerbs().forEach(function (verb) {
+    controller.activeVerbs().forEach(function (verb) {
       var operation = {};
-      var titlePlural = capitalize(that.get('plural'));
-      var titleSingular = capitalize(that.get('singular'));
+      var titlePlural = capitalize(controller.get('plural'));
+      var titleSingular = capitalize(controller.get('singular'));
 
       // Don't do head, post/put for single/plural
       if (verb === 'head') return;
@@ -271,11 +268,11 @@ var mixin = module.exports = function () {
 
       operation.responseClass = titleSingular; // TODO sometimes an array!
 
-      if (plural) operation.summary = capitalize(verb) + ' some ' + that.get('plural');
-      else operation.summary = capitalize(verb) + ' a ' + that.get('singular') + ' by its unique ID';
+      if (plural) operation.summary = capitalize(verb) + ' some ' + controller.get('plural');
+      else operation.summary = capitalize(verb) + ' a ' + controller.get('singular') + ' by its unique ID';
 
-      operation.parameters = that.generateParameters(verb, plural);
-      operation.errorResponses = that.generateErrorResponses(plural);
+      operation.parameters = controller.generateParameters(verb, plural);
+      operation.errorResponses = controller.generateErrorResponses(plural);
 
       operations.push(operation);
     });
@@ -283,45 +280,30 @@ var mixin = module.exports = function () {
     return operations;
   };
 
-  this.addSwaggerApi = function (api) {
-    if (!api) throw new Error('Must provide an API definition.')
-    customApis.push(api);
-    return this;
-  };
+  // A method used to generate a Swagger API definition for the controller
+  controller.generateSwaggerDefinition = function () {
+    var modelName = capitalize(controller.get('singular'));
 
-  // A method used to generate a Swagger API definition for a controller
-  this.generateApiDefinition = function (options) {
-    var modelName = capitalize(this.get('singular'));
-    var definition = {
-      apiVersion: options.version,
-      swaggerVersion: '1.1',
-      basePath: options.basePath,
-      resourcePath: '/' + this.get('plural'),
-      apis: [],
-      models: {}
-    };
+    controller.swagger = { apis: [], models: {} };
 
     // Model
     // TODO embedded models
-    definition.models[modelName] = this.generateModelDefinition();
-
-    // Any custom routes
-    customApis.forEach(definition.apis.push.bind(definition.apis));
+    controller.swagger.models[modelName] = controller.generateModelDefinition();
 
     // Instance route
-    definition.apis.push({
-      path: '/' + this.get('plural') + '/{id}',
-      description: 'Operations about a given ' + this.get('singular'),
-      operations: this.generateOperations(false)
+    controller.swagger.apis.push({
+      path: '/' + controller.get('plural') + '/{id}',
+      description: 'Operations about a given ' + controller.get('singular'),
+      operations: controller.generateOperations(false)
     });
 
     // Collection route
-    definition.apis.push({
-      path: '/' + this.get('plural'),
-      description: 'Operations about ' + this.get('plural'),
-      operations: this.generateOperations(true)
+    controller.swagger.apis.push({
+      path: '/' + controller.get('plural'),
+      description: 'Operations about ' + controller.get('plural'),
+      operations: controller.generateOperations(true)
     });
 
-    return definition;
+    return controller.swagger;
   };
 }
