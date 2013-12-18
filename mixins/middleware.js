@@ -230,8 +230,10 @@ var mixin = module.exports = function () {
 
     // Get the count for HEAD requests.
     activate('query', 'head', middleware.exec.count);
-    // Execute the find or remove query for GET and DELETE.
-    activate('query', 'get del', middleware.exec.exec);
+    // Execute the find query for GET.
+    activate('query', 'get', middleware.exec.exec);
+    // Execute the remove query for DELETE.
+    activate('query', 'del', middleware.exec.del);
     // Create the documents for a POST request.
     activate('query', 'collection', 'post', middleware.exec.create);
     // Update the documents specified for a PUT request.

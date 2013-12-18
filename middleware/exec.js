@@ -14,6 +14,28 @@ var middleware = module.exports = {
       next();
     });
   },
+  del: function (request, response, next) {
+    request.baucis.query.exec(function (error, documents) {
+      if (error) return next(error);
+      if (!documents) return response.send(404);
+
+      // Make it an array if it wasn't already
+      documents = [].concat(documents);
+
+      async.map(
+        documents,
+        function (doc, callback) {
+          doc.remove(callback);
+        },
+        function (error, removed) {
+          if (error) return next(error);
+          request.baucis.documents = removed.length;
+          next();
+        }
+      );
+
+    });
+  },
   count: function (request, response, next) {
     var lastModifiedPath = request.baucis.controller.get('lastModified');
 
