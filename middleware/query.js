@@ -33,7 +33,7 @@ var middleware = module.exports = {
     // Delete the addressed object
     del: function (request, response, next) {
       var Model = request.baucis.controller.get('model');
-      request.baucis.query = Model.remove(request.baucis.controller.getFindByConditions(request));
+      request.baucis.query = Model.findOne(request.baucis.controller.getFindByConditions(request));
       next();
     }
   },
@@ -58,7 +58,7 @@ var middleware = module.exports = {
     // Delete all documents matching conditions
     del: function (request, response, next) {
       var Model = request.baucis.controller.get('model');
-      request.baucis.query = Model.remove(request.baucis.conditions);
+      request.baucis.query = Model.find(request.baucis.conditions);
       next();
     }
   }
