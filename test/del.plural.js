@@ -21,4 +21,18 @@ describe('DEL plural', function () {
       done();
     });
   });
+
+  it('should invoke "remove" middleware', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables/',
+      json: true
+    };
+    request.del(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(vegetables.join('')).to.be('deldeldeldeldeldeldeldel');
+      done();
+    });
+
+  });
+
 });

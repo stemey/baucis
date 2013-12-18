@@ -38,6 +38,13 @@ var fixture = module.exports = {
       next();
     });
 
+    Vegetable.pre('remove', function (next) {
+      for(var i=0; i<vegetables.length; i++) {
+        if (vegetables[i].name === this.name) vegetables[i] = 'del';
+      }
+      next();
+    });
+
     Vegetable.pre('save', function (next) {
       fixture.preCount += 1;
       next();
