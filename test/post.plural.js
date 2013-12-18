@@ -104,7 +104,7 @@ describe('POST plural', function () {
   });
 
   it('should fire pre save Mongoose middleware', function (done) {
-    fixtures.vegetable.preCount = 0;
+    fixtures.vegetable.saveCount = 0;
 
     var options = {
       url: 'http://localhost:8012/api/v1/vegetables/',
@@ -113,7 +113,7 @@ describe('POST plural', function () {
     request.post(options, function (error, response, body) {
       if (error) return done(error);
 
-      expect(fixtures.vegetable.preCount).to.be(1);
+      expect(fixtures.vegetable.saveCount).to.be(1);
       done();
     });
   });

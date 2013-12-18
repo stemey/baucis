@@ -41,9 +41,11 @@ describe('DEL singular', function () {
       url: 'http://localhost:8012/api/v1/vegetables/' + shitake._id,
       json: true
     };
+
+    fixtures.vegetable.removeCount = 0;
     request.del(options, function (error, response, body) {
       if (error) return done(error);
-      expect(vegetables[3]).to.be('del');
+      expect(fixtures.vegetable).to.have.property('removeCount', 1);
       done();
     });
 

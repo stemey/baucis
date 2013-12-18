@@ -1,10 +1,15 @@
 Baucis Change Log
 =================
 
+v0.9.4
+------
+
+Fix an issue where remove middleware wasn't called.  Special thanks to lukaszfiszer!
+
 v0.9.3
 ------
 
-Set X-Powered-By to baucis for controller routes
+Set X-Powered-By to baucis for baucis routes
 
 v0.9.2
 ------

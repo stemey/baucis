@@ -81,7 +81,7 @@ describe('PUT singular', function () {
   });
 
   it('should fire pre save Mongoose middleware', function (done) {
-    fixtures.vegetable.preCount = 0;
+    fixtures.vegetable.saveCount = 0;
 
     var radicchio = vegetables[7];
     var options = {
@@ -91,7 +91,7 @@ describe('PUT singular', function () {
     request.put(options, function (error, response, body) {
       if (error) return done(error);
 
-      expect(fixtures.vegetable.preCount).to.be(1);
+      expect(fixtures.vegetable.saveCount).to.be(1);
       done();
     });
   });

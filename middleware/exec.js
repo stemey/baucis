@@ -20,19 +20,15 @@ var middleware = module.exports = {
       if (!documents) return response.send(404);
 
       // Make it an array if it wasn't already
-      documents = [].concat(documents);
+      var tasks = [].concat(documents).map(function (doc) {
+        return doc.remove.bind(doc);
+      });
 
-      async.map(
-        documents,
-        function (doc, callback) {
-          doc.remove(callback);
-        },
-        function (error, removed) {
-          if (error) return next(error);
-          request.baucis.documents = removed.length;
-          next();
-        }
-      );
+      async.parallel(tasks, function (error, removed) {
+        if (error) return next(error);
+        request.baucis.documents = removed.length;
+        next();
+      });
 
     });
   },

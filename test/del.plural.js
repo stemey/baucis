@@ -27,9 +27,11 @@ describe('DEL plural', function () {
       url: 'http://localhost:8012/api/v1/vegetables/',
       json: true
     };
+
+    fixtures.vegetable.removeCount = 0;
     request.del(options, function (error, response, body) {
       if (error) return done(error);
-      expect(vegetables.join('')).to.be('deldeldeldeldeldeldeldel');
+      expect(fixtures.vegetable).to.have.property('removeCount', 8);
       done();
     });
 

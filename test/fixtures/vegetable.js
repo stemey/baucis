@@ -26,7 +26,8 @@ var fixture = module.exports = {
       related: { type: Schema.ObjectId, ref: 'vegetable' }
     });
 
-    fixture.preCount = 0;
+    fixture.saveCount = 0;
+    fixture.removeCount = 0;
 
     Vegetable.pre('save', function (next) {
       this.set('related', this._id);
@@ -38,15 +39,13 @@ var fixture = module.exports = {
       next();
     });
 
-    Vegetable.pre('remove', function (next) {
-      for(var i=0; i<vegetables.length; i++) {
-        if (vegetables[i].name === this.name) vegetables[i] = 'del';
-      }
+    Vegetable.pre('save', function (next) {
+      fixture.saveCount += 1;
       next();
     });
 
-    Vegetable.pre('save', function (next) {
-      fixture.preCount += 1;
+    Vegetable.pre('remove', function (next) {
+      fixture.removeCount += 1;
       next();
     });
 
