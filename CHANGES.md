@@ -1,6 +1,24 @@
 Baucis Change Log
 =================
 
+v0.10.0
+-------
+Send `409 Conflict` when there are document version conflicts.  This is useful for optimistic locking.
+
+Mongoose only updates `__v` for certain array operations by default.  To update for every save (optimistic locking), add this Mongoose middleware to the schema:
+
+    schema.pre('save', funciton (next) {
+      this.increment();
+      next();
+    });
+
+By default, document version is only checked for conflict when the versionKey is sent with the PUT request, otherwise no version checking is done.  To force version checking for all PUT requests:
+
+    var controller = baucis.rest({
+      singular: 'tea',
+      'always check version': true
+    });
+
 v0.9.4
 ------
 

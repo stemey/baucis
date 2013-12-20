@@ -19,6 +19,11 @@ var fixture = module.exports = {
       mercoledi: Boolean
     });
 
+    Stores.on('save', function (next) {
+      this.increment();
+      next();
+    });
+
     var Tools = new Schema({
       name: { type: String, required: true },
       bogus: { type: Boolean, default: false, required: true }
@@ -33,6 +38,11 @@ var fixture = module.exports = {
         champagne: String,
         llama: [ Number ]
       }]
+    });
+
+    Cheese.on('save', function (next) {
+      this.increment();
+      next();
     });
 
     var Beans = new Schema({ koji: Boolean });
@@ -67,7 +77,8 @@ var fixture = module.exports = {
     controller = baucis.rest({
       singular: 'store',
       findBy: 'name',
-      select: '-mercoledi'
+      select: '-mercoledi',
+      'always check version': true
     });
 
     controller.request(function (request, response, next) {
@@ -98,6 +109,7 @@ var fixture = module.exports = {
       singular: 'cheese',
       select: '-_id +color name',
       findBy: 'name',
+      // 'always check version': true,
       'allow $push': 'molds arbitrary arbitrary.$.llama',
       'allow $set': 'molds arbitrary.$.champagne',
       'allow $pull': 'molds arbitrary.$.llama'

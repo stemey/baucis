@@ -245,7 +245,7 @@ describe('Controllers', function () {
       var id = body[0]._id;
       var options = {
         url: 'http://localhost:8012/api/v1/stores/123/tools/' + id,
-        json: { name: 'Screwdriver' }
+        json: { name: 'Screwdriver', __v: body[0].__v + 10 }
       };
       request.put(options, function (error, response, body) {
         if (error) return done(error);
@@ -338,7 +338,7 @@ describe('Controllers', function () {
   it('should allow parent to function when mounting subcontrollers (PUT singular)', function (done) {
     var options = {
       url: 'http://localhost:8012/api/v1/stores/Westlake',
-      json: { mercoledi: false }
+      json: { mercoledi: false, __v: 0 }
     };
     request.put(options, function (error, response, body) {
       if (error) return done(error);
@@ -477,7 +477,7 @@ describe('Controllers', function () {
       url: 'http://localhost:8012/api/v1/stores/Westlake',
       headers: { 'X-Baucis-Update-Operator': '$push' },
       json: true,
-      body: { molds: 'penicillium roqueforti' }
+      body: { molds: 'penicillium roqueforti', __v: 0 }
     };
     request.put(options, function (error, response, body) {
       if (error) return done(error);
@@ -526,7 +526,7 @@ describe('Controllers', function () {
       url: 'http://localhost:8012/api/v1/stores/Westlake',
       headers: { 'X-Baucis-Update-Operator': '$pull' },
       json: true,
-      body: { molds: 'penicillium roqueforti' }
+      body: { molds: 'penicillium roqueforti', __v: 0 }
     };
     request.put(options, function (error, response, body) {
       if (error) return done(error);
@@ -586,7 +586,7 @@ describe('Controllers', function () {
       url: 'http://localhost:8012/api/v1/stores/Westlake',
       headers: { 'X-Baucis-Update-Operator': '$set' },
       json: true,
-      body: { molds: 'penicillium roqueforti' }
+      body: { molds: 'penicillium roqueforti', __v: 0 }
     };
     request.put(options, function (error, response, body) {
       if (error) return done(error);
@@ -732,6 +732,99 @@ describe('Controllers', function () {
     request.head(options, function (error, response, body) {
       if (error) return done(error);
       expect(response).to.have.property('statusCode', 400);
+      done();
+    });
+  });
+
+  it('should send "409 Conflict" if there is a version conflict', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/stores/Westlake',
+      json: true,
+      body: { __v: 10 }
+    };
+    request.put(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response).to.have.property('statusCode', 200);
+      var options = {
+        url: 'http://localhost:8012/api/v1/stores/Westlake',
+        json: true,
+        body: { __v: 0 }
+      };
+      request.put(options, function (error, response, body) {
+        if (error) return done(error);
+        expect(response).to.have.property('statusCode', 409);
+        done();
+      });
+    });
+  });
+
+  it('should not send "409 Conflict" if there is no version conflict (equal)', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/cheeses/Camembert',
+      json: true
+    };
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response).to.have.property('statusCode', 200);
+
+      var options = {
+        url: 'http://localhost:8012/api/v1/cheeses/Camembert',
+        json: true,
+        body: { __v: body.__v }
+      };
+      request.put(options, function (error, response, body) {
+        if (error) return done(error);
+        expect(response).to.have.property('statusCode', 200);
+        done();
+      });
+    });
+  });
+
+  it('should not send "409 Conflict" if there is no version conflict (greater than)', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/cheeses/Camembert',
+      json: true
+    };
+    request.get(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response).to.have.property('statusCode', 200);
+
+      var options = {
+        url: 'http://localhost:8012/api/v1/cheeses/Camembert',
+        json: true,
+        body: { __v: body.__v + 10 }
+      };
+      request.put(options, function (error, response, body) {
+        if (error) return done(error);
+        expect(response).to.have.property('statusCode', 200);
+        done();
+      });
+    });
+  });
+
+  it('should send "409 Conflict" if alwaysCheckVersion is enabled and no version is sent', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/stores/Westlake',
+      json: true,
+      body: { }
+    };
+    request.put(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response).to.have.property('statusCode', 409);
+      done();
+    });
+  });
+
+  it('should cause an error if alwaysCheckVersion is enabled and no version is selected', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/stores/Westlake',
+      json: true,
+      qs: { select: '-__v' },
+      body: { __v: 1000 }
+    };
+    request.put(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response).to.have.property('statusCode', 500);
       done();
     });
   });
