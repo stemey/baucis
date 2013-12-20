@@ -58,7 +58,7 @@ var middleware = module.exports = {
     var update = extend(request.body);
     var versionKey = request.baucis.controller.get('schema').get('versionKey');
     var alwaysCheckVersion = request.baucis.controller.get('always check version');
-    var version = update[versionKey];
+    var updateVersion = update[versionKey];
     var done = function (error, saved) {
       if (error) return next(error);
       request.baucis.documents = saved;
@@ -66,19 +66,19 @@ var middleware = module.exports = {
     };
 
     if (operator && validOperators.indexOf(operator) === -1) return next(new Error('Unsupported update operator: ' + operator));
-    if (alwaysCheckVersion && (version !== 0) && !version) return response.send(409);
+    if (alwaysCheckVersion && !Number.isFinite(updateVersion)) return response.send(409);
 
     request.baucis.query.exec(function (error, doc) {
       if (error) return next(error);
       if (!doc) return response.send(404);
 
-      var previousVersion = doc[versionKey];
+      var currentVersion = doc[versionKey];
 
       if (alwaysCheckVersion && !doc.isSelected(versionKey)) {
         next(new Error('version key "'+ versionKey + '" was not selected.'));
         return;
       }
-      if (previousVersion && (version || version === 0) && version < previousVersion) {
+      if (Number.isFinite(currentVersion) && Number.isFinite(updateVersion) && updateVersion < currentVersion) {
         response.send(409);
         return;
       }
