@@ -19,11 +19,6 @@ var fixture = module.exports = {
       mercoledi: Boolean
     });
 
-    Stores.on('save', function (next) {
-      this.increment();
-      next();
-    });
-
     var Tools = new Schema({
       name: { type: String, required: true },
       bogus: { type: Boolean, default: false, required: true }
@@ -40,19 +35,18 @@ var fixture = module.exports = {
       }]
     });
 
-    Cheese.on('save', function (next) {
-      this.increment();
-      next();
-    });
-
     var Beans = new Schema({ koji: Boolean });
     var Deans = new Schema({ room: { type: Number, unique: true } });
+    var Liens = new Schema({ title: String });
+    var Means = new Schema({ average: Number });
 
     if (!mongoose.models['tool']) mongoose.model('tool', Tools);
     if (!mongoose.models['store']) mongoose.model('store', Stores);
     if (!mongoose.models['cheese']) mongoose.model('cheese', Cheese);
     if (!mongoose.models['bean']) mongoose.model('bean', Beans);
     if (!mongoose.models['dean']) mongoose.model('dean', Deans);
+    if (!mongoose.models['lien']) mongoose.model('lien', Liens);
+    if (!mongoose.models['mean']) mongoose.model('mean', Means);
 
     // Tools embedded controller
     subcontroller = baucis.rest({
@@ -77,8 +71,7 @@ var fixture = module.exports = {
     controller = baucis.rest({
       singular: 'store',
       findBy: 'name',
-      select: '-mercoledi',
-      'always check version': true
+      select: '-mercoledi'
     });
 
     controller.request(function (request, response, next) {
@@ -126,8 +119,24 @@ var fixture = module.exports = {
       get: false
     });
 
+    baucis.rest({
+      singular: 'lien',
+      locking: true
+    });
+
+    baucis.rest({
+      singular: 'mean',
+      locking: true,
+      'always check version': true
+    });
+
     app = express();
     app.use('/api/v1', baucis());
+
+    app.use(function (error, request, response, next) {
+      if (error) return response.send(500, error.toString());
+      next();
+    });
 
     server = app.listen(8012);
 
