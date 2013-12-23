@@ -3,7 +3,7 @@ Baucis Change Log
 
 v0.10.1
 -------
-Improvements to optimistic locking.  Adds the 'locking' controller option.  When set to true, this option enables automatic version increments and strict version checking.  When enabled, `__v` must always be sent with updates, and the baucis query must always have the `__v` key selected.
+Improvements to optimistic locking.  Adds the 'locking' controller option.  When set to true, this option enables *automatic* version increments and strict version checking.  When enabled, `__v` must always be sent with updates, and the baucis query must always have the `__v` key selected.
 
 If this option is not enabled, no extra lock checking or version incrementing is performed outside what is normally done by Mongoose.
 
@@ -11,21 +11,7 @@ The 'always check version' controller option has been deprecated.
 
 v0.10.0
 -------
-Send `409 Conflict` when there are document version conflicts.  This is useful for optimistic locking.
-
-Mongoose only updates `__v` for certain array operations by default.  To update for every save (optimistic locking), add this Mongoose middleware to the schema:
-
-    schema.pre('save', funciton (next) {
-      this.increment();
-      next();
-    });
-
-By default, document version is only checked for conflict when the versionKey is sent with the PUT request, otherwise no version checking is done.  To force version checking for all PUT requests:
-
-    var controller = baucis.rest({
-      singular: 'tea',
-      'always check version': true
-    });
+Deprecated
 
 v0.9.4
 ------
