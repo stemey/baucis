@@ -245,7 +245,7 @@ describe('Controllers', function () {
       var id = body[0]._id;
       var options = {
         url: 'http://localhost:8012/api/v1/stores/123/tools/' + id,
-        json: { name: 'Screwdriver', __v: body[0].__v + 10 }
+        json: { name: 'Screwdriver' }
       };
       request.put(options, function (error, response, body) {
         if (error) return done(error);
@@ -267,7 +267,6 @@ describe('Controllers', function () {
       expect(response).to.have.property('statusCode', 200);
       expect(body).to.have.property('length', 3);
       expect(body[0]).to.have.property('name', 'Axe');
-      expect()
 
       var id = body[0]._id;
       var options = {
@@ -467,7 +466,7 @@ describe('Controllers', function () {
     request.put(options, function (error, response, body) {
       if (error) return done(error);
       expect(response).to.have.property('statusCode', 500);
-      expect(body).to.contain('Error: The &quot;X-Baucis-Push header&quot; is deprecated.  Use &quot;X-Baucis-Update-Operator: $push&quot; instead.');
+      expect(body).to.contain('Error: The "X-Baucis-Push header" is deprecated.  Use "X-Baucis-Update-Operator: $push" instead.');
       done();
     });
   });
@@ -738,17 +737,46 @@ describe('Controllers', function () {
 
   it('should send "409 Conflict" if there is a version conflict', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/stores/Westlake',
+      url: 'http://localhost:8012/api/v1/liens',
       json: true,
-      body: { __v: 10 }
+      body: { title: 'Franklin' }
     };
-    request.put(options, function (error, response, body) {
+    request.post(options, function (error, response, body) {
+      if (error) return done(error);
+      expect(response).to.have.property('statusCode', 201);
+
+      var options = {
+        url: 'http://localhost:8012/api/v1/liens/' + body._id,
+        json: true,
+        body: { title: 'Ranken', __v: 0 }
+      };
+
+      request.put(options, function (error, response, body) {
+        if (error) return done(error);
+
+        request.put(options, function (error, response, body) {
+          if (error) return done(error);
+          expect(response).to.have.property('statusCode', 409);
+          done();
+        });
+      });
+    });
+  });
+
+  it('should send "409 Conflict" if there is a version conflict (greater than)', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/liens',
+      json: true,
+      body: { title: 'Smithton' }
+    };
+    request.get(options, function (error, response, body) {
       if (error) return done(error);
       expect(response).to.have.property('statusCode', 200);
+
       var options = {
-        url: 'http://localhost:8012/api/v1/stores/Westlake',
+        url: 'http://localhost:8012/api/v1/liens/' + body[1]._id,
         json: true,
-        body: { __v: 0 }
+        body: { __v: body[1].__v + 10 }
       };
       request.put(options, function (error, response, body) {
         if (error) return done(error);
@@ -760,7 +788,7 @@ describe('Controllers', function () {
 
   it('should not send "409 Conflict" if there is no version conflict (equal)', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/cheeses/Camembert',
+      url: 'http://localhost:8012/api/v1/liens',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -768,9 +796,9 @@ describe('Controllers', function () {
       expect(response).to.have.property('statusCode', 200);
 
       var options = {
-        url: 'http://localhost:8012/api/v1/cheeses/Camembert',
+        url: 'http://localhost:8012/api/v1/liens/' + body[1]._id,
         json: true,
-        body: { __v: body.__v }
+        body: { __v: body[1].__v }
       };
       request.put(options, function (error, response, body) {
         if (error) return done(error);
@@ -780,53 +808,55 @@ describe('Controllers', function () {
     });
   });
 
-  it('should not send "409 Conflict" if there is no version conflict (greater than)', function (done) {
+  it('should cause an error if locking is enabled and no version is selected', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/cheeses/Camembert',
-      json: true
+      url: 'http://localhost:8012/api/v1/liens',
+      json: true,
+      body: { title: 'Forest Expansion' }
     };
     request.get(options, function (error, response, body) {
       if (error) return done(error);
       expect(response).to.have.property('statusCode', 200);
 
       var options = {
-        url: 'http://localhost:8012/api/v1/cheeses/Camembert',
+        url: 'http://localhost:8012/api/v1/liens/' + body[0]._id,
         json: true,
-        body: { __v: body.__v + 10 }
+        qs: { select: '-__v' },
+        body: { __v: 1000 }
       };
       request.put(options, function (error, response, body) {
         if (error) return done(error);
-        expect(response).to.have.property('statusCode', 200);
+        expect(response).to.have.property('statusCode', 500);
         done();
       });
     });
   });
 
-  it('should send "409 Conflict" if alwaysCheckVersion is enabled and no version is sent', function (done) {
+
+  it('should cause an error if locking is enabled and no version is selected', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/stores/Westlake',
+      url: 'http://localhost:8012/api/v1/liens',
       json: true,
-      body: { }
+      body: { title: 'Forest Expansion' }
     };
-    request.put(options, function (error, response, body) {
+    request.get(options, function (error, response, body) {
       if (error) return done(error);
-      expect(response).to.have.property('statusCode', 409);
-      done();
+      expect(response).to.have.property('statusCode', 200);
+
+      var options = {
+        url: 'http://localhost:8012/api/v1/liens/' + body[0]._id,
+        json: true,
+        qs: { select: '-__v' },
+        body: { __v: 1000 }
+      };
+      request.put(options, function (error, response, body) {
+        if (error) return done(error);
+        expect(response).to.have.property('statusCode', 500);
+        done();
+      });
     });
   });
 
-  it('should cause an error if alwaysCheckVersion is enabled and no version is selected', function (done) {
-    var options = {
-      url: 'http://localhost:8012/api/v1/stores/Westlake',
-      json: true,
-      qs: { select: '-__v' },
-      body: { __v: 1000 }
-    };
-    request.put(options, function (error, response, body) {
-      if (error) return done(error);
-      expect(response).to.have.property('statusCode', 500);
-      done();
-    });
-  });
+  it('should not send 409 if locking is not enabled');
 
 });

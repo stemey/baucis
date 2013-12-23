@@ -1,4 +1,4 @@
-baucis v0.10.0
+baucis v0.10.1
 ==============
 
 Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.
@@ -227,7 +227,7 @@ Controller Options
 | allow hints | Allow sending an index hint from the client. |
 | allow comments | Allow sending a query comment from the client. |
 | head, get, post, put, del | May be set to false to disable those HTTP verbs completely for the controller |
-| always check version | Force all PUTs to send the document version (__v).  By default, if a version is not sent with an update no version checking is performed. |
+| locking | Enable optimistic locking.  Requires that all PUTs must send the document version (__v) and will send a 409 response if there is a version conflict. |
 
 An example of embedding a controller within another controller
 

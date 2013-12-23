@@ -55,62 +55,58 @@ var middleware = module.exports = {
   },
   update: function (request, response, next) {
     var operator = request.headers['x-baucis-update-operator'];
+    var conditions;
+    var updateWrapper = {};
     var update = extend(request.body);
     var versionKey = request.baucis.controller.get('schema').get('versionKey');
-    var alwaysCheckVersion = request.baucis.controller.get('always check version');
+    var lock = request.baucis.controller.get('locking') === true;
     var updateVersion = update[versionKey];
     var done = function (error, saved) {
       if (error) return next(error);
+      if (!saved) return response.send(404);
       request.baucis.documents = saved;
       next();
     };
 
-    if (operator && validOperators.indexOf(operator) === -1) return next(new Error('Unsupported update operator: ' + operator));
-    if (alwaysCheckVersion && !Number.isFinite(updateVersion)) return response.send(409);
+    if (lock && !Number.isFinite(updateVersion)) return response.send(409);
 
+    // Save with non-default operator
+    if (operator) {
+      if (validOperators.indexOf(operator) === -1) return next(new Error('Unsupported update operator: ' + operator));
+      // Ensure that some paths have been enabled for the operator.
+      if (!request.baucis.controller.get('allow ' + operator)) return next(new Error('Update operator not enabled for this controller: ' + operator));
+      // Make sure paths have been whitelisted for this operator.
+      if (request.baucis.controller.checkBadUpdateOperatorPaths(operator, Object.keys(update))) {
+        return next(new Error("Can't use update operator with non-whitelisted paths."));
+      }
+
+      conditions = request.baucis.controller.getFindByConditions(request);
+      if (lock) conditions[versionKey] = updateVersion;
+      updateWrapper[operator] = update;
+      request.baucis.controller.get('model').findOneAndUpdate(conditions, updateWrapper, done);
+      return;
+    }
+
+    // Default update operator with `doc.save`.
     request.baucis.query.exec(function (error, doc) {
       if (error) return next(error);
       if (!doc) return response.send(404);
 
       var currentVersion = doc[versionKey];
 
-      if (alwaysCheckVersion && !doc.isSelected(versionKey)) {
-        next(new Error('version key "'+ versionKey + '" was not selected.'));
-        return;
-      }
-      if (Number.isFinite(currentVersion) && Number.isFinite(updateVersion) && updateVersion < currentVersion) {
-        response.send(409);
-        return;
-      }
-
-      if (!operator) {
-        doc.set(update);
-        doc.save(done);
-        return;
+      if (lock) {
+        // Make sure the version key was selected.
+        if (!doc.isSelected(versionKey)) return next(new Error('Version key "'+ versionKey + '" was not selected.'));
+        // Update and current version have been found.
+        // Check if they're equal.
+        if (updateVersion !== currentVersion) response.send(409);
+        // One is not allowed to set __v and increment in the same update.
+        delete update[versionKey];
+        doc.increment();
       }
 
-      // Non-default operator
-      var conditions = request.baucis.controller.getFindByConditions(request);
-      var updateWrapper = {};
-
-      updateWrapper[operator] = update;
-
-      // Oh man I really want this to trigger validation…
-      //      var pathParts = 'arbitrary.$.llama'.split('.');
-      //
-      //      doc.get(parts[0]) //arr
-      //      subdoc = ...;// find one(s) that matches where for query
-      //      subdoc.push(parts[2], val)
-
-      // Ensure that some paths have been enabled for the operator.
-      if (!request.baucis.controller.get('allow ' + operator)) return next(new Error('Update operator not enabled for this controller: ' + operator));
-
-      // Make sure paths have been whitelisted for this operator.
-      if (request.baucis.controller.checkBadUpdateOperatorPaths(operator, Object.keys(update))) {
-        return next(new Error("Can't use update operator with non-whitelisted paths."));
-      }
-
-      request.baucis.controller.get('model').findOneAndUpdate(conditions, updateWrapper, done);
+      doc.set(update);
+      doc.save(done);
     });
   },
   // Create new document(s) and send them back in the response
