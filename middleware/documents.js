@@ -40,28 +40,23 @@ var middleware = module.exports = {
 
     // 404 if document(s) not found or 0 documents removed/counted
     if (!documents) return response.send(404);
-
-    if (request.baucis.noBody) return response.send();
-
+    // Send 204 No Content if no body.
+    if (request.baucis.noBody) return response.send(204);
     // If it's a document count (e.g. the result of a DELETE), send it back and
     // short-circuit.
     if (typeof documents === 'number') return response.json(documents);
-
     // If count mode is set, send the length, or send 1 for single document
     if (request.baucis.count) {
       if (Array.isArray(documents)) response.json(documents.length);
       else response.json(1);
       return;
     }
-
     // If it's not a POST, send now because Location shouldn't be set.
     if (request.method !== 'POST') return response.json(documents);
-
     // Ensure there is a trailing slash on basePath for proper function of
     // url.resolve, otherwise the model's plural will be missing in the location
     // URL.
     if(!basePath.match(/\/$/)) basePath += '/';
-
     // Otherwise, set the location and send JSON document(s).  Don't set location if documents
     // don't have IDs for whatever reason e.g. custom middleware.
     if (!Array.isArray(documents) && documents instanceof mongoose.Document) {

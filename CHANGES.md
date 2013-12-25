@@ -1,6 +1,10 @@
 Baucis Change Log
 =================
 
+v0.10.2
+-------
+Send 204 when no content.
+
 v0.10.1
 -------
 Improvements to optimistic locking.  Adds the 'locking' controller option.  When set to true, this option enables *automatic* version increments and strict version checking.  When enabled, `__v` must always be sent with updates, and the baucis query must always have the `__v` key selected.
