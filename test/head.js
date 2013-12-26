@@ -16,7 +16,7 @@ describe('HEAD singular', function () {
     };
     request.head(options, function (error, response, body) {
       if (error) return done(error);
-      expect(response).to.have.property('statusCode', 200);
+      expect(response).to.have.property('statusCode', 204);
       expect(body).to.be(undefined);
       done();
     });
