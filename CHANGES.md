@@ -3,15 +3,15 @@ Baucis Change Log
 
 v0.10.5
 -------
-Send 405 when DELETE is disabled on a controller.
+Send 405 when DELETE is disabled on a controller.  (Special thanks to lukaszfiszer.)
 
 v0.10.4
 -------
-Fix a bug where Accept used "DEL" instead of "DELETE."  Fix another bug where ETag was not sent for HEAD requests.
+Fix a bug where Accept used "DEL" instead of "DELETE."  Fix another bug where ETag was not sent for HEAD requests.  (Special thanks to lukaszfiszer.)
 
 v0.10.3
 -------
-Don't change status to 204 for HEAD requests.
+Don't change status to 204 for HEAD requests.  (Special thanks to lukaszfiszer.)
 
 v0.10.2
 -------
