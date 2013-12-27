@@ -41,7 +41,10 @@ var middleware = module.exports = {
     // 404 if document(s) not found or 0 documents removed/counted
     if (!documents) return response.send(404);
     // Send 204 No Content if no body.
-    if (request.baucis.noBody) return response.send(204);
+    if (request.baucis.noBody) {
+      if (request.method === 'HEAD') return response.send();
+      else return response.send(204);
+    }
     // If it's a document count (e.g. the result of a DELETE), send it back and
     // short-circuit.
     if (typeof documents === 'number') return response.json(documents);

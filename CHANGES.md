@@ -1,6 +1,10 @@
 Baucis Change Log
 =================
 
+v0.10.3
+-------
+Don't change status to 204 for HEAD requests.
+
 v0.10.2
 -------
 Send 204 when no content.

@@ -70,7 +70,7 @@ describe('Headers', function () {
     };
     request.head(options, function (err, response, body) {
       if (err) return done(err);
-      expect(response).to.have.property('statusCode', 204);
+      expect(response).to.have.property('statusCode', 200);
       expect(response.headers).to.have.property('accept', 'application/json, application/x-www-form-urlencoded');
       done();
     });
@@ -83,7 +83,7 @@ describe('Headers', function () {
     };
     request.head(options, function (err, response, body) {
       if (err) return done(err);
-      expect(response).to.have.property('statusCode', 204);
+      expect(response).to.have.property('statusCode', 200);
       expect(response.headers).to.have.property('x-powered-by', 'Baucis');
       done();
     });
