@@ -1,6 +1,10 @@
 Baucis Change Log
 =================
 
+v0.10.5
+-------
+Send 405 when DELETE is disabled on a controller.
+
 v0.10.4
 -------
 Fix a bug where Accept used "DEL" instead of "DELETE."  Fix another bug where ETag was not sent for HEAD requests.

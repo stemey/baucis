@@ -121,7 +121,8 @@ var fixture = module.exports = {
 
     baucis.rest({
       singular: 'lien',
-      locking: true
+      locking: true,
+      del: false
     });
 
     baucis.rest({
