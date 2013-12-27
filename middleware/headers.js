@@ -1,6 +1,6 @@
 // __Dependencies__
 var url = require('url');
-var extend = require('util')._extend;
+var extend = require('util')._extend; // TODO use connect/util/merge (cutils)
 var qs = require('querystring');
 
 // __Module Definition__
@@ -55,6 +55,7 @@ var middleware = module.exports = {
   // Build the "Allow" response header
   allow: function (request, response, next) {
     var allowed = request.baucis.controller.activeVerbs().map(function (verb) {
+      if (verb === 'del') return 'DELETE';
       return verb.toUpperCase();
     });
 

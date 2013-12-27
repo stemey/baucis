@@ -1,6 +1,10 @@
 Baucis Change Log
 =================
 
+v0.10.4
+-------
+Fix a bug where Accept used "DEL" instead of "DELETE."  Fix another bug where ETag was not sent for HEAD requests.
+
 v0.10.3
 -------
 Don't change status to 204 for HEAD requests.

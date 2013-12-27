@@ -1,5 +1,6 @@
 // __Dependencies__
 var url = require('url');
+var eutils = require('express/lib/utils');
 var mongoose = require('mongoose');
 
 // __Module Definition__
@@ -34,6 +35,8 @@ var middleware = module.exports = {
   send: function (request, response, next) {
     var ids;
     var location;
+    var replacer;
+    var spaces;
     var findBy = request.baucis.controller.get('findBy');
     var basePath = request.originalUrl;
     var documents = request.baucis.documents;
@@ -42,8 +45,13 @@ var middleware = module.exports = {
     if (!documents) return response.send(404);
     // Send 204 No Content if no body.
     if (request.baucis.noBody) {
-      if (request.method === 'HEAD') return response.send();
-      else return response.send(204);
+      if (request.method !== 'HEAD') return response.send(204);
+      if (documents) {
+        replacer = request.baucis.controller.get('json replacer');
+        spaces = request.baucis.controller.get('json spaces');
+        response.set('ETag', eutils.etag(JSON.stringify(documents, replacer, spaces)));
+      }
+      return response.send(200);
     }
     // If it's a document count (e.g. the result of a DELETE), send it back and
     // short-circuit.

@@ -33,25 +33,12 @@ var middleware = module.exports = {
     });
   },
   count: function (request, response, next) {
-    var lastModifiedPath = request.baucis.controller.get('lastModified');
-
     request.baucis.count = true;
-
-    if (lastModifiedPath) {
-      request.baucis.query.select('-_id ' + lastModifiedPath);
-      request.baucis.query.exec(function (error, documents) {
-        if (error) return next(error);
-        request.baucis.documents = documents;
-        next();
-      });
-    }
-    else {
-      request.baucis.query.count(function (error, count) {
-        if (error) return next(error);
-        request.baucis.documents = count;
-        next();
-      });
-    }
+    request.baucis.query.exec(function (error, documents) {
+      if (error) return next(error);
+      request.baucis.documents = documents;
+      next();
+    });
   },
   update: function (request, response, next) {
     var operator = request.headers['x-baucis-update-operator'];

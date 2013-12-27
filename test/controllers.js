@@ -706,7 +706,7 @@ describe('Controllers', function () {
     request.get('http://localhost:8012/api/v1/beans', function (error, response, body) {
       if (error) return done(error);
       expect(response).to.have.property('statusCode', 405);
-      expect(response.headers).to.have.property('allow', 'HEAD,POST,PUT,DEL');
+      expect(response.headers).to.have.property('allow', 'HEAD,POST,PUT,DELETE');
       done();
     });
   });
