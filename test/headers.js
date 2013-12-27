@@ -40,11 +40,31 @@ describe('Headers', function () {
       };
       request.put(options, function (err, response, body) {
         if (err) return done(err);
+        var updatedModified = new Date(response.headers['last-modified']);
         expect(response).to.have.property('statusCode', 200);
-        expect(new Date(response.headers['last-modified'])).to.be.greaterThan(originalModified);
-        done();
+        expect(updatedModified).to.be.greaterThan(originalModified);
+
+        request.head(options, function (err, response, body) {
+          if (err) return done(err);
+          expect(response).to.have.property('statusCode', 200);
+          expect(new Date(response.headers['last-modified'])).to.be(updatedModified);
+          done();
+        });
       });
     }, 1000);
+  });
+
+  it('should set allowed', function (done) {
+    var options = {
+      url: 'http://localhost:8012/api/v1/vegetables',
+      json: true
+    };
+    request.head(options, function (err, response, body) {
+      if (err) return done(err);
+      expect(response).to.have.property('statusCode', 200);
+      expect(response.headers).to.have.property('allow', 'HEAD,GET,POST,PUT,DELETE');
+      done();
+    });
   });
 
   it('should set ETag', function (done) {
@@ -55,7 +75,7 @@ describe('Headers', function () {
       url: 'http://localhost:8012/api/v1/vegetables',
       json: true
     };
-    request.get(options, function (err, response, body) {
+    request.head(options, function (err, response, body) {
       if (err) return done(err);
       expect(response).to.have.property('statusCode', 200);
       expect(response.headers).to.have.property('etag');
