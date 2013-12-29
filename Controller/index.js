@@ -1,3 +1,5 @@
+module.exports = require('requireindex')(__dirname);
+
 // __Dependencies__
 var util = require('util');
 var express = require('express');
@@ -39,8 +41,6 @@ var Controller = module.exports = function (options) {
   var basePathWithOptionalId = basePath + separator + ':id?';
 
   // __Public Instance Members__
-
-  // TODO consider moving these to mixins
 
   // Return the array of active verbs
   controller.activeVerbs = function () {
@@ -119,11 +119,11 @@ var Controller = module.exports = function (options) {
   deselected = deselected.filter(function(path, position) {
     return deselected.indexOf(path) === position;
   });
-  controller.set('deselected paths', deselected)
+  controller.set('deselected paths', deselected);
 
   // __Mixins__
-  mixins.middleware.apply(controller);
-  mixins.swagger.apply(controller);
+  mixins.Controller.middleware.apply(controller);
+  mixins.Controller.swagger.apply(controller);
 
   controller.generateSwaggerDefinition();
 

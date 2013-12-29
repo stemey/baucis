@@ -1,20 +1,33 @@
 // __Dependencies__
 var async = require('async');
-var extend = require('util')._extend;
+var connect = require('connect');
 
 // __Private Module Members__
 var validOperators = [ '$set', '$push', '$pull' ];
 
 // __Module Definition__
-var middleware = module.exports = {
-  exec: function (request, response, next) {
+var mixin = module.exports = function (activate) {
+  // Get the count for HEAD requests.
+  activate('query', 'head', function (request, response, next) {
+    request.baucis.count = true;
     request.baucis.query.exec(function (error, documents) {
       if (error) return next(error);
       request.baucis.documents = documents;
       next();
     });
-  },
-  del: function (request, response, next) {
+  });
+
+  // Execute the find query for GET.
+  activate('query', 'get', function (request, response, next) {
+    request.baucis.query.exec(function (error, documents) {
+      if (error) return next(error);
+      request.baucis.documents = documents;
+      next();
+    });
+  });
+
+  // Execute the remove query for DELETE.
+  activate('query', 'del', function (request, response, next) {
     request.baucis.query.exec(function (error, documents) {
       if (error) return next(error);
       if (!documents) return response.send(404);
@@ -31,20 +44,63 @@ var middleware = module.exports = {
       });
 
     });
-  },
-  count: function (request, response, next) {
-    request.baucis.count = true;
-    request.baucis.query.exec(function (error, documents) {
-      if (error) return next(error);
-      request.baucis.documents = documents;
-      next();
-    });
-  },
-  update: function (request, response, next) {
+  });
+
+  // Create the documents for a POST request.
+  activate('query', 'collection', 'post', function (request, response, next) {
+    var saved = [];
+    var documents = request.body;
+    var Model = request.baucis.controller.get('model');
+
+    // Must be an object or array
+    if (!documents || typeof documents !== 'object') {
+      return next(new Error('Must supply a document or array to POST.'));
+    }
+
+    // Make it an array if it wasn't already
+    documents = [].concat(documents);
+
+    // No empty arrays
+    if (documents.length === 0) return next(new Error('Array was empty.'));
+
+    response.status(201);
+
+    async.map(
+      documents,
+      function (doc, callback) {
+        var created = new Model();
+        created.set(doc);
+        created.save(callback);
+      },
+      function (error, saved) {
+        if (error) return next(error);
+
+        var ids = [].concat(saved).map(function (doc) { return doc._id });
+        var query = Model.find({ _id: { $in: ids } });
+        var selected = { // TODO move to request.baucis i.e. set elsewhere
+          controller: request.baucis.controller.get('select'),
+          query: request.query.select
+        };
+
+        if (selected.controller) query.select(selected.controller);
+        if (selected.query) query.select(selected.query);
+
+        // Reload models and apply select options
+        query.exec(function (error, reloaded) {
+          if (error) return next(error);
+          request.baucis.documents = reloaded.length === 1 ? reloaded[0] : reloaded;
+          next();
+        });
+      }
+    );
+  });
+
+  // Update the documents specified for a PUT request.
+  activate('query', 'instance', 'put', function (request, response, next) {
     var operator = request.headers['x-baucis-update-operator'];
     var conditions;
     var updateWrapper = {};
-    var update = extend(request.body);
+    var update = connect.utils.merge(request.body);
     var versionKey = request.baucis.controller.get('schema').get('versionKey');
     var lock = request.baucis.controller.get('locking') === true;
     var updateVersion = update[versionKey];
@@ -95,53 +151,5 @@ var middleware = module.exports = {
       doc.set(update);
       doc.save(done);
     });
-  },
-  // Create new document(s) and send them back in the response
-  create: function (request, response, next) {
-    var saved = [];
-    var documents = request.body;
-    var Model = request.baucis.controller.get('model');
-
-    // Must be an object or array
-    if (!documents || typeof documents !== 'object') {
-      return next(new Error('Must supply a document or array to POST.'));
-    }
-
-    // Make it an array if it wasn't already
-    documents = [].concat(documents);
-
-    // No empty arrays
-    if (documents.length === 0) return next(new Error('Array was empty.'));
-
-    response.status(201);
-
-    async.map(
-      documents,
-      function (doc, callback) {
-        var created = new Model();
-        created.set(doc);
-        created.save(callback);
-      },
-      function (error, saved) {
-        if (error) return next(error);
-
-        var ids = [].concat(saved).map(function (doc) { return doc._id });
-        var query = Model.find({ _id: { $in: ids } });
-        var selected = { // TODO move to request.baucis i.e. set elsewhere
-          controller: request.baucis.controller.get('select'),
-          query: request.query.select
-        };
-
-        if (selected.controller) query.select(selected.controller);
-        if (selected.query) query.select(selected.query);
-
-        // Reload models and apply select options
-        query.exec(function (error, reloaded) {
-          if (error) return next(error);
-          request.baucis.documents = reloaded.length === 1 ? reloaded[0] : reloaded;
-          next();
-        });
-      }
-    );
-  }
+  });
 };

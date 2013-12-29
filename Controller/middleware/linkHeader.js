@@ -1,12 +1,15 @@
 // __Dependencies__
 var url = require('url');
-var extend = require('util')._extend; // TODO use connect/util/merge (cutils)
-var qs = require('querystring');
+var connect = require('connect');
 
 // __Module Definition__
-var middleware = module.exports = {
+var mixin = module.exports = function (activate) {
+  var controller = this;
+
   // Add "Link" header field, with some basic defaults
-  link: function (request, response, next) {
+  activate(false, 'query', 'instance', '*', function (request, response, next) {
+    if (controller.get('relations') !== true) return next();
+
     var originalPath = request.originalUrl.split('?')[0];
     var originalPathParts = originalPath.split('/');
     var linkBase;
@@ -22,11 +25,14 @@ var middleware = module.exports = {
     });
 
     next();
-  },
+  });
+
   // Add "Link" header field, with some basic defaults (for collection routes)
-  linkCollection: function (request, response, next) {
+  activate(false, 'query', 'collection', '*', function (request, response, next) {
+    if (controller.get('relations') !== true) return next();
+
     var makeLink = function (query) {
-      var newQuery = extend(request.query, query || {});
+      var newQuery = connect.utils.merge(request.query, query);
       var originalPath = request.originalUrl.split('?')[0];
       return originalPath + '?' + qs.stringify(newQuery);
     };
@@ -51,30 +57,7 @@ var middleware = module.exports = {
 
       done();
     });
-  },
-  // Build the "Allow" response header
-  allow: function (request, response, next) {
-    var allowed = request.baucis.controller.activeVerbs().map(function (verb) {
-      if (verb === 'del') return 'DELETE';
-      return verb.toUpperCase();
-    });
+  });
 
-    response.set('Allow', allowed.join());
-    next();
-  },
-  // Build the "Accept" response header
-  accept: function (request, response, next) {
-    var putOff = (request.baucis.controller.get('put') === false);
-    var postOff = (request.baucis.controller.get('post') === false);
-
-    if (putOff && postOff) return next();
-
-    response.set('Accept', 'application/json, application/x-www-form-urlencoded');
-    next();
-  },
-  // Add the "Location" response header
-  location: function (request, response, next) {
-    if (request.baucis.location) response.set('Location', request.baucis.location);
-    next();
-  }
+  return controller;
 };

@@ -171,16 +171,16 @@ var mixin = module.exports = function () {
   controller.initialize = function () {
     if (initialized) return controller;
 
-    // __Initialization Middleware__
+    // Delete any query instance POST middleware that was added implicitly.
+    custom.query.instance.post = [];
+    // Delete any query collection POST middleware that was added implicitly (POSTs don't have a query stage).
+    custom.query.collection.post = [];
+    // Delete any query collection PUT middleware that was added implicitly.
+    custom.query.collection.put = [];
 
+    // __Initialization (Pre-Request-Stage) Middleware__
     // Initialize baucis state
-    activateOverride('request', function (request, response, next) {
-      if (request.baucis) return next(new Error('Baucis request property already created!'));
-      request.baucis = {};
-      request.baucis.controller = controller;
-      response.set('X-Powered-By', 'Baucis');
-      next();
-    });
+    middleware.initialize.apply(controller, activate);
 
     // Middleware for parsing JSON POST/PUTs
     activateOverride('request', express.json());
@@ -191,9 +191,10 @@ var mixin = module.exports = function () {
     // __Request-Stage Middleware__
 
     // Activate middleware to check for deprecated features
-    activate('request', middleware.configure.deprecated);
+    middleware.deprecated.apply(controller, activate);
     // Activate middleware that sets the Allow & Accept headers
-    activateOverride('request', [ middleware.headers.allow, middleware.headers.accept ]);
+    middleware.allowHeader.apply(controller, activate);
+    middleware.acceptHeader.apply(controller, activate);
     // Activate middleware that checks for correct Mongo _ids when applicable
     activate('request', middleware.configure.checkId);
     // Activate middleware that checks for disabled HTTP methods
@@ -207,7 +208,7 @@ var mixin = module.exports = function () {
     // Next, activate the request-stage user middleware.
     activate('request', custom['request']);
     // Activate middleware to build the query (except for POST requests).
-    activate('request', middleware.query);
+    middleware.buildQuery.apply(controller, activate);
 
     // __Query-Stage Middleware__
     // The query will have been created (except for POST, which doesn't use a
@@ -215,46 +216,24 @@ var mixin = module.exports = function () {
 
     // Activate middleware to handle controller and query options.
     activate('query', [ middleware.configure.controller, middleware.configure.query ]);
-
-    // Delete any query instance POST middleware that was added implicitly.
-    custom.query.instance.post = [];
-    // Delete any query collection POST middleware that was added implicitly (POSTs don't have a query stage).
-    custom.query.collection.post = [];
-    // Delete any query collection PUT middleware that was added implicitly.
-    custom.query.collection.put = [];
-
-    // Activate user middleware for the query-stage
+    // Activate user middleware for the query-stage.
     activate('query', custom['query']);
-
-    // Activate middleware to execute the query:
-
-    // Get the count for HEAD requests.
-    activate('query', 'head', middleware.exec.count);
-    // Execute the find query for GET.
-    activate('query', 'get', middleware.exec.exec);
-    // Execute the remove query for DELETE.
-    activate('query', 'del', middleware.exec.del);
-    // Create the documents for a POST request.
-    activate('query', 'collection', 'post', middleware.exec.create);
-    // Update the documents specified for a PUT request.
-    activate('query', 'instance', 'put', middleware.exec.update);
+    // Activate middleware to execute the query.
+    middleware.execute.apply(controller, activate);
 
     // Activate some middleware that will set the Link header when that feature
     // is enabled.  (This must come after exec or else the count is
     // returned for all subsequqent executions of the query.)
-    if (controller.get('relations') === true) {
-      activate('query', 'instance', 'head get post put del', middleware.headers.link);
-      activate('query', 'collection', 'head get post put del', middleware.headers.linkCollection);
-    }
+    middleware.linkHeader.apply(controller, activate);
 
     // __Document-Stage Middleware__
 
     // Activate the middleware that sets the `Last-Modified` header when appropriate.
-    activate('documents', middleware.documents.lastModified);
+    middleware.lastModified.apply(controller, activate);
     // Activate the the document-stage user middleware.
     activate('documents', custom['documents']);
     // Activate the middleware that sends the resulting document(s) or count.
-    activate('documents', middleware.documents.send);
+    middleware.send.apply(controller, activate);
 
     delete custom;
     initialized = true;
