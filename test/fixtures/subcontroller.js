@@ -54,7 +54,7 @@ var fixture = module.exports = {
     userController.use(taskSubcontroller);
 
     app = express();
-    app.use('/api/v1', baucis());
+    app.use('/api', baucis());
 
     app.use(function (error, request, response, next) {
       if (error) return response.send(500, error.toString());

@@ -10,7 +10,7 @@ describe('HEAD plural', function () {
 
   it("should get the header", function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables',
+      url: 'http://localhost:8012/api/vegetables',
       json: true
     };
     request.head(options, function (error, response, body) {

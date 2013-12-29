@@ -11,14 +11,14 @@ describe('DEL singular', function () {
   it('should delete the addressed document', function (done) {
     var shitake = vegetables[3];
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables/' + shitake._id,
+      url: 'http://localhost:8012/api/vegetables/' + shitake._id,
       json: true
     };
     request.del(options, function (error, response, body) {
       if (error) return done(error);
 
       var options = {
-        url: 'http://localhost:8012/api/v1/vegetables/' + shitake._id,
+        url: 'http://localhost:8012/api/vegetables/' + shitake._id,
         json: true
       };
 
@@ -38,7 +38,7 @@ describe('DEL singular', function () {
   it('should invoke "remove" middleware', function (done) {
     var shitake = vegetables[3];
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables/' + shitake._id,
+      url: 'http://localhost:8012/api/vegetables/' + shitake._id,
       json: true
     };
 

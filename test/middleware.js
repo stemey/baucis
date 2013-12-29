@@ -15,7 +15,7 @@ describe('Middleware', function () {
 
   it('should prevent resource from being loaded when querystring is set', function (done) {
     var options = {
-      url : 'http://localhost:8012/api/v1/vegetables/' + vegetables[0]._id,
+      url : 'http://localhost:8012/api/vegetables/' + vegetables[0]._id,
       qs  : { block: true },
       json: true
     };
@@ -28,7 +28,7 @@ describe('Middleware', function () {
 
   it('should allow resource to be loaded when querystring is not set', function (done) {
     var options = {
-      url : 'http://localhost:8012/api/v1/vegetables/' + vegetables[0]._id,
+      url : 'http://localhost:8012/api/vegetables/' + vegetables[0]._id,
       qs  : { block: false },
       json: true
     };
@@ -45,7 +45,7 @@ describe('Middleware', function () {
 
   it('should allow query middleware to alter query', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables/' + vegetables[0]._id,
+      url: 'http://localhost:8012/api/vegetables/' + vegetables[0]._id,
       qs: { testQuery: true },
       json: true
     };
@@ -61,7 +61,7 @@ describe('Middleware', function () {
 
   it('should allow documents middleware to alter documents', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables/' + vegetables[0]._id,
+      url: 'http://localhost:8012/api/vegetables/' + vegetables[0]._id,
       qs: { testDocuments: true },
       json: true
     };

@@ -10,7 +10,7 @@ describe('DEL plural', function () {
 
   it('should delete all documents in addressed collection', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables/',
+      url: 'http://localhost:8012/api/vegetables/',
       json: true
     };
     request.del(options, function (err, response, body) {
@@ -24,7 +24,7 @@ describe('DEL plural', function () {
 
   it('should invoke "remove" middleware', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables/',
+      url: 'http://localhost:8012/api/vegetables/',
       json: true
     };
 

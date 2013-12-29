@@ -16,7 +16,7 @@ describe('Queries', function () {
 
   it('should support skip 1', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables?skip=1',
+      url: 'http://localhost:8012/api/vegetables?skip=1',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -29,7 +29,7 @@ describe('Queries', function () {
 
   it('should support skip 2', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables?skip=2',
+      url: 'http://localhost:8012/api/vegetables?skip=2',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -42,7 +42,7 @@ describe('Queries', function () {
 
   it('should support limit 1', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/minerals?limit=1',
+      url: 'http://localhost:8012/api/minerals?limit=1',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -55,7 +55,7 @@ describe('Queries', function () {
 
   it('should support limit 2', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/minerals?limit=2',
+      url: 'http://localhost:8012/api/minerals?limit=2',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -68,7 +68,7 @@ describe('Queries', function () {
 
   it('should disallow selecting deselected fields', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables?select=species+lastModified',
+      url: 'http://localhost:8012/api/vegetables?select=species+lastModified',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -81,7 +81,7 @@ describe('Queries', function () {
 
   it('should disallow populating deselected fields 1', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables?populate=species',
+      url: 'http://localhost:8012/api/vegetables?populate=species',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -94,7 +94,7 @@ describe('Queries', function () {
 
   it('should disallow populating deselected fields 2', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables?populate={ "path": "species" }',
+      url: 'http://localhost:8012/api/vegetables?populate={ "path": "species" }',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -107,7 +107,7 @@ describe('Queries', function () {
 
   it('should support default express query parser when using populate', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables?populate[path]=species',
+      url: 'http://localhost:8012/api/vegetables?populate[path]=species',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -120,7 +120,7 @@ describe('Queries', function () {
 
   it('should disallow using +fields with populate', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables?populate={ "select": "%2Bboiler" }',
+      url: 'http://localhost:8012/api/vegetables?populate={ "select": "%2Bboiler" }',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -133,7 +133,7 @@ describe('Queries', function () {
 
   it('should disallow using +fields with select', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables?select=%2Bboiler',
+      url: 'http://localhost:8012/api/vegetables?select=%2Bboiler',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -146,7 +146,7 @@ describe('Queries', function () {
 
   it('should disallow selecting fields when populating', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables?populate={ "path": "a", "select": "arbitrary" }',
+      url: 'http://localhost:8012/api/vegetables?populate={ "path": "a", "select": "arbitrary" }',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -159,7 +159,7 @@ describe('Queries', function () {
 
   it('should not crash when disallowing selecting fields when populating', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables?populate=[{ "path": "a", "select": "arbitrary actuary" }, { "path": "b", "select": "arbitrary actuary" }]',
+      url: 'http://localhost:8012/api/vegetables?populate=[{ "path": "a", "select": "arbitrary actuary" }, { "path": "b", "select": "arbitrary actuary" }]',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -172,7 +172,7 @@ describe('Queries', function () {
 
   it('should allow default express query string format', function(done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables?conditions[name]=Radicchio',
+      url: 'http://localhost:8012/api/vegetables?conditions[name]=Radicchio',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -186,7 +186,7 @@ describe('Queries', function () {
 
   it('should allow selecting fields', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables?select=-_id lastModified',
+      url: 'http://localhost:8012/api/vegetables?select=-_id lastModified',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -201,7 +201,7 @@ describe('Queries', function () {
 
   it('should allow adding paging links', function(done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/minerals?limit=2',
+      url: 'http://localhost:8012/api/minerals?limit=2',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -214,7 +214,7 @@ describe('Queries', function () {
 
   it('should not return paging links if limit not set', function(done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables?sort=name',
+      url: 'http://localhost:8012/api/vegetables?sort=name',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -230,7 +230,7 @@ describe('Queries', function () {
 
   it('should return next for first page', function(done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/minerals?limit=2',
+      url: 'http://localhost:8012/api/minerals?limit=2',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -244,7 +244,7 @@ describe('Queries', function () {
 
   it('should return previous for second page', function(done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/minerals?limit=2&skip=2',
+      url: 'http://localhost:8012/api/minerals?limit=2&skip=2',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -258,7 +258,7 @@ describe('Queries', function () {
 
   it('should not return paging links previous for first page', function(done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/minerals?limit=2',
+      url: 'http://localhost:8012/api/minerals?limit=2',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -272,7 +272,7 @@ describe('Queries', function () {
 
   it('should not return paging links next for last page', function(done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/minerals?limit=2&skip=6',
+      url: 'http://localhost:8012/api/minerals?limit=2&skip=6',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -287,7 +287,7 @@ describe('Queries', function () {
   it('should preserve query in paging links', function(done) {
     var conditions = JSON.stringify({ color: { $regex: /.*e.*/ } });
     var options = {
-      url: 'http://localhost:8012/api/v1/minerals?limit=1&skip=0&conditions=' + conditions,
+      url: 'http://localhost:8012/api/minerals?limit=1&skip=0&conditions=' + conditions,
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -303,7 +303,7 @@ describe('Queries', function () {
 
   it('should allow retrieving paging links next', function(done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/minerals?limit=2&skip=0',
+      url: 'http://localhost:8012/api/minerals?limit=2&skip=0',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -328,7 +328,7 @@ describe('Queries', function () {
 
   it('should allow retrieving paging links previous', function(done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/minerals?limit=2&skip=2',
+      url: 'http://localhost:8012/api/minerals?limit=2&skip=2',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -350,7 +350,7 @@ describe('Queries', function () {
 
   it('should allow retrieving paging links last', function(done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/minerals?limit=2&skip=6',
+      url: 'http://localhost:8012/api/minerals?limit=2&skip=6',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -372,7 +372,7 @@ describe('Queries', function () {
 
   it('should allow retrieving paging links first', function(done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/minerals?limit=2&skip=0',
+      url: 'http://localhost:8012/api/minerals?limit=2&skip=0',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -394,7 +394,7 @@ describe('Queries', function () {
 
   it('should allow retrieving count instead of documents', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables?count=true',
+      url: 'http://localhost:8012/api/vegetables?count=true',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -407,7 +407,7 @@ describe('Queries', function () {
 
   it('should report bad hints', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables?count=true&hint={ "foogle": 1 }',
+      url: 'http://localhost:8012/api/vegetables?count=true&hint={ "foogle": 1 }',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -419,7 +419,7 @@ describe('Queries', function () {
 
   it('should allow adding index hint', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables?count=true&hint={ "_id": 1 }',
+      url: 'http://localhost:8012/api/vegetables?count=true&hint={ "_id": 1 }',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -432,7 +432,7 @@ describe('Queries', function () {
 
   it('should allow adding index hint', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables?count=true&hint[_id]=1',
+      url: 'http://localhost:8012/api/vegetables?count=true&hint[_id]=1',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -445,7 +445,7 @@ describe('Queries', function () {
 
   it('should allow adding a query comment', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables?count=true&comment=testing testing 123',
+      url: 'http://localhost:8012/api/vegetables?count=true&comment=testing testing 123',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -458,7 +458,7 @@ describe('Queries', function () {
 
   it('should not allow adding an index hint if not enabled', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/fungi?hint={ "_id": 1 }',
+      url: 'http://localhost:8012/api/fungi?hint={ "_id": 1 }',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -471,7 +471,7 @@ describe('Queries', function () {
 
   it('should ignore query comments if not enabled', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/fungi?comment=testing testing 123',
+      url: 'http://localhost:8012/api/fungi?comment=testing testing 123',
       json: true
     };
     request.get(options, function (error, response, body) {

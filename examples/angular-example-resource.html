@@ -5,9 +5,9 @@
 <script type="text/javascript">
 var angularExample =angular.module('angularexample',["ngResource"]);
 angularExample.controller("MainCtrl",["$resource","$scope",function($resource,$scope){
-	var vegetableCollection =  $resource("/api/v1/vegetables/");
-	var vegetableResource = $resource("/api/v1/vegetables/:_id/",{_id:'@_id'},{update: { method: 'PUT' }});
-	$scope.vegetables = vegetableCollection.query(function(){});	
+	var vegetableCollection =  $resource("/api/vegetables/");
+	var vegetableResource = $resource("/api/vegetables/:_id/",{_id:'@_id'},{update: { method: 'PUT' }});
+	$scope.vegetables = vegetableCollection.query(function(){});
 	$scope.save = function(vegetable){
 		vegetableResource.update({_id:vegetable._id},vegetable)
 	}
@@ -17,9 +17,9 @@ angularExample.controller("MainCtrl",["$resource","$scope",function($resource,$s
 			$scope.vegetables.push(newResource);
 		});
 	}
-	
+
 }])
-	
+
 </script>
 </head>
 

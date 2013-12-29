@@ -3,7 +3,7 @@
 
 (function () {
   // Fetch an entity by ID
-  $.getJSON('/api/v1/vegetables/4f4028e6e5139bf4e472cca1', function (data) {
+  $.getJSON('/api/vegetables/4f4028e6e5139bf4e472cca1', function (data) {
     console.log('Fetch an entity:');
     console.log(data);
   });
@@ -13,7 +13,7 @@
     type: 'POST',
     dataType: 'json',
     contentType : 'application/json',
-    url: '/api/v1/vegetables',
+    url: '/api/vegetables',
     data: JSON.stringify({
       name: 'carrot',
       color: 'orange'
@@ -27,7 +27,7 @@
   $.ajax({
     type: 'GET',
     dataType: 'json',
-    url: '/api/v1/vegetables',
+    url: '/api/vegetables',
     contentType : 'application/json',
     data: JSON.stringify({
       limit: 2,

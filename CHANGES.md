@@ -1,6 +1,10 @@
 Baucis Change Log
 =================
 
+v0.11.0
+-------
+Add API versioning using the `API-Version` header.
+
 v0.10.5
 -------
 Send 405 when DELETE is disabled on a controller.  (Special thanks to lukaszfiszer.)
@@ -159,7 +163,7 @@ Allow support for $pull, and $set
 
       // Later...
 
-      // PUT /api/v1/arbitraries/1234567890abcdef12345678?conditions={ "arr.flag": "jolly roger" }
+      // PUT /api/arbitraries/1234567890abcdef12345678?conditions={ "arr.flag": "jolly roger" }
 
       // X-Baucis-Update-Operator: $push
 
@@ -169,7 +173,7 @@ Allow support for $pull, and $set
 
       // Blue beard's dead, pull him from the array
 
-      // PUT /api/v1/arbitraries/1234567890abcdef12345678?conditions={ "arr.flag": "jolly roger" }
+      // PUT /api/arbitraries/1234567890abcdef12345678?conditions={ "arr.flag": "jolly roger" }
 
       // X-Baucis-Update-Operator: $pull
 
@@ -198,7 +202,7 @@ Allow pushing to embedded arrays using positional $
 
       // Later...
 
-      // PUT /api/v1/arbitraries/1234567890abcdef12345678?conditions={ "arr.flag": "jolly roger" }
+      // PUT /api/arbitraries/1234567890abcdef12345678?conditions={ "arr.flag": "jolly roger" }
 
       // X-Baucis-Push: true
 

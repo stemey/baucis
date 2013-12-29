@@ -99,7 +99,7 @@ var fixture = module.exports = {
     });
 
     app = express();
-    app.use('/api/v1', baucis({ swagger: true }));
+    app.use('/api', baucis({ swagger: true }));
 
     app.use(function (error, request, response, next) {
       if (error) return response.send(500, error.toString());

@@ -3,10 +3,10 @@ var util = require('util');
 var express = require('express');
 var mongoose = require('mongoose');
 var lingo = require('lingo');
+var connect = require('connect');
 var mixins = require('./mixins');
 
 // __Private Module Members__
-var extend = util._extend;
 
 // __Module Definition__
 var Controller = module.exports = function (options) {
@@ -40,8 +40,11 @@ var Controller = module.exports = function (options) {
 
   // __Public Instance Members__
 
+  // TODO consider moving these to mixins
+
   // Return the array of active verbs
   controller.activeVerbs = function () {
+    // TODO is there a del/delete bug here?
     return [ 'head', 'get', 'post', 'put', 'del' ].filter(function (verb) {
       return controller.get(verb) !== false;
     });
@@ -74,18 +77,18 @@ var Controller = module.exports = function (options) {
   };
 
   controller.getFindByConditions = function (request) {
-    var conditions = extend({}, request.baucis.conditions || {});
+    var conditions = connect.utils.merge({}, request.baucis.conditions || {});
     conditions[request.baucis.controller.get('findBy')] = request.params.id;
     return conditions;
   };
-
-  // __Module Definition__
 
   // __Configuration__
 
   Object.keys(options).forEach(function (key) {
     controller.set(key, options[key]);
   });
+
+  // TODO merge defaults
 
   controller.set('model', model);
   controller.set('schema', model.schema);
@@ -96,6 +99,7 @@ var Controller = module.exports = function (options) {
   controller.set('allow push', options['allow push'] || false);
   controller.set('allow comments', options['allow comments'] || false);
   controller.set('allow hints', options['allow hints'] || false);
+  controller.set('dependency', options['dependency'] || '*');
 
   controller.set('basePath', basePath);
   controller.set('basePathWithId', basePathWithId);
@@ -120,6 +124,8 @@ var Controller = module.exports = function (options) {
   // __Mixins__
   mixins.middleware.apply(controller);
   mixins.swagger.apply(controller);
+
+  controller.generateSwaggerDefinition();
 
   return controller;
 };

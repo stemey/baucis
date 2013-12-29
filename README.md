@@ -1,4 +1,4 @@
-baucis v0.10.5
+baucis v0.11.0
 ==============
 
 Baucis is Express middleware that creates configurable REST APIs using Mongoose schemata.
@@ -14,13 +14,15 @@ Baucis is tested with over 120 Mocha.js tests.
 What's New
 ----------
 
+*API VERSIONING!* (See farther down.)
+
 Check the [change log](CHANGES.md) for info on all the latest features.
 
 [Swagger](https://developers.helloreverb.com/swagger/) support has been partially added.  More Swagger functionality is planned in the near future.
 
 Want to check it out now?  Create your API with the swagger option enabled:
 
-    app.use('/api/v1', baucis({ swagger: true }));
+    app.use('/api', baucis({ swagger: true }));
 
 Next, download the [swagger-ui](https://github.com/wordnik/swagger-ui) client.
 
@@ -29,7 +31,7 @@ Next, download the [swagger-ui](https://github.com/wordnik/swagger-ui) client.
 
 Point it at your API.  Something like:
 
-    http://localhost:8012/api/v1/api-docs
+    http://localhost:8012/api/api-docs
 
 Now you have documentation and a test client for free!
 
@@ -90,7 +92,7 @@ An example of creating a REST API from a couple Mongoose schemata:
 
     // Create the app and listen for API requests
     var app = express();
-    app.use('/api/v1', baucis());
+    app.use('/api', baucis());
     app.listen(80);
 
 Later, make requests:
@@ -250,6 +252,21 @@ An example of embedding a controller within another controller
 
     // Embed the subcontroller at /foos/:fooId/bars
     controller.use(subcontroller);
+
+API Versioning
+--------------
+
+Versioning is implemented using [semver](http://semver.org).  Supported releases are specified when calling `baucis()`.  The release(s) that a controller belongs to are specified with the `dependency` controller option.
+
+  baucis.rest({ singular: 'cat', dependency: '0.0.1' });
+  baucis.rest({ singular: 'cat', dependency: '>0.0.1 <1.0.0' });
+  baucis.rest({ singular: 'cat', dependency: '~1' });
+  baucis.rest({ singular: 'cat', dependency: '>2.0.0' });
+  app.use('/api', baucis({ releases: [ '0.0.1', '0.0.2', '1.0.0', '1.1.0', '2.0.0' ]}));
+
+Later, make requests and set the `API-Version` header to a [semver](http://semver.org) range, such as `~1`, `>2 <3`, `*`, etc.  Baucis will use the highest release number that satisfies the range.
+
+API versioning is almost stable.  Names of controller parameters or request header may change.
 
 Contact
 -------

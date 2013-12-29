@@ -12,7 +12,7 @@ angularExample.config(["RestangularProvider",function(RestangularProvider){
 	});
 }]);
 angularExample.controller("MainCtrl",["Restangular","$scope",function(Restangular,$scope){
-	var resource = Restangular.all('api/v1/vegetables')
+	var resource = Restangular.all('api/vegetables')
 	resource.getList().then(function(vegetables){
 		$scope.vegetables = vegetables;
 	});
@@ -21,9 +21,9 @@ angularExample.controller("MainCtrl",["Restangular","$scope",function(Restangula
 				$scope.vegetables.push(newResource);
 		})
 	}
-	
+
 }])
-	
+
 </script>
 </head>
 

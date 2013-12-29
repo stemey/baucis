@@ -10,7 +10,7 @@ describe('GET plural', function () {
 
   it("should return 'em all", function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables',
+      url: 'http://localhost:8012/api/vegetables',
       json: true
     };
     request.get(options, function (err, response, body) {
@@ -28,7 +28,7 @@ describe('GET plural', function () {
 
   it('should not set Location header', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables',
+      url: 'http://localhost:8012/api/vegetables',
       json: true
     };
     request.get(options, function (error, response, body) {
@@ -40,7 +40,7 @@ describe('GET plural', function () {
 
   it('should use JSON content type', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables',
+      url: 'http://localhost:8012/api/vegetables',
       json: true
     };
     request.get(options, function (error, response, body) {

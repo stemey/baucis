@@ -18,7 +18,7 @@ describe('Headers', function () {
       return vege.get('lastModified');
     }));
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables',
+      url: 'http://localhost:8012/api/vegetables',
       json: true
     };
     request.get(options, function (err, response, body) {
@@ -35,14 +35,14 @@ describe('Headers', function () {
     // Wait or else lastModified will still have the same string represntation
     setTimeout(function () {
       var options = {
-        url: 'http://localhost:8012/api/v1/vegetables/' + vege._id,
+        url: 'http://localhost:8012/api/vegetables/' + vege._id,
         json: { name: 'Pumpkin' }
       };
       request.put(options, function (err, response, body) {
         if (err) return done(err);
         var updatedModified = new Date(response.headers['last-modified']);
         var options = {
-          url: 'http://localhost:8012/api/v1/vegetables/' + vege._id,
+          url: 'http://localhost:8012/api/vegetables/' + vege._id,
           json: true
         };
 
@@ -61,7 +61,7 @@ describe('Headers', function () {
 
   it('should set allowed', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables',
+      url: 'http://localhost:8012/api/vegetables',
       json: true
     };
     request.head(options, function (err, response, body) {
@@ -74,7 +74,7 @@ describe('Headers', function () {
 
   it('should set ETag', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables',
+      url: 'http://localhost:8012/api/vegetables',
       json: true
     };
     request.get(options, function (err, response, body) {
@@ -94,7 +94,7 @@ describe('Headers', function () {
 
   it('should set accept', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables',
+      url: 'http://localhost:8012/api/vegetables',
       json: true
     };
     request.head(options, function (err, response, body) {
@@ -107,7 +107,7 @@ describe('Headers', function () {
 
   it('should set X-Powered-By', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables',
+      url: 'http://localhost:8012/api/vegetables',
       json: true
     };
     request.head(options, function (err, response, body) {

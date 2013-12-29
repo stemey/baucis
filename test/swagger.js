@@ -19,7 +19,7 @@ describe('Swagger Resource Listing', function () {
 
   it('should generate the correct listing', function (done) {
     var options = {
-      url: 'http://127.0.0.1:8012/api/v1/api-docs',
+      url: 'http://127.0.0.1:8012/api/api-docs',
       json: true
     };
     request.get(options, function (err, response, body) {
@@ -28,7 +28,7 @@ describe('Swagger Resource Listing', function () {
       expect(response).to.have.property('statusCode', 200);
       expect(body).to.have.property('apiVersion', '0.0.1');
       expect(body).to.have.property('swaggerVersion', '1.1');
-      expect(body).to.have.property('basePath', 'http://127.0.0.1:8012/api/v1');
+      expect(body).to.have.property('basePath', 'http://127.0.0.1:8012/api');
       expect(body).to.have.property('apis');
 
       // Check the API listing
@@ -49,7 +49,7 @@ describe('Swagger Resource Listing', function () {
 
   it('should generate the correct API definition', function (done) {
     var options = {
-      url: 'http://127.0.0.1:8012/api/v1/api-docs/vegetables',
+      url: 'http://127.0.0.1:8012/api/api-docs/vegetables',
       json: true
     };
     request.get(options, function (err, response, body) {
@@ -58,7 +58,7 @@ describe('Swagger Resource Listing', function () {
       expect(response).to.have.property('statusCode', 200);
       expect(body).to.have.property('apiVersion', '0.0.1');
       expect(body).to.have.property('swaggerVersion', '1.1');
-      expect(body).to.have.property('basePath', 'http://127.0.0.1:8012/api/v1');
+      expect(body).to.have.property('basePath', 'http://127.0.0.1:8012/api');
       expect(body).to.have.property('resourcePath', '/vegetables');
       expect(body).to.have.property('models');
       expect(body).to.have.property('apis');
@@ -97,7 +97,7 @@ describe('Swagger Resource Listing', function () {
 
   it('should correctly set paths as private even if the path name contains hyphens', function (done) {
     var options = {
-      url: 'http://127.0.0.1:8012/api/v1/api-docs/fungi',
+      url: 'http://127.0.0.1:8012/api/api-docs/fungi',
       json: true
     };
     request.get(options, function (err, response, body) {
@@ -123,7 +123,7 @@ describe('Swagger Resource Listing', function () {
       ]
     });
     var options = {
-      url: 'http://127.0.0.1:8012/api/v1/api-docs/vegetables',
+      url: 'http://127.0.0.1:8012/api/api-docs/vegetables',
       json: true
     };
     request.get(options, function (err, response, body) {
@@ -137,7 +137,7 @@ describe('Swagger Resource Listing', function () {
 
   it('should generate models correctly', function (done) {
     var options = {
-      url: 'http://127.0.0.1:8012/api/v1/api-docs/geese',
+      url: 'http://127.0.0.1:8012/api/api-docs/geese',
       json: true
     };
     request.get(options, function (error, response, body) {

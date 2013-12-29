@@ -11,7 +11,7 @@ describe('PUT singular', function () {
   it("should replace the addressed object if it exists", function (done) {
     var radicchio = vegetables[7];
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables/' + radicchio._id,
+      url: 'http://localhost:8012/api/vegetables/' + radicchio._id,
       json: true
     };
     request.get(options, function (err, response, body) {
@@ -21,7 +21,7 @@ describe('PUT singular', function () {
 
       // put the leek on the server
       var options = {
-        url: 'http://localhost:8012/api/v1/vegetables/' + radicchio._id,
+        url: 'http://localhost:8012/api/vegetables/' + radicchio._id,
         json: {
           name: 'Leek'
         }
@@ -33,7 +33,7 @@ describe('PUT singular', function () {
 
         var leekId = radicchio._id;
         var options = {
-          url: 'http://localhost:8012/api/v1/vegetables/' + leekId,
+          url: 'http://localhost:8012/api/vegetables/' + leekId,
           json: true
         };
         request.get(options, function (err, response, body) {
@@ -49,7 +49,7 @@ describe('PUT singular', function () {
   it('should only allow updates', function (done) {
     var id = 'badbadbadbadbadbadbadbad';
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables/' + id,
+      url: 'http://localhost:8012/api/vegetables/' + id,
       json: true
     };
     // First check it's not there
@@ -59,7 +59,7 @@ describe('PUT singular', function () {
 
       // Attempt to update non-existant doc
       var options = {
-        url: 'http://localhost:8012/api/v1/vegetables/' + id,
+        url: 'http://localhost:8012/api/vegetables/' + id,
         json: { name: 'Cucumber' }
       };
       request.put(options, function (err, response, body) {
@@ -68,7 +68,7 @@ describe('PUT singular', function () {
 
         // Make sure it wasn't created
         var options = {
-          url: 'http://localhost:8012/api/v1/vegetables/' + id,
+          url: 'http://localhost:8012/api/vegetables/' + id,
           json: true
         };
         request.get(options, function (err, response, body) {
@@ -85,7 +85,7 @@ describe('PUT singular', function () {
 
     var radicchio = vegetables[7];
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables/' + radicchio._id,
+      url: 'http://localhost:8012/api/vegetables/' + radicchio._id,
       json: { name: 'Radicchio di Treviso' }
     };
     request.put(options, function (error, response, body) {

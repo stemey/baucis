@@ -12,7 +12,7 @@ describe('PUT plural', function () {
     var mustard = { name: 'Mustard' };
 
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables',
+      url: 'http://localhost:8012/api/vegetables',
       json: [ poke, collards, mustard ]
     };
     request.put(options, function (error, response, body) {

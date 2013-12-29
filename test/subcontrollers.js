@@ -14,7 +14,7 @@ describe('Subcontrollers', function () {
   // __Tests__
   it("should not overwrite parent controller's request property", function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/users?sort=name',
+      url: 'http://localhost:8012/api/users?sort=name',
       json: true
     };
     request.get(options, function (error, response, body) {

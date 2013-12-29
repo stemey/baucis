@@ -102,7 +102,6 @@ var fixture = module.exports = {
       singular: 'cheese',
       select: '-_id +color name',
       findBy: 'name',
-      // 'always check version': true,
       'allow $push': 'molds arbitrary arbitrary.$.llama',
       'allow $set': 'molds arbitrary.$.champagne',
       'allow $pull': 'molds arbitrary.$.llama'
@@ -127,12 +126,11 @@ var fixture = module.exports = {
 
     baucis.rest({
       singular: 'mean',
-      locking: true,
-      'always check version': true
+      locking: true
     });
 
     app = express();
-    app.use('/api/v1', baucis());
+    app.use('/api', baucis());
 
     app.use(function (error, request, response, next) {
       if (error) return response.send(500, error.toString());
@@ -149,6 +147,7 @@ var fixture = module.exports = {
     done();
   },
   create: function (done) {
+    // TODO use async
     // clear all first
     mongoose.model('store').remove({}, function (error) {
       if (error) return done(error);

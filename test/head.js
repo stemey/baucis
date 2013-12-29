@@ -11,7 +11,7 @@ describe('HEAD singular', function () {
   it('should get the header for the addressed document', function(done){
     var turnip = vegetables[0];
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables/' + turnip._id,
+      url: 'http://localhost:8012/api/vegetables/' + turnip._id,
       json: true
     };
     request.head(options, function (error, response, body) {
@@ -24,7 +24,7 @@ describe('HEAD singular', function () {
 
   it('should return a 404 when ID not found', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables/666666666666666666666666',
+      url: 'http://localhost:8012/api/vegetables/666666666666666666666666',
       json: true
     };
     request.head(options, function (error, response, body) {

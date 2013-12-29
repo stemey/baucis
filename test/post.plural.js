@@ -11,7 +11,7 @@ describe('POST plural', function () {
 
   it('should create a new object and return its ID (JSON)', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables/',
+      url: 'http://localhost:8012/api/vegetables/',
       json: { name: 'Tomato' }
     };
     request.post(options, function (error, response, body) {
@@ -19,7 +19,7 @@ describe('POST plural', function () {
 
       expect(response.statusCode).to.equal(201);
       expect(body._id).not.to.be.empty();
-      expect(response.headers.location).to.equal('/api/v1/vegetables/' + body._id);
+      expect(response.headers.location).to.equal('/api/vegetables/' + body._id);
 
       var options = {
       	url: 'http://localhost:8012' + response.headers.location,
@@ -36,7 +36,7 @@ describe('POST plural', function () {
 
   it('should create a new object and return its ID (form)', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables/',
+      url: 'http://localhost:8012/api/vegetables/',
       json: true,
       form: { name: 'Tepin Pepper' }
     };
@@ -45,7 +45,7 @@ describe('POST plural', function () {
 
       expect(response.statusCode).to.equal(201);
       expect(body._id).not.to.be.empty();
-      expect(response.headers.location).to.equal('/api/v1/vegetables/' + body._id);
+      expect(response.headers.location).to.equal('/api/vegetables/' + body._id);
 
       var options = {
         url: 'http://localhost:8012' + response.headers.location,
@@ -62,7 +62,7 @@ describe('POST plural', function () {
 
   it('should correctly set location header when there is no trailing slash', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables',
+      url: 'http://localhost:8012/api/vegetables',
       json: { name: 'Tomato' }
     };
     request.post(options, function (error, response, body) {
@@ -70,7 +70,7 @@ describe('POST plural', function () {
 
       expect(response.statusCode).to.equal(201);
       expect(body._id).not.to.be.empty();
-      expect(response.headers.location).to.equal('/api/v1/vegetables/' + body._id);
+      expect(response.headers.location).to.equal('/api/vegetables/' + body._id);
 
       done();
     });
@@ -78,7 +78,7 @@ describe('POST plural', function () {
 
   it('should allow posting multiple documents at once', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables/',
+      url: 'http://localhost:8012/api/vegetables/',
       json: [{ name: 'Catnip' }, { name: 'Cattail'}]
     };
     request.post(options, function (error, response, body) {
@@ -107,7 +107,7 @@ describe('POST plural', function () {
     fixtures.vegetable.saveCount = 0;
 
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables/',
+      url: 'http://localhost:8012/api/vegetables/',
       json: { name: 'Ground Cherry' }
     };
     request.post(options, function (error, response, body) {
@@ -120,7 +120,7 @@ describe('POST plural', function () {
 
   it('should next validation exceptions', function (done) {
     var options = {
-      url: 'http://localhost:8012/api/v1/vegetables/',
+      url: 'http://localhost:8012/api/vegetables/',
       json: {}
     };
     request.post(options, function (error, response, body) {
