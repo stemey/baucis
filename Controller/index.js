@@ -1,17 +1,13 @@
-module.exports = require('requireindex')(__dirname);
-
 // __Dependencies__
 var util = require('util');
 var express = require('express');
 var mongoose = require('mongoose');
 var lingo = require('lingo');
 var connect = require('connect');
-var mixins = require('./mixins');
-
-// __Private Module Members__
+var includes = require('requireindex')(__dirname);
 
 // __Module Definition__
-var Controller = module.exports = function (options) {
+var Controller = module.exports = function Controller (options) {
 
   // __Private Instance Members & Validation__
 
@@ -122,8 +118,8 @@ var Controller = module.exports = function (options) {
   controller.set('deselected paths', deselected);
 
   // __Mixins__
-  mixins.Controller.middleware.apply(controller);
-  mixins.Controller.swagger.apply(controller);
+  includes.middleware.apply(controller);
+  includes.swagger.apply(controller);
 
   controller.generateSwaggerDefinition();
 

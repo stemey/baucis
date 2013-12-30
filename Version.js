@@ -106,3 +106,6 @@ var version = express();
       response.set('Vary', 'API-Version')
       return version(request, response, next);
     });
+
+util.inherits(Version, express);
+
