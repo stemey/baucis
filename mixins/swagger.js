@@ -2,6 +2,7 @@
 
 // __Dependencies__
 var mongoose = require('mongoose');
+var SchemaGenerator = require('./schema').SchemaGenerator;
 
 // __Private Members__
 
@@ -35,6 +36,8 @@ var mixin = module.exports = function () {
 
   var controller = this;
 
+  this.generator = new SchemaGenerator();
+
   // __Public Members__
 
   // A method used to generate a Swagger model definition for a controller
@@ -42,59 +45,9 @@ var mixin = module.exports = function () {
     var definition = {};
     var schema = controller.get('schema');
 
+    var definition = this.generator.generate(schema);
+
     definition.id = capitalize(controller.get('singular'));
-    definition.properties = {};
-
-    Object.keys(schema.paths).forEach(function (name) {
-      var property = {};
-      var path = schema.paths[name];
-      var select = controller.get('select');
-      var type = swaggerTypeFor(path.options.type);
-      var mode = select && (select.match(/\b[-]/g) ? 'exclusive' : 'inclusive');
-      var exclusiveNamePattern = new RegExp('\\B-' + name + '\\b', 'gi');
-      var inclusiveNamePattern = new RegExp('(?:\\B[+]|\\b)' + name + '\\b', 'gi');
-
-      // Keep deselected paths private
-      if (path.selected === false) return;
-
-      // TODO is _id always included unless explicitly excluded?
-
-      // If it's excluded, skip this one
-      if (mode === 'exclusive' && select.match(exclusiveNamePattern)) return;
-      // If the mode is inclusive but the name is not present, skip this one
-      if (mode === 'inclusive' && name !== '_id' && !select.match(inclusiveNamePattern)) return;
-
-      // Configure the property
-      property.required = path.options.required;
-      property.type = type;
-
-      // Set enum values if applicable
-      if (path.enumValues && path.enumValues.length > 0) {
-        property.allowableValues = { valueType: 'LIST', values: path.enumValues };
-      }
-
-      // Set allowable values range if min or max is present
-      if (!isNaN(path.options.min) || !isNaN(path.options.max)) {
-        property.allowableValues = { valueType: 'RANGE' };
-      }
-
-      if (!isNaN(path.options.min)) {
-        property.allowableValues.min = path.options.min;
-      }
-
-      if (!isNaN(path.options.max)) {
-        property.allowableValues.max = path.options.max;
-      }
-
-      if (!property.type) {
-        console.log('Warning: That field type is not yet supported in baucis Swagger definitions, using "string."');
-        console.log('Path name: %s.%s', definition.id, name);
-        console.log('Mongoose type: %s', path.options.type);
-        property.type = 'string';
-      }
-
-      definition.properties[name] = property;
-    });
 
     return definition;
   };
